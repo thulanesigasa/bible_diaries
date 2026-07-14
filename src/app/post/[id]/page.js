@@ -141,17 +141,12 @@ export default function PostPage({ params }) {
   };
 
   const checkIsFavorite = async (id) => {
-    if (supabase.isMock) {
-      const favs = JSON.parse(localStorage.getItem('bd_favorites') || '[]');
-      return favs.some(f => f.post_id === id && f.user_id === user.id);
-    } else {
-      const { data } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('post_id', id)
-        .eq('user_id', user.id);
-      return data && data.length > 0;
-    }
+    const { data } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('post_id', id)
+      .eq('user_id', user.id);
+    return data && data.length > 0;
   };
 
   // Post root comment

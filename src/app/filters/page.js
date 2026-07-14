@@ -147,17 +147,12 @@ export default function FiltersPage() {
   };
 
   const checkIsFavorite = async (postId) => {
-    if (supabase.isMock) {
-      const favs = JSON.parse(localStorage.getItem('bd_favorites') || '[]');
-      return favs.some(f => f.post_id === postId && f.user_id === user.id);
-    } else {
-      const { data } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('post_id', postId)
-        .eq('user_id', user.id);
-      return data && data.length > 0;
-    }
+    const { data } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('post_id', postId)
+      .eq('user_id', user.id);
+    return data && data.length > 0;
   };
 
   // Comment posting functionality

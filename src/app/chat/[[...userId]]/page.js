@@ -195,80 +195,12 @@ export default function ChatPage({ params }) {
 
       if (error) {
         showToast(error.message, 'error');
-      } else {
-        // If we are in Simulation Mode, trigger custom window event to sync instantly
-        if (supabase.isMock) {
-          const mockMsg = {
-            id: 'mock-msg-' + Math.random(),
-            sender_id: user.id,
-            receiver_id: activeChatUserId,
-            message: text,
-            created_at: new Date().toISOString()
-          };
-          
-          setMessages(prev => [...prev, mockMsg]);
-          window.dispatchEvent(new CustomEvent('bd_chat_message', { detail: mockMsg }));
-          fetchChatRooms();
-
-          // Trigger simulated AI spiritual response from mock user partners!
-          if (activeChatUserId.startsWith('mock-user')) {
-            triggerMockPartnerReply(activeChatUserId, text);
-          }
-        }
       }
     } catch (err) {
       showToast('Error sending message: ' + err.message, 'error');
     } finally {
       setSending(false);
     }
-  };
-
-  // Automated typing spiritual responses from mock profiles (Elijah / Grace)
-  const triggerMockPartnerReply = (partnerId, userMessage) => {
-    setTimeout(async () => {
-      let replyText = 'May God bless you and guide you today.';
-      const lowerMsg = userMessage.toLowerCase();
-
-      if (partnerId === 'mock-user-grace') {
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-          replyText = 'Hi there! What an encouraging day to connect. How can I support you or pray with you?';
-        } else if (lowerMsg.includes('worship') || lowerMsg.includes('sing') || lowerMsg.includes('music')) {
-          replyText = 'Worship is a portal to peace! Colossians 3:16 reminds us to sing with gratitude. What is your favorite worship song?';
-        } else if (lowerMsg.includes('prayer') || lowerMsg.includes('pray')) {
-          replyText = 'I would love to pray with you. Let\'s remember Philippians 4:6 - present your requests to God with thanksgiving.';
-        } else {
-          replyText = 'That is beautiful. I will keep your thoughts in my diaries today. Let us hold fast to hope!';
-        }
-      } else if (partnerId === 'mock-user-elijah') {
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-          replyText = 'Peace be with you. I am glad you reached out. How has God spoken to you through scripture recently?';
-        } else if (lowerMsg.includes('verse') || lowerMsg.includes('bible') || lowerMsg.includes('read')) {
-          replyText = 'I am studying Proverbs today. Chapter 3 says "Trust in the Lord with all your heart". It is so grounding.';
-        } else if (lowerMsg.includes('struggle') || lowerMsg.includes('sad') || lowerMsg.includes('hard')) {
-          replyText = 'I am sorry you are walking through deep waters. Rest in Deuteronomy 31:6 - He will never leave you nor forsake you.';
-        } else {
-          replyText = 'Thank you for sharing that with me. It is in sharing our walks that we find strength. Keep writing!';
-        }
-      }
-
-      const incomingMsg = {
-        id: 'mock-reply-' + Math.random(),
-        sender_id: partnerId,
-        receiver_id: user.id,
-        message: replyText,
-        created_at: new Date().toISOString()
-      };
-
-      // Push to localStorage
-      const chats = JSON.parse(localStorage.getItem('bd_chats') || '[]');
-      chats.push(incomingMsg);
-      localStorage.setItem('bd_chats', JSON.stringify(chats));
-
-      // Dispatch to components
-      setMessages(prev => [...prev, incomingMsg]);
-      window.dispatchEvent(new CustomEvent('bd_chat_message', { detail: incomingMsg }));
-      fetchChatRooms();
-    }, 1500); // 1.5s typing delay
   };
 
   return (

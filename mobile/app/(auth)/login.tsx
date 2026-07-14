@@ -50,43 +50,13 @@ export default function LoginScreen() {
     }
   };
 
-  const handleQuickLogin = async (targetEmail: string, targetName: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: targetEmail,
-        password: 'password', // default simulation password
-      });
-
-      if (!error) {
-        showToast(`Logged in successfully as ${targetName}!`);
-      } else {
-        showToast(error.message, 'error');
-      }
-    } catch (err) {
-      showToast('An unexpected error occurred during quick sign in.', 'error');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        {/* Environment Toggle Banner */}
-        <View style={styles.envBanner}>
-          <Text style={styles.envText}>
-            Database Mode:{' '}
-            <Text style={{ fontWeight: 'bold', color: supabase.isMock ? '#D97706' : '#16A34A' }}>
-              {supabase.isMock ? 'Simulation (Local)' : 'Production (Live)'}
-            </Text>
-          </Text>
-        </View>
-
+        
         {/* Card Panel Container */}
         <View style={styles.card}>
           <View style={styles.header}>
@@ -101,10 +71,10 @@ export default function LoginScreen() {
           {/* Form */}
           <View style={styles.form}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email or Name</Text>
+              <Text style={styles.label}>Email Address</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g. grace@example.com or Grace"
+                placeholder="e.g. grace@example.com"
                 placeholderTextColor="#94A3B8"
                 value={email}
                 onChangeText={setEmail}
@@ -156,28 +126,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Quick Test Logins */}
-          <View style={styles.quickLoginSection}>
-            <Text style={styles.quickLoginTitle}>Quick Test Logins</Text>
-            <View style={styles.quickLoginGrid}>
-              <TouchableOpacity 
-                style={styles.quickLoginBtn}
-                onPress={() => handleQuickLogin('elijah.bennett@gmail.com', 'Elijah')}
-                disabled={loading}
-              >
-                <Text style={styles.quickLoginText}>Elijah Bennett</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.quickLoginBtn}
-                onPress={() => handleQuickLogin('grace.taylor@gmail.com', 'Grace')}
-                disabled={loading}
-              >
-                <Text style={styles.quickLoginText}>Grace Taylor</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* Footer Link */}
           <View style={styles.footerLinkRow}>
             <Text style={styles.footerLinkText}>New to the diary? </Text>
@@ -202,20 +150,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
-  },
-  envBanner: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    backgroundColor: 'rgba(15, 23, 42, 0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  envText: {
-    fontSize: 13,
-    color: '#475569',
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -311,37 +245,6 @@ const styles = StyleSheet.create({
   loadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  quickLoginSection: {
-    marginTop: 24,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(15, 23, 42, 0.08)',
-    paddingTop: 20,
-  },
-  quickLoginTitle: {
-    fontSize: 12,
-    color: '#475569',
-    textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  quickLoginGrid: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  quickLoginBtn: {
-    flex: 1,
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  quickLoginText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#0F172A',
   },
   footerLinkRow: {
     flexDirection: 'row',
