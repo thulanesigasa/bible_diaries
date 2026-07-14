@@ -1,8 +1,11 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
-import { BookOpen, Filter, Users, MessageSquare } from 'lucide-react-native';
+import { Tabs, useRouter } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
+import { BookOpen, Filter, Users, MessageSquare, Settings } from 'lucide-react-native';
 
 export default function TabLayout() {
+  const router = useRouter();
+
   return (
     <Tabs
       screenOptions={{
@@ -29,6 +32,14 @@ export default function TabLayout() {
           fontSize: 18,
           fontFamily: 'SpaceMono',
         },
+        headerRight: () => (
+          <TouchableOpacity 
+            onPress={() => router.push('/settings')} 
+            style={{ marginRight: 16, padding: 4 }}
+          >
+            <Settings size={20} color="#475569" />
+          </TouchableOpacity>
+        ),
       }}>
       <Tabs.Screen
         name="index"

@@ -56,8 +56,13 @@ export default function Register() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024 * 2) {
-      showToast('Image size should be less than 2MB', 'error');
+    if (file.size > 1024 * 1024 * 5) {
+      showToast('Image size should be less than 5MB', 'error');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WebP).', 'error');
       return;
     }
 

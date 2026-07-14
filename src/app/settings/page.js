@@ -39,8 +39,13 @@ export default function Settings() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024 * 2) {
-      showToast('Image size should be less than 2MB', 'error');
+    if (file.size > 1024 * 1024 * 5) {
+      showToast('Image size should be less than 5MB', 'error');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WebP).', 'error');
       return;
     }
 
@@ -366,109 +371,104 @@ export default function Settings() {
           )}
 
           {activeTab === 'preferences' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
               
               {/* Profile Privacy Options */}
-              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.25rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Shield size={18} style={{ color: 'var(--gold-accent)' }} />
                   <span>Profile Privacy Visibility</span>
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', gap: '1.5rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', color: 'var(--text-primary)' }}>Private & Anonymous Mode</strong>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Hide your contact information and testimony from other members in the Connect tab. When disabled, your profile is public to all members.
+                    </p>
+                  </div>
+                  <div className="checkbox-apple">
                     <input 
-                      type="radio" 
-                      name="privacy_mode" 
-                      value="public" 
-                      checked={profilePrivacy === 'public'}
-                      onChange={() => setProfilePrivacy('public')}
-                      style={{ width: 'auto', marginTop: '4px' }}
-                    />
-                    <div>
-                      <strong>Public Display</strong>
-                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        All authenticated members can see your phone number, biography, testimony and favorite verse in the fellowship directory.
-                      </p>
-                    </div>
-                  </label>
-                  
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
-                    <input 
-                      type="radio" 
-                      name="privacy_mode" 
-                      value="private" 
+                      type="checkbox" 
+                      id="privacy-mode-toggle"
                       checked={profilePrivacy === 'private'}
-                      onChange={() => setProfilePrivacy('private')}
-                      style={{ width: 'auto', marginTop: '4px' }}
+                      onChange={(e) => setProfilePrivacy(e.target.checked ? 'private' : 'public')}
                     />
-                    <div>
-                      <strong>Private & Anonymous</strong>
-                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        Hides your contact information and testimony from other members in the Connect tab.
-                      </p>
-                    </div>
-                  </label>
+                    <label htmlFor="privacy-mode-toggle"></label>
+                  </div>
                 </div>
               </div>
 
               {/* Messaging & Interaction Options */}
-              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.25rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Users size={18} style={{ color: 'var(--gold-accent)' }} />
                   <span>Platform Fellowship</span>
                 </h4>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={allowDms}
-                    onChange={(e) => setAllowDms(e.target.checked)}
-                    style={{ width: 'auto', marginTop: '4px' }}
-                  />
-                  <div>
-                    <strong>Allow Direct Messaging</strong>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', gap: '1.5rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', color: 'var(--text-primary)' }}>Allow Direct Messaging</strong>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                       Permit other believers to send you direct messages from their Connect feeds.
                     </p>
                   </div>
-                </label>
+                  <div className="checkbox-apple">
+                    <input 
+                      type="checkbox" 
+                      id="allow-dms-toggle"
+                      checked={allowDms}
+                      onChange={(e) => setAllowDms(e.target.checked)}
+                    />
+                    <label htmlFor="allow-dms-toggle"></label>
+                  </div>
+                </div>
               </div>
 
               {/* Notification Settings */}
               <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.25rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Bell size={18} style={{ color: 'var(--gold-accent)' }} />
                   <span>Notification Settings</span>
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={emailLikes}
-                      onChange={(e) => setEmailLikes(e.target.checked)}
-                      style={{ width: 'auto', marginTop: '4px' }}
-                    />
-                    <div>
-                      <strong>Likes Notification Alerts</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid rgba(15, 23, 42, 0.04)', gap: '1.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ display: 'block', fontSize: '0.95rem', color: 'var(--text-primary)' }}>Likes Notification Alerts</strong>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                         Receive transactional email alerts when someone appreciates or likes your diary posts.
                       </p>
                     </div>
-                  </label>
+                    <div className="checkbox-apple">
+                      <input 
+                        type="checkbox" 
+                        id="email-likes-toggle"
+                        checked={emailLikes}
+                        onChange={(e) => setEmailLikes(e.target.checked)}
+                      />
+                      <label htmlFor="email-likes-toggle"></label>
+                    </div>
+                  </div>
 
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={emailComments}
-                      onChange={(e) => setEmailComments(e.target.checked)}
-                      style={{ width: 'auto', marginTop: '4px' }}
-                    />
-                    <div>
-                      <strong>Comments Notification Alerts</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', gap: '1.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ display: 'block', fontSize: '0.95rem', color: 'var(--text-primary)' }}>Comments Notification Alerts</strong>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                         Receive email alerts immediately when someone writes a comment under your reflections.
                       </p>
                     </div>
-                  </label>
+                    <div className="checkbox-apple">
+                      <input 
+                        type="checkbox" 
+                        id="email-comments-toggle"
+                        checked={emailComments}
+                        onChange={(e) => setEmailComments(e.target.checked)}
+                      />
+                      <label htmlFor="email-comments-toggle"></label>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
