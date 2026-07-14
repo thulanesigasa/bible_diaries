@@ -20,6 +20,7 @@ const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wi
 
 export default function FiltersPage() {
   const { user, showToast } = useApp();
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
