@@ -270,14 +270,14 @@ CREATE POLICY "Allow public read access to avatars bucket"
 CREATE POLICY "Allow authenticated users to upload avatars" 
     ON storage.objects FOR INSERT 
     TO authenticated 
-    WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = owner);
+    WITH CHECK (bucket_id = 'avatars' AND auth.uid() = owner);
 
 CREATE POLICY "Allow owners to update their own avatars" 
     ON storage.objects FOR UPDATE 
     TO authenticated 
-    USING (bucket_id = 'avatars' AND auth.uid()::text = owner);
+    USING (bucket_id = 'avatars' AND auth.uid() = owner);
 
 CREATE POLICY "Allow owners to delete their own avatars" 
     ON storage.objects FOR DELETE 
     TO authenticated 
-    USING (bucket_id = 'avatars' AND auth.uid()::text = owner);
+    USING (bucket_id = 'avatars' AND auth.uid() = owner);
