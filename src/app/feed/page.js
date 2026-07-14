@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { 
@@ -23,6 +24,7 @@ const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wi
 
 export default function Feed() {
   const { user, profile, showToast } = useApp();
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -407,10 +409,17 @@ export default function Feed() {
                   <article key={post.id} className="glass-panel diary-card">
                     
                     {/* Header: Author Metadata */}
-                    <div className="diary-card-header">
+                    <div 
+                      className="diary-card-header"
+                      onClick={() => router.push(`/post/${post.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <div 
                         className="diary-card-author"
-                        onClick={() => handleViewProfile(post.profiles)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewProfile(post.profiles);
+                        }}
                       >
                         <img 
                           src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
@@ -423,7 +432,16 @@ export default function Feed() {
                         </div>
                       </div>
 
-                      <span className="diary-card-category">{post.category}</span>
+                      <span 
+                        className="diary-card-category"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/filters?category=${post.category}`);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {post.category}
+                      </span>
                     </div>
 
                     {/* Content Section */}

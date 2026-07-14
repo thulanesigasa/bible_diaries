@@ -57,6 +57,13 @@ export default function FiltersPage() {
 
   useEffect(() => {
     fetchPosts();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category');
+      if (cat) {
+        setActiveCategory(cat);
+      }
+    }
   }, []);
 
   // Liking functionality
@@ -294,8 +301,18 @@ export default function FiltersPage() {
                   <article key={post.id} className="diary-card">
                     
                     {/* Header: Author Metadata */}
-                    <div className="diary-card-header">
-                      <div className="diary-card-author" onClick={() => setSelectedProfile(post.profiles)}>
+                    <div 
+                      className="diary-card-header"
+                      onClick={() => router.push(`/post/${post.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div 
+                        className="diary-card-author"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProfile(post.profiles);
+                        }}
+                      >
                         <img 
                           src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
                           alt={post.profiles?.full_name} 
@@ -307,7 +324,16 @@ export default function FiltersPage() {
                         </div>
                       </div>
 
-                      <span className="diary-card-category">{post.category}</span>
+                      <span 
+                        className="diary-card-category"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveCategory(post.category);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {post.category}
+                      </span>
                     </div>
 
                     {/* Content Section */}
