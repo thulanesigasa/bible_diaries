@@ -119,7 +119,53 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="auth-link">
+        <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+          <h4 style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', textAlign: 'center', fontWeight: '500' }}>
+            Quick Test Logins
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{
+                fontSize: '0.8rem',
+                padding: '8px 12px',
+                justifyContent: 'center',
+                backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)'
+              }}
+              onClick={() => {
+                setEmail('elijah@example.com');
+                setPassword('password');
+                showToast('Staged Elijah Bennett credentials. Click Sign In.');
+              }}
+            >
+              Elijah Bennett
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{
+                fontSize: '0.8rem',
+                padding: '8px 12px',
+                justifyContent: 'center',
+                backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)'
+              }}
+              onClick={() => {
+                setEmail('grace@example.com');
+                setPassword('password');
+                showToast('Staged Grace Taylor credentials. Click Sign In.');
+              }}
+            >
+              Grace Taylor
+            </button>
+          </div>
+        </div>
+
+        <p className="auth-link" style={{ marginTop: '1.25rem' }}>
           New to the diary?{' '}
           <Link href="/register" style={{ fontWeight: '600' }}>
             Create an Account

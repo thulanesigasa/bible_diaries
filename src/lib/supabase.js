@@ -39,6 +39,7 @@ class MockSupabaseClient {
       initTable('profiles', [
         {
           id: 'mock-user-elijah',
+          email: 'elijah@example.com',
           full_name: 'Elijah Bennett',
           first_name: 'Elijah',
           surname: 'Bennett',
@@ -51,6 +52,7 @@ class MockSupabaseClient {
         },
         {
           id: 'mock-user-grace',
+          email: 'grace@example.com',
           full_name: 'Grace Taylor',
           first_name: 'Grace',
           surname: 'Taylor',
