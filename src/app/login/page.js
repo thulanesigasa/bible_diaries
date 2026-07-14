@@ -207,7 +207,7 @@ export default function Login() {
                 border: '1px solid var(--border-color)'
               }}
               onClick={() => {
-                handleQuickLogin('elijah@example.com', 'password', 'Elijah', 'Bennett');
+                handleQuickLogin('elijah.bennett@gmail.com', 'password', 'Elijah', 'Bennett');
               }}
             >
               Elijah Bennett
@@ -224,7 +224,7 @@ export default function Login() {
                 border: '1px solid var(--border-color)'
               }}
               onClick={() => {
-                handleQuickLogin('grace@example.com', 'password', 'Grace', 'Taylor');
+                handleQuickLogin('grace.taylor@gmail.com', 'password', 'Grace', 'Taylor');
               }}
             >
               Grace Taylor
