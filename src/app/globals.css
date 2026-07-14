@@ -952,23 +952,6 @@ input::-webkit-contacts-auto-fill-button {
   overflow: hidden;
 }
 
-.app-layout-wrapper .app-footer {
-  margin-top: 0;
-  flex-shrink: 0;
-  padding: 0.75rem 1.5rem;
-}
-
-.app-layout-wrapper .app-footer .footer-grid {
-  display: none;
-}
-
-.app-layout-wrapper .app-footer .footer-bottom {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
-  font-size: 0.78rem;
-}
-
 /* Footer Styles */
 .app-footer {
   background-color: var(--bg-secondary);
