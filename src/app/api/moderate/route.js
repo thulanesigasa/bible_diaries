@@ -53,7 +53,7 @@ export async function POST(request) {
     // Check if live OpenAI Moderation can be used
     if (isApiKeyConfigured) {
       try {
-        console.log('🤖 Sending text to OpenAI Moderation API...');
+        console.log('Sending text to OpenAI Moderation API...');
         const response = await fetch('https://api.openai.com/v1/moderations', {
           method: 'POST',
           headers: {
@@ -83,15 +83,15 @@ export async function POST(request) {
             source: 'OpenAI API'
           });
         } else {
-          console.warn('⚠️ OpenAI API responded with an error, falling back to local filtration.');
+          console.warn('OpenAI API responded with an error, falling back to local filtration.');
         }
       } catch (err) {
-        console.error('⚠️ Failed connecting to OpenAI endpoint, falling back to local filtration:', err);
+        console.error('Failed connecting to OpenAI endpoint, falling back to local filtration:', err);
       }
     }
 
     // Local moderation fallback
-    console.log('💻 Performing local rule-based content moderation...');
+    console.log('Performing local rule-based content moderation...');
     const localResult = localModerate(content);
     return NextResponse.json({
       ...localResult,
@@ -99,7 +99,7 @@ export async function POST(request) {
     });
 
   } catch (error) {
-    console.error('❌ Server error during moderation handler:', error);
+    console.error('Server error during moderation handler:', error);
     return NextResponse.json(
       { error: 'Server error during moderation.' },
       { status: 500 }

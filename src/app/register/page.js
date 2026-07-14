@@ -82,7 +82,7 @@ export default function Register() {
       <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '2.5rem', borderRadius: 'var(--radius-md)' }}>
         <div className="auth-header" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
-            ⛪ bible_diaries
+            bible_diaries
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
           <p className="auth-subtitle">Join the community to share your walk of faith</p>

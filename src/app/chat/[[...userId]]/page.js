@@ -378,9 +378,10 @@ export default function ChatPage({ params }) {
               </form>
             </>
           ) : (
-            /* Selected default empty state */
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', color: 'rgba(212, 175, 55, 0.2)', marginBottom: '1rem' }}>⛪</div>
+              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(212, 175, 55, 0.3)', marginBottom: '1rem' }}>
+                <BookOpen size={48} />
+              </div>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>Your Sanctuary Inbox</h3>
               <p style={{ maxWidth: '320px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 Select a brother or sister from the directory side panel, or connect and chat with users from the connect feed.

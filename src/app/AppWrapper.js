@@ -118,7 +118,7 @@ export default function AppWrapper({ children }) {
       {!isAuthPage && user && (
         <header className="app-header">
           <Link href="/feed" className="app-logo">
-            ⛪ bible_<span>diaries</span>
+            bible_<span>diaries</span>
           </Link>
           
           <nav className="app-nav">

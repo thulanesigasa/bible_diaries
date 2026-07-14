@@ -47,7 +47,7 @@ export default function Login() {
       <div className="glass-panel auth-container" style={{ width: '100%', maxWidth: '440px' }}>
         <div className="auth-header">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
-            ⛪ bible_diaries
+            bible_diaries
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Welcome Back</h2>
           <p className="auth-subtitle">Login to access your reflections & feed</p>

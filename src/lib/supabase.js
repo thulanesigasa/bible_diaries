@@ -15,9 +15,9 @@ let supabaseInstance = null;
 if (isConfigured) {
   try {
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-    console.log('🔌 Supabase client successfully initialized in Production Mode.');
+    console.log('Supabase client successfully initialized in Production Mode.');
   } catch (error) {
-    console.error('⚠️ Failed to initialize live Supabase client, falling back to Simulation Mode:', error);
+    console.error('Failed to initialize live Supabase client, falling back to Simulation Mode:', error);
   }
 }
 
@@ -25,7 +25,7 @@ if (isConfigured) {
 class MockSupabaseClient {
   constructor() {
     this.isMock = true;
-    console.log('🎨 Bible Diaries running in Simulation Mode (localStorage database).');
+    console.log('bible_diaries running in Simulation Mode (localStorage database).');
     
     // Initialize LocalStorage database tables if empty
     if (typeof window !== 'undefined') {
@@ -403,10 +403,10 @@ class MockSupabaseClient {
         return this;
       },
       subscribe: () => {
-        console.log(`📡 Subscribed to simulated realtime channel: ${name}`);
+        console.log(`Subscribed to simulated realtime channel: ${name}`);
         return {
           unsubscribe: () => {
-            console.log(`📡 Unsubscribed from simulated realtime channel: ${name}`);
+            console.log(`Unsubscribed from simulated realtime channel: ${name}`);
           }
         };
       }
