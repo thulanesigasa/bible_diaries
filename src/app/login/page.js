@@ -43,6 +43,77 @@ export default function Login() {
     }
   };
 
+  const handleQuickLogin = async (targetEmail, targetPassword, targetName, targetSurname) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: targetPassword,
+      });
+
+      if (!error) {
+        showToast(`Logged in successfully as ${targetName}!`);
+        router.push('/feed');
+        return;
+      }
+
+      // If credentials do not exist on live Supabase database, register the mock account
+      if (error && (error.message.includes('Invalid login') || error.message.includes('not found')) && !supabase.isMock) {
+        showToast(`Account not found on live database. Registering ${targetName}...`);
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: targetEmail,
+          password: targetPassword,
+          options: {
+            data: {
+              first_name: targetName,
+              surname: targetSurname,
+              full_name: `${targetName} ${targetSurname}`,
+              phone_number: '+15550199',
+              address: '77 Scripture Lane, Heaven Sent',
+              avatar_url: targetName === 'Elijah' 
+                ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' 
+                : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+              bio: targetName === 'Elijah' 
+                ? 'Seeking grace daily. Teacher of scripture and explorer of spiritual journaling.' 
+                : 'Worship leader, writer, and tea lover. Spreading Hope.',
+              favorite_verse: targetName === 'Elijah' 
+                ? 'Proverbs 3:5-6 - Trust in the Lord with all your heart...' 
+                : 'Romans 15:13 - May the God of hope fill you with all joy and peace...',
+              spiritual_journey: targetName === 'Elijah'
+                ? 'I started writing down reflections 5 years ago, and it changed how I pray. Bible Diaries is a dream come true.'
+                : 'My journey began in the choir. Reflections are my way of documenting God\'s faithfulness through the ups and downs.'
+            }
+          }
+        });
+
+        if (signUpError) {
+          showToast(`Live registration failed: ${signUpError.message}`, 'error');
+        } else {
+          // Attempt sign in one more time in case auto-confirm is enabled
+          const { error: secondSignInError } = await supabase.auth.signInWithPassword({
+            email: targetEmail,
+            password: targetPassword,
+          });
+          
+          if (!secondSignInError) {
+            showToast(`Registered and signed in as ${targetName}!`);
+            router.push('/feed');
+          } else {
+            showToast(`Registered successfully. Please check your Supabase Auth logs or verify email.`, 'error');
+          }
+        }
+      } else {
+        showToast(error.message, 'error');
+      }
+    } catch (err) {
+      showToast('An unexpected error occurred during quick sign in.', 'error');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0D14', padding: '1.5rem' }}>
       <div className="glass-panel auth-container" style={{ width: '100%', maxWidth: '440px' }}>
@@ -136,9 +207,7 @@ export default function Login() {
                 border: '1px solid var(--border-color)'
               }}
               onClick={() => {
-                setEmail('elijah@example.com');
-                setPassword('password');
-                showToast('Staged Elijah Bennett credentials. Click Sign In.');
+                handleQuickLogin('elijah@example.com', 'password', 'Elijah', 'Bennett');
               }}
             >
               Elijah Bennett
@@ -155,9 +224,7 @@ export default function Login() {
                 border: '1px solid var(--border-color)'
               }}
               onClick={() => {
-                setEmail('grace@example.com');
-                setPassword('password');
-                showToast('Staged Grace Taylor credentials. Click Sign In.');
+                handleQuickLogin('grace@example.com', 'password', 'Grace', 'Taylor');
               }}
             >
               Grace Taylor
