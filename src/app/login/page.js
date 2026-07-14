@@ -81,8 +81,8 @@ export default function Login() {
                 ? 'Proverbs 3:5-6 - Trust in the Lord with all your heart...' 
                 : 'Romans 15:13 - May the God of hope fill you with all joy and peace...',
               spiritual_journey: targetName === 'Elijah'
-                ? 'I started writing down reflections 5 years ago, and it changed how I pray. Bible Diaries is a dream come true.'
-                : 'My journey began in the choir. Reflections are my way of documenting God\'s faithfulness through the ups and downs.'
+                ? "I started writing down reflections 5 years ago, and it changed how I pray. Bible Diaries is a dream come true."
+                : "My journey began in the choir. Reflections are my way of documenting God's faithfulness through the ups and downs."
             }
           }
         });
@@ -117,6 +117,47 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0D14', padding: '1.5rem' }}>
       <div className="glass-panel auth-container" style={{ width: '100%', maxWidth: '440px' }}>
+        
+        {/* Environment Toggle Banner */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 12px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-sm)',
+          fontSize: '0.8rem',
+          marginBottom: '1.25rem'
+        }}>
+          <span style={{ color: 'var(--text-secondary)' }}>
+            Database Mode: <strong style={{ color: supabase.isMock ? '#E5C158' : '#34D399' }}>{supabase.isMock ? 'Simulation (Local)' : 'Production (Live)'}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const currentMock = localStorage.getItem('bd_force_mock') === 'true';
+              localStorage.setItem('bd_force_mock', currentMock ? 'false' : 'true');
+              showToast('Switching database environment...');
+              setTimeout(() => {
+                window.location.reload();
+              }, 600);
+            }}
+            style={{
+              color: 'var(--gold-accent)',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              textDecoration: 'underline',
+              border: 'none',
+              background: 'none',
+              padding: 0,
+              cursor: 'pointer'
+            }}
+          >
+            Toggle Mode
+          </button>
+        </div>
+
         <div className="auth-header">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
             bible_diaries

@@ -3,8 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Check if credentials are valid and not default placeholders
+// Check if credentials are valid and user did not force simulation mode
+const forceMock = typeof window !== 'undefined' && localStorage.getItem('bd_force_mock') === 'true';
+
 const isConfigured = 
+  !forceMock &&
   supabaseUrl && 
   supabaseAnonKey && 
   supabaseUrl !== 'https://your-supabase-project.supabase.co' && 

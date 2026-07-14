@@ -28,6 +28,29 @@ export default function Register() {
   const { showToast } = useApp();
   const router = useRouter();
 
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: '#374151' };
+    let score = 0;
+    if (pwd.length >= 6) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[a-z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+    let label = 'Weak';
+    let color = '#EF4444';
+    if (score >= 4) {
+      label = 'Strong';
+      color = '#10B981';
+    } else if (score >= 3) {
+      label = 'Moderate';
+      color = '#F59E0B';
+    }
+    return { score, label, color };
+  };
+
+  const strength = getPasswordStrength(password);
+
   // Avatar image upload handler (base64)
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -214,6 +237,24 @@ export default function Register() {
                   </button>
                 </div>
               </div>
+
+              {password && (
+                <div style={{ marginTop: '-0.5rem', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Password Strength:</span>
+                    <span style={{ color: strength.color, fontWeight: '600' }}>{strength.label}</span>
+                  </div>
+                  <div style={{ height: '4px', width: '100%', backgroundColor: 'var(--bg-tertiary)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${(strength.score / 5) * 100}%`,
+                      backgroundColor: strength.color,
+                      borderRadius: '2px',
+                      transition: 'all 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+              )}
 
               <div className="settings-group">
                 <label className="settings-label" htmlFor="confirmPassword">Confirm Password</label>
