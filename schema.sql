@@ -256,9 +256,6 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Enable Row Level Security on storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
 -- Drop storage policies if they exist to avoid conflict
 DROP POLICY IF EXISTS "Allow public read access to avatars bucket" ON storage.objects;
 DROP POLICY IF EXISTS "Allow authenticated users to upload avatars" ON storage.objects;
