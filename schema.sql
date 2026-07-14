@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Enable RLS on profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+-- Drop profiles policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.profiles;
+
+-- Recreate profiles policies
 CREATE POLICY "Allow public read access to profiles"
     ON public.profiles FOR SELECT
     USING (true);
@@ -48,7 +53,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+-- Drop trigger if exists and recreate
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
@@ -65,6 +72,12 @@ CREATE TABLE IF NOT EXISTS public.diaries (
 -- Enable RLS on diaries
 ALTER TABLE public.diaries ENABLE ROW LEVEL SECURITY;
 
+-- Drop diaries policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to diaries" ON public.diaries;
+DROP POLICY IF EXISTS "Allow users to insert their own diaries" ON public.diaries;
+DROP POLICY IF EXISTS "Allow users to delete their own diaries" ON public.diaries;
+
+-- Recreate diaries policies
 CREATE POLICY "Allow public read access to diaries"
     ON public.diaries FOR SELECT
     USING (true);
@@ -88,6 +101,12 @@ CREATE TABLE IF NOT EXISTS public.likes (
 -- Enable RLS on likes
 ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
 
+-- Drop likes policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to likes" ON public.likes;
+DROP POLICY IF EXISTS "Allow users to insert their own likes" ON public.likes;
+DROP POLICY IF EXISTS "Allow users to delete their own likes" ON public.likes;
+
+-- Recreate likes policies
 CREATE POLICY "Allow public read access to likes"
     ON public.likes FOR SELECT
     USING (true);
@@ -113,6 +132,12 @@ CREATE TABLE IF NOT EXISTS public.comments (
 -- Enable RLS on comments
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 
+-- Drop comments policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to comments" ON public.comments;
+DROP POLICY IF EXISTS "Allow users to insert their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Allow users to delete their own comments" ON public.comments;
+
+-- Recreate comments policies
 CREATE POLICY "Allow public read access to comments"
     ON public.comments FOR SELECT
     USING (true);
@@ -136,6 +161,12 @@ CREATE TABLE IF NOT EXISTS public.favorites (
 -- Enable RLS on favorites
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
 
+-- Drop favorites policies if they exist
+DROP POLICY IF EXISTS "Allow users to read their own favorites" ON public.favorites;
+DROP POLICY IF EXISTS "Allow users to insert their own favorites" ON public.favorites;
+DROP POLICY IF EXISTS "Allow users to delete their own favorites" ON public.favorites;
+
+-- Recreate favorites policies
 CREATE POLICY "Allow users to read their own favorites"
     ON public.favorites FOR SELECT
     USING (auth.uid() = user_id);
@@ -161,6 +192,11 @@ CREATE TABLE IF NOT EXISTS public.chats (
 -- Enable RLS on chats
 ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;
 
+-- Drop chats policies if they exist
+DROP POLICY IF EXISTS "Allow users to read chats they are involved in" ON public.chats;
+DROP POLICY IF EXISTS "Allow users to insert their own sent chats" ON public.chats;
+
+-- Recreate chats policies
 CREATE POLICY "Allow users to read chats they are involved in"
     ON public.chats FOR SELECT
     USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
