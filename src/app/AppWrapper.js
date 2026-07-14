@@ -115,8 +115,9 @@ export default function AppWrapper({ children }) {
 
   return (
     <AppContext.Provider value={{ user, profile, setProfile, showToast, loading }}>
-      {!isAuthPage && user && (
-        <header className="app-header">
+      <div className={!isAuthPage && user ? "app-layout-wrapper" : ""}>
+        {!isAuthPage && user && (
+          <header className="app-header">
           <Link href="/feed" className="app-logo">
             bible_<span>diaries</span>
           </Link>
@@ -162,7 +163,7 @@ export default function AppWrapper({ children }) {
         </header>
       )}
 
-      <main style={{ flex: 1 }}>{children}</main>
+      <main style={{ flex: 1, overflowY: !isAuthPage && user ? 'auto' : 'visible' }}>{children}</main>
 
       {!isAuthPage && user && (
         <footer className="app-footer">
@@ -217,6 +218,7 @@ export default function AppWrapper({ children }) {
           </div>
         </footer>
       )}
+      </div>
 
       {/* Toast Notification HUD */}
       <div className="toast-container">
