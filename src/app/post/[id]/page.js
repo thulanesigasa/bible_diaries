@@ -44,6 +44,9 @@ export default function PostPage({ params }) {
   // Profile Modal State
   const [selectedProfile, setSelectedProfile] = useState(null);
 
+  // Custom themed confirm modal state
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, commentId: null, message: '' });
+
   const fetchPostDetails = async () => {
     if (!postId) return;
     try {
@@ -248,9 +251,15 @@ export default function PostPage({ params }) {
   };
 
   // Delete comment (authorised for comment creator and post author)
-  const handleDeleteComment = async (commentId) => {
-    if (!confirm('Are you sure you want to delete this comment?')) return;
+  const handleDeleteComment = (commentId) => {
+    setConfirmModal({
+      isOpen: true,
+      commentId,
+      message: 'Are you sure you want to delete this comment? This action cannot be undone.'
+    });
+  };
 
+  const executeDeleteComment = async (commentId) => {
     try {
       const { error } = await supabase
         .from('comments')
@@ -357,7 +366,14 @@ export default function PostPage({ params }) {
         
         {/* Author Details */}
         <div className="diary-card-header" style={{ marginBottom: '1.5rem' }}>
-          <div className="diary-card-author" onClick={() => setSelectedProfile(post.profiles)}>
+          <div 
+            className="diary-card-author" 
+            onClick={() => {
+              if (post.profiles?.id) {
+                router.push(`/profile/${post.profiles.id}`);
+              }
+            }}
+          >
             <img 
               src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
               alt={post.profiles?.full_name} 
@@ -665,6 +681,42 @@ export default function PostPage({ params }) {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Custom Themed Confirm Delete Modal */}
+      {confirmModal.isOpen && (
+        <div className="modal-overlay" onClick={() => setConfirmModal({ isOpen: false, commentId: null, message: '' })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '450px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
+              Confirm Deletion
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              {confirmModal.message}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button 
+                className="btn-secondary" 
+                onClick={() => setConfirmModal({ isOpen: false, commentId: null, message: '' })}
+                style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={async () => {
+                  const id = confirmModal.commentId;
+                  setConfirmModal({ isOpen: false, commentId: null, message: '' });
+                  if (id) {
+                    await executeDeleteComment(id);
+                  }
+                }}
+                style={{ padding: '8px 16px', fontSize: '0.85rem', backgroundColor: '#EF4444', borderColor: '#EF4444', color: '#fff' }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -296,7 +296,9 @@ export default function Feed() {
 
   // Show detailed profile card
   const handleViewProfile = (authorProfile) => {
-    setSelectedProfile(authorProfile);
+    if (authorProfile?.id) {
+      router.push(`/profile/${authorProfile.id}`);
+    }
   };
 
   // Filter posts

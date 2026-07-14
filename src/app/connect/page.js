@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { Search, MessageSquare, Loader, X, User } from 'lucide-react';
 
 export default function Connect() {
   const { user, showToast } = useApp();
+  const router = useRouter();
   const [profiles, setProfiles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,7 @@ export default function Connect() {
             <div 
               key={p.id} 
               className="connect-row"
-              onClick={() => setSelectedProfile(p)}
+              onClick={() => router.push(`/profile/${p.id}`)}
               style={{
                 display: 'flex',
                 alignItems: 'center',

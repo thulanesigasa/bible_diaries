@@ -310,7 +310,9 @@ export default function FiltersPage() {
                         className="diary-card-author"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedProfile(post.profiles);
+                          if (post.profiles?.id) {
+                            router.push(`/profile/${post.profiles.id}`);
+                          }
                         }}
                       >
                         <img 
