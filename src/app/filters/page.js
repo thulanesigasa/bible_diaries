@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { 
@@ -309,7 +310,11 @@ export default function FiltersPage() {
                     </div>
 
                     {/* Content Section */}
-                    <div className="diary-card-content">
+                    <div 
+                      className="diary-card-content"
+                      onClick={() => router.push(`/post/${post.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       {post.content}
                     </div>
 
@@ -325,7 +330,7 @@ export default function FiltersPage() {
 
                       <button 
                         className="action-btn"
-                        onClick={() => toggleComments(post.id)}
+                        onClick={() => router.push(`/post/${post.id}`)}
                       >
                         <MessageSquare size={18} />
                         <span>{post.comments?.length || 0}</span>
@@ -347,59 +352,6 @@ export default function FiltersPage() {
                         <span>Share</span>
                       </button>
                     </div>
-
-                    {/* Comments Drawer Expansion */}
-                    {openComments[post.id] && (
-                      <div className="comments-section">
-                        
-                        {/* Write Comment Area */}
-                        <div className="comment-input-wrapper">
-                          <input 
-                            type="text" 
-                            className="comment-input"
-                            placeholder="Write an encouraging comment..."
-                            value={commentInputs[post.id] || ''}
-                            onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handlePostComment(post.id);
-                            }}
-                            disabled={commentLoading[post.id]}
-                          />
-                          <button 
-                            className="btn-primary" 
-                            style={{ padding: '8px 12px' }}
-                            onClick={() => handlePostComment(post.id)}
-                            disabled={commentLoading[post.id]}
-                          >
-                            <Send size={14} />
-                          </button>
-                        </div>
-
-                        {/* Comments List */}
-                        <div className="comment-list">
-                          {(!post.comments || post.comments.length === 0) ? (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.5rem' }}>
-                              No comments yet. Write something encouraging!
-                            </p>
-                          ) : (
-                            post.comments.map((comment) => (
-                              <div key={comment.id} className="comment-item">
-                                <img 
-                                  src={comment.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                                  alt={comment.profiles?.full_name} 
-                                  className="comment-avatar"
-                                />
-                                <div className="comment-body">
-                                  <div className="comment-author-name">{comment.profiles?.full_name}</div>
-                                  <div className="comment-text">{comment.content}</div>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-
-                      </div>
-                    )}
 
                   </article>
                 );

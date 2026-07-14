@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
-import { Loader, Camera, Save } from 'lucide-react';
+import { Loader, Camera, Save, Send } from 'lucide-react';
 
 export default function Settings() {
   const { user, profile, setProfile, showToast } = useApp();
+  const router = useRouter();
 
   const [firstName, setFirstName] = useState(profile?.first_name || profile?.full_name?.split(' ')[0] || '');
   const [surname, setSurname] = useState(profile?.surname || profile?.full_name?.split(' ').slice(1).join(' ') || '');
@@ -20,6 +22,11 @@ export default function Settings() {
   
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
+
+  // Quick Post Composer state
+  const [quickPostContent, setQuickPostContent] = useState('');
+  const [quickPostCategory, setQuickPostCategory] = useState('Faith');
+  const [creatingQuickPost, setCreatingQuickPost] = useState(false);
 
   // Preferences Toggles
   const [profilePrivacy, setProfilePrivacy] = useState(profile?.privacy_mode || 'public');
@@ -87,6 +94,35 @@ export default function Settings() {
       showToast('An error occurred while saving: ' + err.message, 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCreateQuickPost = async (e) => {
+    e.preventDefault();
+    if (!quickPostContent.trim()) {
+      showToast('Reflection content cannot be empty.', 'error');
+      return;
+    }
+
+    setCreatingQuickPost(true);
+    try {
+      const { error } = await supabase.from('diaries').insert({
+        author_id: user.id,
+        content: quickPostContent.trim(),
+        category: quickPostCategory
+      });
+
+      if (error) {
+        showToast(error.message, 'error');
+      } else {
+        setQuickPostContent('');
+        showToast('Reflection shared successfully!');
+        router.push('/feed');
+      }
+    } catch (err) {
+      showToast('Failed to create post: ' + err.message, 'error');
+    } finally {
+      setCreatingQuickPost(false);
     }
   };
 
@@ -267,6 +303,52 @@ export default function Settings() {
                   disabled={saving}
                   style={{ minHeight: '150px', resize: 'vertical' }}
                 />
+              </div>
+
+              {/* Quick reflection composer */}
+              <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                  Share a Daily Reflection
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                  Write a new spiritual entry directly to the public timeline from here.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <textarea
+                    placeholder="Write your meditation, prayer, or scripture reflection here..."
+                    value={quickPostContent}
+                    onChange={(e) => setQuickPostContent(e.target.value)}
+                    style={{ minHeight: '100px', resize: 'vertical' }}
+                    disabled={creatingQuickPost}
+                  />
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
+                      <select
+                        value={quickPostCategory}
+                        onChange={(e) => setQuickPostCategory(e.target.value)}
+                        disabled={creatingQuickPost}
+                        style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                      >
+                        <option value="Hope">Hope</option>
+                        <option value="Faith">Faith</option>
+                        <option value="Love">Love</option>
+                        <option value="Strength">Strength</option>
+                        <option value="Gratitude">Gratitude</option>
+                        <option value="Wisdom">Wisdom</option>
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCreateQuickPost}
+                      className="btn-primary"
+                      style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                      disabled={creatingQuickPost || !quickPostContent.trim()}
+                    >
+                      {creatingQuickPost ? <Loader size={14} className="spinner" /> : <Send size={14} />}
+                      <span>Publish Entry</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

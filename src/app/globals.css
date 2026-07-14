@@ -247,6 +247,8 @@ input:focus, textarea:focus, select:focus {
 .sidebar-sticky {
   position: sticky;
   top: 90px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 /* Selection / Category Filter List */
@@ -639,6 +641,10 @@ input:focus, textarea:focus, select:focus {
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-close {

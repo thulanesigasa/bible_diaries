@@ -135,9 +135,15 @@ CREATE TABLE IF NOT EXISTS public.comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     post_id UUID REFERENCES public.diaries(id) ON DELETE CASCADE NOT NULL,
     author_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
+    is_anonymous BOOLEAN DEFAULT false,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure columns exist in case table was created earlier
+ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE;
+ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT false;
 
 -- Enable RLS on comments
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
@@ -146,6 +152,7 @@ ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public read access to comments" ON public.comments;
 DROP POLICY IF EXISTS "Allow users to insert their own comments" ON public.comments;
 DROP POLICY IF EXISTS "Allow users to delete their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Allow post author or commentor to delete comment" ON public.comments;
 
 -- Recreate comments policies
 CREATE POLICY "Allow public read access to comments"
@@ -156,9 +163,33 @@ CREATE POLICY "Allow users to insert their own comments"
     ON public.comments FOR INSERT
     WITH CHECK (auth.uid() = author_id);
 
-CREATE POLICY "Allow users to delete their own comments"
+CREATE POLICY "Allow post author or commentor to delete comment"
     ON public.comments FOR DELETE
-    USING (auth.uid() = author_id);
+    USING (
+        auth.uid() = author_id 
+        OR auth.uid() IN (SELECT author_id FROM public.diaries WHERE id = post_id)
+    );
+
+
+-- Create comment_likes table
+CREATE TABLE IF NOT EXISTS public.comment_likes (
+    comment_id UUID REFERENCES public.comments(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    PRIMARY KEY (comment_id, user_id)
+);
+
+-- Enable RLS on comment_likes
+ALTER TABLE public.comment_likes ENABLE ROW LEVEL SECURITY;
+
+-- Drop comment_likes policies if they exist
+DROP POLICY IF EXISTS "Allow public read access to comment_likes" ON public.comment_likes;
+DROP POLICY IF EXISTS "Allow users to insert their own comment_likes" ON public.comment_likes;
+DROP POLICY IF EXISTS "Allow users to delete their own comment_likes" ON public.comment_likes;
+
+-- Recreate comment_likes policies
+CREATE POLICY "Allow public read access to comment_likes" ON public.comment_likes FOR SELECT USING (true);
+CREATE POLICY "Allow users to insert their own comment_likes" ON public.comment_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Allow users to delete their own comment_likes" ON public.comment_likes FOR DELETE USING (auth.uid() = user_id);
 
 
 -- Create favorites table
