@@ -80,51 +80,51 @@ export default function Connect() {
           No members found matching your search.
         </div>
       ) : (
-        <div className="connect-layout">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {filteredProfiles.map((p) => (
             <div 
               key={p.id} 
-              className="glass-panel glass-panel-hover profile-card"
+              className="connect-row"
               onClick={() => setSelectedProfile(p)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1.25rem',
+                borderBottom: '1px solid var(--border-color)',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
+              }}
             >
               <img 
                 src={p.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
                 alt={p.full_name} 
-                className="profile-card-avatar"
+                style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(14, 165, 233, 0.2)' }}
               />
               
-              <div>
-                <h3 className="profile-card-name">
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                   {p.full_name}
                   {user && user.id === p.id && (
-                    <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', marginLeft: '6px', color: 'var(--text-muted)', verticalAlign: 'middle' }}>
+                    <span style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(15,23,42,0.05)', borderRadius: '10px', color: 'var(--text-muted)' }}>
                       You
                     </span>
                   )}
                 </h3>
-                {p.favorite_verse && (
-                  <p className="profile-card-verse">
-                    "{p.favorite_verse.split('-')[0].trim()}"
-                  </p>
-                )}
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  {p.bio || 'No biography written yet.'}
+                </p>
               </div>
 
-              {p.bio ? (
-                <p className="profile-card-bio">{p.bio}</p>
-              ) : (
-                <p className="profile-card-bio" style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
-                  No biography written yet.
-                </p>
+              {p.favorite_verse && (
+                <div style={{ fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--gold-accent)', maxWidth: '280px', textAlign: 'right' }}>
+                  "{p.favorite_verse.split('-')[0].trim()}"
+                </div>
               )}
 
-              <div style={{ display: 'flex', gap: '0.5rem', width: '100%', marginTop: 'auto', paddingTop: '0.5rem' }}>
-                <button 
-                  className="btn-primary" 
-                  style={{ flex: 1, justifyContent: 'center', fontSize: '0.85rem', padding: '8px 12px' }}
-                >
-                  View Walk of Faith
-                </button>
-              </div>
+              <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', marginLeft: '1rem' }}>
+                View Walk
+              </button>
             </div>
           ))}
         </div>

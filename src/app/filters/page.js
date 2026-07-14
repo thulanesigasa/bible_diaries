@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { 
@@ -10,29 +10,18 @@ import {
   Bookmark, 
   Send, 
   Loader, 
-  Plus, 
   Filter, 
-  AlertCircle,
-  Eye,
-  CheckCircle,
   User,
   X
 } from 'lucide-react';
 
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
-export default function Feed() {
-  const { user, profile, showToast } = useApp();
+export default function FiltersPage() {
+  const { user, showToast } = useApp();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Post Creator State
-  const [newContent, setNewContent] = useState('');
-  const [newCategory, setNewCategory] = useState('Faith');
-  const [submitting, setSubmitting] = useState(false);
-  const [modStatus, setModStatus] = useState(null); // 'checking', 'flagged', 'clean'
-  const [modReason, setModReason] = useState('');
-
   // Filtering State
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -68,66 +57,6 @@ export default function Feed() {
     fetchPosts();
   }, []);
 
-  // Post entry processing with AI Content Moderator
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    if (!newContent.trim()) {
-      showToast('Reflection content cannot be empty.', 'error');
-      return;
-    }
-
-    setSubmitting(true);
-    setModStatus('checking');
-    setModReason('');
-
-    try {
-      // Call the API route for OpenAI moderation check
-      const res = await fetch('/api/moderate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent })
-      });
-
-      if (!res.ok) {
-        throw new Error('Moderation service error.');
-      }
-
-      const check = await res.json();
-
-      if (check.flagged) {
-        setModStatus('flagged');
-        setModReason(check.reason || 'Explicit content detected.');
-        showToast('Message blocked by AI Moderation.', 'error');
-        setSubmitting(false);
-        return;
-      }
-
-      // If clean, proceed to insert
-      setModStatus('clean');
-      const { data, error } = await supabase
-        .from('diaries')
-        .insert({
-          author_id: user.id,
-          content: newContent,
-          category: newCategory
-        });
-
-      if (error) {
-        showToast(error.message, 'error');
-      } else {
-        showToast('Diary shared on the global feed!');
-        setNewContent('');
-        setModStatus(null);
-        fetchPosts();
-      }
-    } catch (err) {
-      showToast('Error sharing post: ' + err.message, 'error');
-      setModStatus(null);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   // Liking functionality
   const handleLike = async (postId) => {
     if (!user) return;
@@ -139,7 +68,6 @@ export default function Feed() {
 
     try {
       if (hasLiked) {
-        // Unlike
         const { error } = await supabase
           .from('likes')
           .delete()
@@ -148,7 +76,6 @@ export default function Feed() {
 
         if (error) throw error;
         
-        // Optimistic UI update
         setPosts(prev => prev.map(p => {
           if (p.id === postId) {
             return {
@@ -159,14 +86,12 @@ export default function Feed() {
           return p;
         }));
       } else {
-        // Like
         const { error } = await supabase
           .from('likes')
           .insert({ post_id: postId, user_id: user.id });
 
         if (error) throw error;
 
-        // Optimistic UI update
         setPosts(prev => prev.map(p => {
           if (p.id === postId) {
             return {
@@ -186,12 +111,10 @@ export default function Feed() {
   const handleFavorite = async (postId) => {
     if (!user) return;
     
-    // Check if post is currently bookmarked
     const isFav = await checkIsFavorite(postId);
 
     try {
       if (isFav) {
-        // Remove favorite
         const { error } = await supabase
           .from('favorites')
           .delete()
@@ -201,7 +124,6 @@ export default function Feed() {
         if (error) throw error;
         showToast('Removed from favorites.');
       } else {
-        // Add favorite
         const { error } = await supabase
           .from('favorites')
           .insert({ post_id: postId, user_id: user.id });
@@ -209,8 +131,6 @@ export default function Feed() {
         if (error) throw error;
         showToast('Saved to favorites!');
       }
-      
-      // Update local state by forcing a re-fetch of posts (or caching)
       fetchPosts();
     } catch (err) {
       showToast('Failed to bookmark: ' + err.message, 'error');
@@ -219,7 +139,6 @@ export default function Feed() {
 
   const checkIsFavorite = async (postId) => {
     if (supabase.isMock) {
-      // Offline client checking
       const favs = JSON.parse(localStorage.getItem('bd_favorites') || '[]');
       return favs.some(f => f.post_id === postId && f.user_id === user.id);
     } else {
@@ -252,7 +171,7 @@ export default function Feed() {
       } else {
         setCommentInputs(prev => ({ ...prev, [postId]: '' }));
         showToast('Comment added!');
-        fetchPosts(); // Refresh to fetch the new comment with user details
+        fetchPosts();
       }
     } catch (err) {
       showToast('Error commenting: ' + err.message, 'error');
@@ -261,7 +180,7 @@ export default function Feed() {
     }
   };
 
-  // Sharing functionality (web share and clipboard)
+  // Sharing functionality
   const handleShare = async (post) => {
     const textToShare = `"${post.content}" - Written by ${post.profiles?.full_name} on bible_diaries #${post.category}`;
     
@@ -274,7 +193,6 @@ export default function Feed() {
         });
         showToast('Shared successfully!');
       } catch (err) {
-        // If they cancel share overlay, fallback to clipboard
         copyToClipboard(textToShare);
       }
     } else {
@@ -290,11 +208,6 @@ export default function Feed() {
   // Toggle comments expand drawer
   const toggleComments = (postId) => {
     setOpenComments(prev => ({ ...prev, [postId]: !prev[postId] }));
-  };
-
-  // Show detailed profile card
-  const handleViewProfile = (authorProfile) => {
-    setSelectedProfile(authorProfile);
   };
 
   // Filter posts
@@ -321,82 +234,54 @@ export default function Feed() {
   };
 
   return (
-    <div className="container" style={{ maxWidth: '800px' }}>
-      {/* Feed Timeline Content */}
-      <section>
-          
-          {/* Post Submission Card */}
-          <div className="glass-panel post-creator">
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.75rem', fontWeight: '500', fontFamily: 'var(--font-serif)' }}>
-              Write your Daily Reflection
+    <div className="container">
+      <div className="feed-layout">
+        
+        {/* Sidebar Filtering Tabs */}
+        <aside className="sidebar-sticky">
+          <div style={{ padding: '0 0.5rem' }}>
+            <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', color: 'var(--gold-accent)' }}>
+              <Filter size={18} /> Categories
             </h3>
-            
-            <form onSubmit={handleCreatePost}>
-              <textarea
-                placeholder="What has scripture spoken to you today? Share a testimony, meditation, or diary entry..."
-                className="post-creator-textarea"
-                value={newContent}
-                onChange={(e) => {
-                  setNewContent(e.target.value);
-                  if (modStatus === 'flagged') setModStatus(null);
-                }}
-                disabled={submitting}
-                maxLength={800}
-                required
-              />
-
-              {modStatus === 'checking' && (
-                <div className="moderator-checking" style={{ marginBottom: '1rem' }}>
-                  <Loader size={16} className="spinner" />
-                  <span>AI Content Moderator is reading your message...</span>
-                </div>
-              )}
-
-              {modStatus === 'flagged' && (
-                <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 'var(--radius-sm)', color: '#EF4444', fontSize: '0.85rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <div>
-                    <strong style={{ display: 'block', marginBottom: '2px' }}>AI Content Flagged</strong>
-                    <p>{modReason}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="post-creator-footer">
-                <div className="category-select-wrapper">
-                  <span>Category:</span>
-                  <select
-                    className="category-select"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    disabled={submitting}
+            <div className="category-list">
+              {CATEGORIES.map((cat) => {
+                const count = cat === 'All' 
+                  ? posts.length 
+                  : posts.filter(p => p.category === cat).length;
+                
+                return (
+                  <button
+                    key={cat}
+                    className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
+                    onClick={() => setActiveCategory(cat)}
                   >
-                    {CATEGORIES.filter(c => c !== 'All').map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
+                    <span>{cat}</span>
+                    <span className="count">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
 
-                <button 
-                  type="submit" 
-                  className="btn-primary" 
-                  disabled={submitting || !newContent.trim() || modStatus === 'flagged'}
-                >
-                  <Plus size={18} />
-                  <span>Share Diary</span>
-                </button>
-              </div>
-            </form>
+        {/* Feed Timeline Content */}
+        <section>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.75rem', fontFamily: 'var(--font-serif)', marginBottom: '0.25rem' }}>
+              Explore Reflections
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              Filter the diaries shared by the community by spiritual categories.
+            </p>
           </div>
 
-          {/* Diary Timeline Feed */}
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
               <Loader size={28} className="spinner" style={{ color: 'var(--gold-accent)' }} />
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="glass-panel empty-state">
-              No diaries published under the {activeCategory} category yet. Be the first to share!
+            <div className="empty-state" style={{ border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-md)' }}>
+              No diaries published under the {activeCategory} category yet.
             </div>
           ) : (
             <div className="feed-list">
@@ -404,14 +289,11 @@ export default function Feed() {
                 const liked = post.likes?.some(l => l.user_id === user?.id);
                 
                 return (
-                  <article key={post.id} className="glass-panel diary-card">
+                  <article key={post.id} className="diary-card">
                     
                     {/* Header: Author Metadata */}
                     <div className="diary-card-header">
-                      <div 
-                        className="diary-card-author"
-                        onClick={() => handleViewProfile(post.profiles)}
-                      >
+                      <div className="diary-card-author" onClick={() => setSelectedProfile(post.profiles)}>
                         <img 
                           src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
                           alt={post.profiles?.full_name} 
@@ -526,11 +408,12 @@ export default function Feed() {
           )}
 
         </section>
+      </div>
 
       {/* User Profile Modal Dialogue */}
       {selectedProfile && (
         <div className="modal-overlay" onClick={() => setSelectedProfile(null)}>
-          <div className="glass-panel modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedProfile(null)}>
               <X size={20} />
             </button>
@@ -547,11 +430,11 @@ export default function Feed() {
               </div>
 
               {selectedProfile.favorite_verse && (
-                <div style={{ padding: '1rem', background: 'rgba(212, 175, 55, 0.04)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', width: '100%' }}>
+                <div style={{ padding: '1rem', background: 'rgba(14, 165, 233, 0.04)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', width: '100%' }}>
                   <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--gold-accent)', letterSpacing: '0.5px', marginBottom: '6px' }}>
                     Favorite Bible Scripture
                   </h4>
-                  <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '1.05rem', color: '#E5E7EB' }}>
+                  <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '1.05rem', color: 'var(--text-primary)' }}>
                     "{selectedProfile.favorite_verse}"
                   </p>
                 </div>
@@ -568,7 +451,6 @@ export default function Feed() {
                 </div>
               )}
 
-              {/* Chat action button if not viewing self */}
               {user && user.id !== selectedProfile.id && (
                 <a 
                   href={`/chat/${selectedProfile.id}`}

@@ -80,8 +80,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="container">
-      <div className="glass-panel settings-layout">
+    <div className="container" style={{ maxWidth: '800px' }}>
+      <div className="settings-layout" style={{ padding: '0 0.5rem' }}>
         <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem', fontFamily: 'var(--font-serif)' }}>
           Profile Settings
         </h2>
