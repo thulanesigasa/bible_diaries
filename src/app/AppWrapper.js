@@ -106,9 +106,9 @@ export default function AppWrapper({ children }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', backgroundColor: '#0A0D14' }}>
-        <Loader className="spinner" style={{ color: '#D4AF37', width: '32px', height: '32px' }} />
-        <p style={{ color: '#9CA3AF', fontStyle: 'italic', fontFamily: 'serif' }}>Aligning hearts...</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
+        <Loader className="spinner" style={{ color: 'var(--gold-accent)', width: '32px', height: '32px' }} />
+        <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontFamily: 'serif' }}>Aligning hearts...</p>
       </div>
     );
   }

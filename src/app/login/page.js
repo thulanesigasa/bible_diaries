@@ -115,8 +115,8 @@ export default function Login() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0D14', padding: '1.5rem' }}>
-      <div className="glass-panel auth-container" style={{ width: '100%', maxWidth: '440px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', padding: '1.5rem' }}>
+      <div className="diary-card auth-container" style={{ width: '100%', maxWidth: '440px', backgroundColor: 'var(--bg-primary)' }}>
         
         {/* Environment Toggle Banner */}
         <div style={{
@@ -159,7 +159,7 @@ export default function Login() {
         </div>
 
         <div className="auth-header">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
             bible_diaries
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Welcome Back</h2>

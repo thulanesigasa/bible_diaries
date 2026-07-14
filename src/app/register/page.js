@@ -141,12 +141,12 @@ export default function Register() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0D14', padding: '2rem 1.5rem' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '540px', padding: '2.5rem', borderRadius: 'var(--radius-md)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', padding: '2rem 1.5rem' }}>
+      <div className="diary-card" style={{ width: '100%', maxWidth: '540px', padding: '2.5rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-primary)' }}>
         
         {/* Header */}
         <div className="auth-header" style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
             bible_diaries
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
