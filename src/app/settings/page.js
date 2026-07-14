@@ -8,7 +8,11 @@ import { Loader, Camera, Save } from 'lucide-react';
 export default function Settings() {
   const { user, profile, setProfile, showToast } = useApp();
 
-  const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [firstName, setFirstName] = useState(profile?.first_name || profile?.full_name?.split(' ')[0] || '');
+  const [surname, setSurname] = useState(profile?.surname || profile?.full_name?.split(' ').slice(1).join(' ') || '');
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '');
+  const [address, setAddress] = useState(profile?.address || '');
+  
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [favoriteVerse, setFavoriteVerse] = useState(profile?.favorite_verse || '');
@@ -37,15 +41,19 @@ export default function Settings() {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    if (!fullName.trim()) {
-      showToast('Full Name cannot be empty.', 'error');
+    if (!firstName.trim() || !surname.trim()) {
+      showToast('First Name and Surname cannot be empty.', 'error');
       return;
     }
 
     setSaving(true);
     try {
       const updateData = {
-        full_name: fullName,
+        first_name: firstName,
+        surname: surname,
+        full_name: `${firstName} ${surname}`,
+        phone_number: phoneNumber,
+        address: address,
         avatar_url: avatarUrl,
         bio,
         favorite_verse: favoriteVerse,
@@ -60,7 +68,6 @@ export default function Settings() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        // Fetch updated profile to ensure sync
         const updatedProfile = { ...profile, ...updateData };
         setProfile(updatedProfile);
         showToast('Settings saved successfully!');
@@ -79,7 +86,7 @@ export default function Settings() {
           Profile Settings
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
-          Update your spiritual details and manage how other members see your profile.
+          Update your personal details, contact details, and spiritual walks here.
         </p>
 
         <form onSubmit={handleSave} className="auth-form" style={{ gap: '1.25rem' }}>
@@ -115,25 +122,71 @@ export default function Settings() {
             </div>
           </div>
 
+          <h3 style={{ fontSize: '1.15rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.25rem', marginTop: '0.5rem', fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)' }}>
+            Personal Details
+          </h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="settings-group">
+              <label className="settings-label" htmlFor="settings-firstName">First Name</label>
+              <input
+                type="text"
+                id="settings-firstName"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={saving}
+                required
+              />
+            </div>
+            <div className="settings-group">
+              <label className="settings-label" htmlFor="settings-surname">Surname</label>
+              <input
+                type="text"
+                id="settings-surname"
+                placeholder="Surname"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                disabled={saving}
+                required
+              />
+            </div>
+          </div>
+
           <div className="settings-group">
-            <label className="settings-label" htmlFor="settings-fullName">Full Name</label>
+            <label className="settings-label" htmlFor="settings-phoneNumber">Phone Number</label>
             <input
-              type="text"
-              id="settings-fullName"
-              placeholder="Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              type="tel"
+              id="settings-phoneNumber"
+              placeholder="e.g. +1 555-0199"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               disabled={saving}
-              required
             />
           </div>
+
+          <div className="settings-group">
+            <label className="settings-label" htmlFor="settings-address">Address</label>
+            <input
+              type="text"
+              id="settings-address"
+              placeholder="Physical Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              disabled={saving}
+            />
+          </div>
+
+          <h3 style={{ fontSize: '1.15rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.25rem', marginTop: '0.75rem', fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)' }}>
+            Spiritual Details
+          </h3>
 
           <div className="settings-group">
             <label className="settings-label" htmlFor="settings-bio">Biography (Bio)</label>
             <input
               type="text"
               id="settings-bio"
-              placeholder="e.g. Walking in faith, seeker of light."
+              placeholder="e.g. Seeking wisdom, loving my neighbor."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               disabled={saving}

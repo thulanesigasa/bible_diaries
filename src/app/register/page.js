@@ -5,22 +5,28 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
-import { Loader, Camera } from 'lucide-react';
+import { Loader, Camera, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 
 export default function Register() {
+  const [step, setStep] = useState(1);
+
+  // Field states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [bio, setBio] = useState('');
-  const [favoriteVerse, setFavoriteVerse] = useState('');
-  const [spiritualJourney, setSpiritualJourney] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   
+  const [firstName, setFirstName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  
+  const [address, setAddress] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  
+  const [loading, setLoading] = useState(false);
   const { showToast } = useApp();
   const router = useRouter();
 
-  // Helper to handle profile image uploads (base64)
+  // Avatar image upload handler (base64)
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -38,11 +44,39 @@ export default function Register() {
     reader.readAsDataURL(file);
   };
 
+  // Step Navigations & Valdation
+  const nextStep = () => {
+    if (step === 1) {
+      if (!email || !password) {
+        showToast('Please fill in email and password.', 'error');
+        return;
+      }
+      if (password.length < 6) {
+        showToast('Password must be at least 6 characters.', 'error');
+        return;
+      }
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match.', 'error');
+        return;
+      }
+    } else if (step === 2) {
+      if (!firstName || !surname || !phoneNumber) {
+        showToast('Please fill in your name, surname, and phone number.', 'error');
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    setStep(step - 1);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!email || !password || !fullName) {
-      showToast('Email, Password, and Full Name are required.', 'error');
+    if (!address) {
+      showToast('Please specify your address.', 'error');
       return;
     }
 
@@ -54,11 +88,15 @@ export default function Register() {
         password,
         options: {
           data: {
-            full_name: fullName,
-            avatar_url: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', // standard fallback
-            bio,
-            favorite_verse: favoriteVerse,
-            spiritual_journey: spiritualJourney
+            first_name: firstName,
+            surname: surname,
+            full_name: `${firstName} ${surname}`,
+            phone_number: phoneNumber,
+            address: address,
+            avatar_url: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', // placeholder
+            bio: '',
+            favorite_verse: '',
+            spiritual_journey: ''
           }
         }
       });
@@ -66,7 +104,7 @@ export default function Register() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        showToast('Registration successful! Welcome to the flock.');
+        showToast('Registration successful! Welcome to bible_diaries.');
         router.push('/feed');
       }
     } catch (err) {
@@ -79,139 +117,245 @@ export default function Register() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0D14', padding: '2rem 1.5rem' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '2.5rem', borderRadius: 'var(--radius-md)' }}>
-        <div className="auth-header" style={{ marginBottom: '1.5rem' }}>
+      <div className="glass-panel" style={{ width: '100%', maxWidth: '540px', padding: '2.5rem', borderRadius: 'var(--radius-md)' }}>
+        
+        {/* Header */}
+        <div className="auth-header" style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#D4AF37', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
             bible_diaries
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
-          <p className="auth-subtitle">Join the community to share your walk of faith</p>
+          <p className="auth-subtitle">Join our community to share and browse diaries</p>
         </div>
 
-        <form onSubmit={handleRegister} className="auth-form" style={{ gap: '1rem' }}>
+        {/* Step Indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
+          {[1, 2, 3].map((num) => (
+            <div key={num} style={{ display: 'flex', alignItems: 'center', flex: num < 3 ? 1 : 'none' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: step === num ? 'var(--gold-accent)' : step > num ? 'rgba(212, 175, 55, 0.2)' : 'var(--bg-tertiary)',
+                color: step === num ? 'var(--bg-primary)' : step > num ? 'var(--gold-accent)' : 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                border: step === num ? 'none' : '1px solid var(--border-color)',
+                transition: 'all 0.3s ease'
+              }}>
+                {step > num ? <Check size={16} /> : num}
+              </div>
+              
+              {num < 3 && (
+                <div style={{
+                  height: '2px',
+                  flex: 1,
+                  backgroundColor: step > num ? 'var(--gold-accent)' : 'var(--bg-tertiary)',
+                  margin: '0 0.75rem',
+                  opacity: step > num ? 0.6 : 0.2,
+                  transition: 'all 0.3s ease'
+                }} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleRegister} className="auth-form" style={{ gap: '1.25rem' }}>
           
-          <div className="avatar-upload-area">
-            <div style={{ position: 'relative' }}>
-              <img 
-                src={avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                alt="Avatar preview" 
-                className="avatar-upload-preview"
-              />
-              <label 
-                htmlFor="avatar-upload" 
-                style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: '#D4AF37', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContext: 'center', cursor: 'pointer', border: '2px solid #0A0D14', justifyContent: 'center' }}
-                title="Upload Avatar Image"
-              >
-                <Camera size={12} style={{ color: '#0A0D14' }} />
-                <input 
-                  type="file" 
-                  id="avatar-upload" 
-                  accept="image/*" 
-                  onChange={handleImageUpload} 
-                  style={{ display: 'none' }}
+          {/* Step 1: Account Credentials */}
+          {step === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="e.g. user@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
-              </label>
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="Min. 6 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  placeholder="Repeat your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button 
+                type="button" 
+                className="btn-primary" 
+                style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', marginTop: '0.5rem' }}
+                onClick={nextStep}
+              >
+                <span>Continue</span>
+                <ChevronRight size={16} />
+              </button>
             </div>
-            <div style={{ flex: 1 }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '2px' }}>Profile Photo</h4>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Upload a picture of yourself, or we will apply a default avatar.</p>
+          )}
+
+          {/* Step 2: Personal Details */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="settings-group">
+                  <label className="settings-label" htmlFor="firstName">First Name</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    placeholder="e.g. Elijah"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="settings-group">
+                  <label className="settings-label" htmlFor="surname">Surname</label>
+                  <input
+                    type="text"
+                    id="surname"
+                    placeholder="e.g. Bennett"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="phoneNumber">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  placeholder="e.g. +1 555-0199"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button 
+                  type="button" 
+                  className="btn-primary" 
+                  style={{ flex: 1, justifyContent: 'center', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+                  onClick={prevStep}
+                >
+                  <ChevronLeft size={16} />
+                  <span>Back</span>
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-primary" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  onClick={nextStep}
+                >
+                  <span>Continue</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="settings-group">
-              <label className="settings-label" htmlFor="fullName">Full Name *</label>
-              <input
-                type="text"
-                id="fullName"
-                placeholder="e.g. Elijah Bennett"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                disabled={loading}
-                required
-              />
+          {/* Step 3: Location & Profile Image */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="avatar-upload-area" style={{ marginBottom: '0.5rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <img 
+                    src={avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
+                    alt="Avatar preview" 
+                    className="avatar-upload-preview"
+                  />
+                  <label 
+                    htmlFor="avatar-upload" 
+                    style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: '#D4AF37', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContext: 'center', cursor: 'pointer', border: '2px solid #0A0D14', justifyContent: 'center' }}
+                    title="Upload Avatar Image"
+                  >
+                    <Camera size={12} style={{ color: '#0A0D14' }} />
+                    <input 
+                  type="file" 
+                      id="avatar-upload" 
+                      accept="image/*" 
+                      onChange={handleImageUpload} 
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '2px' }}>Profile Photo</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Upload a picture of yourself, or we will assign a default avatar.</p>
+                </div>
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="address">Physical Address</label>
+                <input
+                  type="text"
+                  id="address"
+                  placeholder="e.g. 77 Scripture Lane, Glory Town"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button 
+                  type="button" 
+                  className="btn-primary" 
+                  style={{ flex: 1, justifyContent: 'center', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+                  onClick={prevStep}
+                  disabled={loading}
+                >
+                  <ChevronLeft size={16} />
+                  <span>Back</span>
+                </button>
+                
+                <button 
+                  type="submit" 
+                  className="btn-primary" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader className="spinner" size={16} />
+                      <span>Registering...</span>
+                    </>
+                  ) : (
+                    <span>Register</span>
+                  )}
+                </button>
+              </div>
             </div>
-            <div className="settings-group">
-              <label className="settings-label" htmlFor="email">Email Address *</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="brother@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                required
-              />
-            </div>
-          </div>
+          )}
 
-          <div className="settings-group">
-            <label className="settings-label" htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Min. 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              required
-            />
-          </div>
-
-          <div className="settings-group">
-            <label className="settings-label" htmlFor="bio">Short Bio</label>
-            <input
-              type="text"
-              id="bio"
-              placeholder="e.g. Seeking wisdom, loving my neighbor."
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="settings-group">
-            <label className="settings-label" htmlFor="favoriteVerse">Favorite Bible Verse</label>
-            <input
-              type="text"
-              id="favoriteVerse"
-              placeholder="e.g. Romans 8:28"
-              value={favoriteVerse}
-              onChange={(e) => setFavoriteVerse(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="settings-group">
-            <label className="settings-label" htmlFor="spiritualJourney">My Spiritual Journey (Testimony)</label>
-            <textarea
-              id="spiritualJourney"
-              placeholder="Describe your faith, walk with God, or what brings you to writing bible diaries..."
-              value={spiritualJourney}
-              onChange={(e) => setSpiritualJourney(e.target.value)}
-              disabled={loading}
-              style={{ minHeight: '80px', resize: 'vertical' }}
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn-primary" 
-            style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', marginTop: '0.5rem' }}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader className="spinner" size={16} />
-                <span>Registering profile...</span>
-              </>
-            ) : (
-              <span>Create Account</span>
-            )}
-          </button>
         </form>
 
-        <p className="auth-link" style={{ marginTop: '1.25rem' }}>
+        <p className="auth-link" style={{ marginTop: '1.5rem' }}>
           Already have an account?{' '}
           <Link href="/login" style={{ fontWeight: '600' }}>
             Log In

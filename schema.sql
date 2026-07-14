@@ -4,6 +4,10 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
     full_name TEXT NOT NULL,
+    first_name TEXT,
+    surname TEXT,
+    address TEXT,
+    phone_number TEXT,
     avatar_url TEXT,
     bio TEXT,
     favorite_verse TEXT,
@@ -27,10 +31,14 @@ CREATE POLICY "Allow users to update their own profile"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, full_name, avatar_url, bio, favorite_verse, spiritual_journey)
+    INSERT INTO public.profiles (id, full_name, first_name, surname, address, phone_number, avatar_url, bio, favorite_verse, spiritual_journey)
     VALUES (
         new.id,
-        COALESCE(new.raw_user_meta_data->>'full_name', 'New Brother/Sister'),
+        COALESCE(new.raw_user_meta_data->>'full_name', (new.raw_user_meta_data->>'first_name') || ' ' || (new.raw_user_meta_data->>'surname'), 'New Member'),
+        new.raw_user_meta_data->>'first_name',
+        new.raw_user_meta_data->>'surname',
+        new.raw_user_meta_data->>'address',
+        new.raw_user_meta_data->>'phone_number',
         new.raw_user_meta_data->>'avatar_url',
         new.raw_user_meta_data->>'bio',
         new.raw_user_meta_data->>'favorite_verse',

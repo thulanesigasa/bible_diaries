@@ -40,6 +40,10 @@ class MockSupabaseClient {
         {
           id: 'mock-user-elijah',
           full_name: 'Elijah Bennett',
+          first_name: 'Elijah',
+          surname: 'Bennett',
+          address: '77 Scripture Lane, Heaven Sent',
+          phone_number: '+15550199',
           avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
           bio: 'Seeking grace daily. Teacher of scripture and explorer of spiritual journaling.',
           favorite_verse: 'Proverbs 3:5-6 - Trust in the Lord with all your heart...',
@@ -48,6 +52,10 @@ class MockSupabaseClient {
         {
           id: 'mock-user-grace',
           full_name: 'Grace Taylor',
+          first_name: 'Grace',
+          surname: 'Taylor',
+          address: '44 Worship Blvd, Glory Town',
+          phone_number: '+15550244',
           avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
           bio: 'Worship leader, writer, and tea lover. Spreading Hope.',
           favorite_verse: 'Romans 15:13 - May the God of hope fill you with all joy and peace...',
@@ -133,11 +141,15 @@ class MockSupabaseClient {
         const newProfile = {
           id: newId,
           email,
-          full_name: metadata.full_name || 'Anonymous Believer',
+          first_name: metadata.first_name || '',
+          surname: metadata.surname || '',
+          address: metadata.address || '',
+          phone_number: metadata.phone_number || '',
+          full_name: metadata.first_name ? `${metadata.first_name} ${metadata.surname}` : 'Anonymous Member',
           avatar_url: metadata.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', // placeholder
-          bio: metadata.bio || '',
-          favorite_verse: metadata.favorite_verse || '',
-          spiritual_journey: metadata.spiritual_journey || '',
+          bio: '',
+          favorite_verse: '',
+          spiritual_journey: '',
           updated_at: new Date().toISOString()
         };
 
