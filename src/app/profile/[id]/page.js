@@ -10,6 +10,7 @@ import {
   Loader
 } from 'lucide-react';
 import Link from 'next/link';
+import Avatar from '../../../components/Avatar';
 
 export default function ProfilePage({ params }) {
   const resolvedParams = use(params);
@@ -88,14 +89,12 @@ export default function ProfilePage({ params }) {
       <div className="diary-card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
         
         {/* Avatar Image */}
-        <img 
-          src={profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-          alt={profile.full_name} 
+        <Avatar 
+          src={profile.avatar_url} 
+          fullName={profile.full_name} 
+          email={profile.email} 
+          size={110}
           style={{ 
-            width: '110px', 
-            height: '110px', 
-            borderRadius: '50%', 
-            objectFit: 'cover', 
             border: '3px solid var(--gold-accent)',
             boxShadow: 'var(--shadow-md)' 
           }}

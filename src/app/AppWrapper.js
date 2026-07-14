@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { BookOpen, MessageSquare, Users, Settings, LogOut, Loader, Heart, Filter } from 'lucide-react';
+import Avatar from '../components/Avatar';
 
 const AppContext = createContext({
   user: null,
@@ -147,10 +148,12 @@ export default function AppWrapper({ children }) {
             {profile && (
               <div className="user-badge">
                 <Link href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: 'inherit' }}>
-                  <img 
-                    src={profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                    alt={profile.full_name} 
-                    className="user-badge-avatar"
+                  <Avatar 
+                    src={profile.avatar_url} 
+                    fullName={profile.full_name} 
+                    email={user?.email} 
+                    size={32}
+                    style={{ border: '1.5px solid rgba(14, 165, 233, 0.2)' }}
                   />
                   <span className="user-badge-name">{profile.full_name}</span>
                 </Link>

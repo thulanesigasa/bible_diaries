@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { Search, MessageSquare, Loader, X, User } from 'lucide-react';
+import Avatar from '../../components/Avatar';
 
 export default function Connect() {
   const { user, showToast } = useApp();
@@ -98,10 +99,12 @@ export default function Connect() {
                 transition: 'background-color 0.2s ease'
               }}
             >
-              <img 
-                src={p.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                alt={p.full_name} 
-                style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(14, 165, 233, 0.2)' }}
+              <Avatar 
+                src={p.avatar_url} 
+                fullName={p.full_name} 
+                email={p.email} 
+                size={48}
+                style={{ border: '1.5px solid rgba(14, 165, 233, 0.2)' }}
               />
               
               <div style={{ flex: 1 }}>

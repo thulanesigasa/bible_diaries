@@ -1,0 +1,360 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  ScrollView, 
+  KeyboardAvoidingView, 
+  Platform,
+  ActivityIndicator
+} from 'react-native';
+import { useRouter, Link } from 'expo-router';
+import { useApp } from '../_layout';
+import { supabase } from '../../src/lib/supabase';
+import { BookOpen, Eye, EyeOff } from 'lucide-react-native';
+
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const { showToast } = useApp();
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      showToast('Please fill in all fields.', 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast('Welcome back, brother/sister!');
+      }
+    } catch (err) {
+      showToast('An unexpected error occurred.', 'error');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuickLogin = async (targetEmail: string, targetName: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: 'password', // default simulation password
+      });
+
+      if (!error) {
+        showToast(`Logged in successfully as ${targetName}!`);
+      } else {
+        showToast(error.message, 'error');
+      }
+    } catch (err) {
+      showToast('An unexpected error occurred during quick sign in.', 'error');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        {/* Environment Toggle Banner */}
+        <View style={styles.envBanner}>
+          <Text style={styles.envText}>
+            Database Mode:{' '}
+            <Text style={{ fontWeight: 'bold', color: supabase.isMock ? '#D97706' : '#16A34A' }}>
+              {supabase.isMock ? 'Simulation (Local)' : 'Production (Live)'}
+            </Text>
+          </Text>
+        </View>
+
+        {/* Card Panel Container */}
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <View style={styles.logoRow}>
+              <BookOpen size={24} color="#0EA5E9" style={{ marginRight: 8 }} />
+              <Text style={styles.logoText}>bible_diaries</Text>
+            </View>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Login to access your reflections & feed</Text>
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email or Name</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. grace@example.com or Grace"
+                placeholderTextColor="#94A3B8"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!loading}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.passwordWrapper}>
+                <TextInput
+                  style={[styles.input, { flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRightWidth: 0 }]}
+                  placeholder="Enter password"
+                  placeholderTextColor="#94A3B8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  editable={!loading}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeBtn}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} color="#475569" />
+                  ) : (
+                    <Eye size={18} color="#475569" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.btnPrimary, loading && styles.btnDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.btnText}>Checking records...</Text>
+                </View>
+              ) : (
+                <Text style={styles.btnText}>Sign In</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Quick Test Logins */}
+          <View style={styles.quickLoginSection}>
+            <Text style={styles.quickLoginTitle}>Quick Test Logins</Text>
+            <View style={styles.quickLoginGrid}>
+              <TouchableOpacity 
+                style={styles.quickLoginBtn}
+                onPress={() => handleQuickLogin('elijah.bennett@gmail.com', 'Elijah')}
+                disabled={loading}
+              >
+                <Text style={styles.quickLoginText}>Elijah Bennett</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.quickLoginBtn}
+                onPress={() => handleQuickLogin('grace.taylor@gmail.com', 'Grace')}
+                disabled={loading}
+              >
+                <Text style={styles.quickLoginText}>Grace Taylor</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Footer Link */}
+          <View style={styles.footerLinkRow}>
+            <Text style={styles.footerLinkText}>New to the diary? </Text>
+            <Link href="/(auth)/register" asChild>
+              <TouchableOpacity>
+                <Text style={styles.linkText}>Create an Account</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  envBanner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    backgroundColor: 'rgba(15, 23, 42, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  envText: {
+    fontSize: 13,
+    color: '#475569',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  logoText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#0EA5E9',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#475569',
+    textAlign: 'center',
+  },
+  form: {
+    gap: 16,
+  },
+  inputGroup: {
+    gap: 6,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  input: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  eyeBtn: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+    borderLeftWidth: 0,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnPrimary: {
+    backgroundColor: '#0EA5E9',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  btnDisabled: {
+    opacity: 0.7,
+  },
+  btnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quickLoginSection: {
+    marginTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(15, 23, 42, 0.08)',
+    paddingTop: 20,
+  },
+  quickLoginTitle: {
+    fontSize: 12,
+    color: '#475569',
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  quickLoginGrid: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  quickLoginBtn: {
+    flex: 1,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  quickLoginText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  footerLinkRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  footerLinkText: {
+    fontSize: 13,
+    color: '#475569',
+  },
+  linkText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0EA5E9',
+  },
+});

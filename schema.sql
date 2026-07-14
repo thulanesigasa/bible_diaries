@@ -245,3 +245,42 @@ CREATE POLICY "Allow users to read chats they are involved in"
 CREATE POLICY "Allow users to insert their own sent chats"
     ON public.chats FOR INSERT
     WITH CHECK (auth.uid() = sender_id);
+
+
+-- =======================================================
+-- Supabase Storage Configuration for Profile Pictures
+-- =======================================================
+
+-- Create the public avatars storage bucket if it does not exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Enable Row Level Security on storage.objects
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- Drop storage policies if they exist to avoid conflict
+DROP POLICY IF EXISTS "Allow public read access to avatars bucket" ON storage.objects;
+DROP POLICY IF EXISTS "Allow authenticated users to upload avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow owners to update their own avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow owners to delete their own avatars" ON storage.objects;
+
+-- Recreate storage policies for avatars bucket
+CREATE POLICY "Allow public read access to avatars bucket" 
+    ON storage.objects FOR SELECT 
+    USING (bucket_id = 'avatars');
+
+CREATE POLICY "Allow authenticated users to upload avatars" 
+    ON storage.objects FOR INSERT 
+    TO authenticated 
+    WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = owner);
+
+CREATE POLICY "Allow owners to update their own avatars" 
+    ON storage.objects FOR UPDATE 
+    TO authenticated 
+    USING (bucket_id = 'avatars' AND auth.uid()::text = owner);
+
+CREATE POLICY "Allow owners to delete their own avatars" 
+    ON storage.objects FOR DELETE 
+    TO authenticated 
+    USING (bucket_id = 'avatars' AND auth.uid()::text = owner);

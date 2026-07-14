@@ -19,6 +19,7 @@ import {
   User,
   X
 } from 'lucide-react';
+import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
@@ -423,10 +424,12 @@ export default function Feed() {
                           handleViewProfile(post.profiles);
                         }}
                       >
-                        <img 
-                          src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                          alt={post.profiles?.full_name} 
-                          className="diary-card-avatar"
+                        <Avatar 
+                          src={post.profiles?.avatar_url} 
+                          fullName={post.profiles?.full_name} 
+                          email={post.profiles?.email} 
+                          size={40}
+                          style={{ marginRight: '10px' }}
                         />
                         <div>
                           <div className="diary-card-author-name">{post.profiles?.full_name}</div>
@@ -507,10 +510,12 @@ export default function Feed() {
             </button>
             
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', textAlign: 'center' }}>
-              <img 
+              <Avatar 
                 src={selectedProfile.avatar_url} 
-                alt={selectedProfile.full_name} 
-                style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--gold-accent)' }}
+                fullName={selectedProfile.full_name} 
+                email={selectedProfile.email} 
+                size={90}
+                style={{ border: '3px solid var(--gold-accent)' }}
               />
               <div>
                 <h2 style={{ fontSize: '1.5rem', marginBottom: '4px' }}>{selectedProfile.full_name}</h2>

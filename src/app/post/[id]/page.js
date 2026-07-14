@@ -19,6 +19,7 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
+import Avatar from '../../../components/Avatar';
 
 export default function PostPage({ params }) {
   const resolvedParams = use(params);
@@ -374,11 +375,12 @@ export default function PostPage({ params }) {
               }
             }}
           >
-            <img 
-              src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-              alt={post.profiles?.full_name} 
-              className="diary-card-avatar"
-              style={{ width: '48px', height: '48px' }}
+            <Avatar 
+              src={post.profiles?.avatar_url} 
+              fullName={post.profiles?.full_name} 
+              email={post.profiles?.email} 
+              size={48}
+              style={{ marginRight: '10px' }}
             />
             <div>
               <div className="diary-card-author-name" style={{ fontSize: '1.05rem' }}>{post.profiles?.full_name}</div>
@@ -483,10 +485,12 @@ export default function PostPage({ params }) {
                     
                     {/* Root Comment Row */}
                     <div className="comment-item" style={{ padding: '0.75rem', borderRadius: 'var(--radius-sm)', position: 'relative' }}>
-                      <img 
-                        src={comment.is_anonymous ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' : (comment.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')} 
-                        alt="Avatar" 
-                        className="comment-avatar"
+                      <Avatar 
+                        src={comment.is_anonymous ? null : comment.profiles?.avatar_url} 
+                        fullName={comment.is_anonymous ? 'Anonymous Believer' : comment.profiles?.full_name} 
+                        email={comment.is_anonymous ? null : comment.profiles?.email} 
+                        size={28}
+                        style={{ marginRight: '8px' }}
                       />
                       <div className="comment-body" style={{ flex: 1 }}>
                         <div className="comment-author-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -540,11 +544,12 @@ export default function PostPage({ params }) {
                         <div key={reply.id} style={{ display: 'flex', gap: '0.5rem', marginLeft: '2.5rem', borderLeft: '2px solid var(--border-color)', paddingLeft: '1rem' }}>
                           <CornerDownRight size={14} style={{ color: 'var(--text-muted)', marginTop: '0.75rem' }} />
                           <div className="comment-item" style={{ padding: '0.6rem 0.75rem', borderRadius: 'var(--radius-sm)', flex: 1 }}>
-                            <img 
-                              src={reply.is_anonymous ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' : (reply.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')} 
-                              alt="Avatar" 
-                              className="comment-avatar"
-                              style={{ width: '24px', height: '24px' }}
+                            <Avatar 
+                              src={reply.is_anonymous ? null : reply.profiles?.avatar_url} 
+                              fullName={reply.is_anonymous ? 'Anonymous Believer' : reply.profiles?.full_name} 
+                              email={reply.is_anonymous ? null : reply.profiles?.email} 
+                              size={24}
+                              style={{ marginRight: '6px' }}
                             />
                             <div className="comment-body" style={{ flex: 1 }}>
                               <div className="comment-author-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
