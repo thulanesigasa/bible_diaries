@@ -145,13 +145,15 @@ export default function AppWrapper({ children }) {
             
             {profile && (
               <div className="user-badge">
-                <img 
-                  src={profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                  alt={profile.full_name} 
-                  className="user-badge-avatar"
-                />
-                <span className="user-badge-name">{profile.full_name}</span>
-                <button onClick={handleLogout} className="nav-link" style={{ cursor: 'pointer', padding: '0.4rem', border: 'none', background: 'transparent' }} title="Logout">
+                <Link href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: 'inherit' }}>
+                  <img 
+                    src={profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
+                    alt={profile.full_name} 
+                    className="user-badge-avatar"
+                  />
+                  <span className="user-badge-name">{profile.full_name}</span>
+                </Link>
+                <button onClick={handleLogout} className="nav-link" style={{ cursor: 'pointer', padding: '0.4rem', border: 'none', background: 'transparent', marginLeft: '0.5rem' }} title="Logout">
                   <LogOut size={18} style={{ color: '#EF4444' }} />
                 </button>
               </div>
@@ -203,9 +205,9 @@ export default function AppWrapper({ children }) {
             <div>
               <h4 className="footer-title">Legal</h4>
               <ul className="footer-links">
-                <li className="footer-link-item"><a href="#">Privacy Policy</a></li>
-                <li className="footer-link-item"><a href="#">Terms of Service</a></li>
-                <li className="footer-link-item"><a href="#">Community Guidelines</a></li>
+                <li className="footer-link-item"><Link href="/privacy">Privacy Policy</Link></li>
+                <li className="footer-link-item"><Link href="/terms">Terms of Service</Link></li>
+                <li className="footer-link-item"><Link href="/guidelines">Community Guidelines</Link></li>
               </ul>
             </div>
           </div>
