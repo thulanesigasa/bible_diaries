@@ -38,7 +38,7 @@ export default function FiltersPage() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles(*), likes(*), comments(*, profiles(*))')
+        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*))')
         .order('created_at', { ascending: false });
 
       if (error) {

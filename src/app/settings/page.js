@@ -21,6 +21,12 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
 
+  // Preferences Toggles
+  const [profilePrivacy, setProfilePrivacy] = useState(profile?.privacy_mode || 'public');
+  const [allowDms, setAllowDms] = useState(profile?.allow_dms !== false);
+  const [emailLikes, setEmailLikes] = useState(profile?.email_likes !== false);
+  const [emailComments, setEmailComments] = useState(profile?.email_comments !== false);
+
   // File Upload base64 helper
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -58,7 +64,11 @@ export default function Settings() {
         avatar_url: avatarUrl,
         bio,
         favorite_verse: favoriteVerse,
-        spiritual_journey: spiritualJourney
+        spiritual_journey: spiritualJourney,
+        privacy_mode: profilePrivacy,
+        allow_dms: allowDms,
+        email_likes: emailLikes,
+        email_comments: emailComments
       };
 
       const { data, error } = await supabase
@@ -117,6 +127,19 @@ export default function Settings() {
             }}
           >
             Spiritual Journey
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('preferences')}
+            style={{
+              padding: '0.75rem 1.25rem',
+              fontWeight: '600',
+              fontSize: '0.95rem',
+              borderBottom: activeTab === 'preferences' ? '2px solid var(--gold-accent)' : '2px solid transparent',
+              color: activeTab === 'preferences' ? 'var(--gold-accent)' : 'var(--text-secondary)'
+            }}
+          >
+            Preferences
           </button>
         </div>
 
@@ -245,6 +268,113 @@ export default function Settings() {
                   style={{ minHeight: '150px', resize: 'vertical' }}
                 />
               </div>
+            </div>
+          )}
+
+          {activeTab === 'preferences' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+              
+              {/* Profile Privacy Options */}
+              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+                  Profile Privacy Visibility
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input 
+                      type="radio" 
+                      name="privacy_mode" 
+                      value="public" 
+                      checked={profilePrivacy === 'public'}
+                      onChange={() => setProfilePrivacy('public')}
+                      style={{ width: 'auto', marginTop: '4px' }}
+                    />
+                    <div>
+                      <strong>Public Display</strong>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        All authenticated members can see your phone number, biography, testimony and favorite verse in the fellowship directory.
+                      </p>
+                    </div>
+                  </label>
+                  
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input 
+                      type="radio" 
+                      name="privacy_mode" 
+                      value="private" 
+                      checked={profilePrivacy === 'private'}
+                      onChange={() => setProfilePrivacy('private')}
+                      style={{ width: 'auto', marginTop: '4px' }}
+                    />
+                    <div>
+                      <strong>Private & Anonymous</strong>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        Hides your contact information and testimony from other members in the Connect tab.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Messaging & Interaction Options */}
+              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+                  Platform Fellowship
+                </h4>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={allowDms}
+                    onChange={(e) => setAllowDms(e.target.checked)}
+                    style={{ width: 'auto', marginTop: '4px' }}
+                  />
+                  <div>
+                    <strong>Allow Direct Messaging</strong>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Permit other believers to send you direct messages from their Connect feeds.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Notification Settings */}
+              <div>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+                  Notification Settings
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={emailLikes}
+                      onChange={(e) => setEmailLikes(e.target.checked)}
+                      style={{ width: 'auto', marginTop: '4px' }}
+                    />
+                    <div>
+                      <strong>Likes Notification Alerts</strong>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        Receive transactional email alerts when someone appreciates or likes your diary posts.
+                      </p>
+                    </div>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={emailComments}
+                      onChange={(e) => setEmailComments(e.target.checked)}
+                      style={{ width: 'auto', marginTop: '4px' }}
+                    />
+                    <div>
+                      <strong>Comments Notification Alerts</strong>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        Receive email alerts immediately when someone writes a comment under your reflections.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
             </div>
           )}
 

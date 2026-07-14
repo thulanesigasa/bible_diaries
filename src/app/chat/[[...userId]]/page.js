@@ -22,6 +22,7 @@ export default function ChatPage({ params }) {
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const messagesEndRef = useRef(null);
 
@@ -84,6 +85,11 @@ export default function ChatPage({ params }) {
       setLoadingRooms(false);
     }
   };
+
+  // Filtered Chat Rooms based on search query
+  const filteredChatRooms = chatRooms.filter(room =>
+    room.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Fetch active chat messages
   const fetchMessages = async (partnerId) => {
@@ -272,16 +278,34 @@ export default function ChatPage({ params }) {
         {/* Left Side: Inbox Navigation List */}
         <aside className={`chat-sidebar ${activeChatUserId ? 'chat-sidebar-mobile-hide' : ''}`}>
           <div className="chat-sidebar-title">Conversations</div>
+          
+          <div style={{ padding: '0 0.75rem 0.75rem 0.75rem' }}>
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                fontSize: '0.85rem',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                width: '100%'
+              }}
+            />
+          </div>
+
           {loadingRooms ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-              <Loader size={20} className="spinner" style={{ color: '#D4AF37' }} />
+              <Loader size={20} className="spinner" style={{ color: 'var(--gold-accent)' }} />
             </div>
-          ) : chatRooms.length === 0 ? (
+          ) : filteredChatRooms.length === 0 ? (
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
-              No chat partners available.
+              No conversations found.
             </p>
           ) : (
-            chatRooms.map((room) => {
+            filteredChatRooms.map((room) => {
               const active = activeChatUserId === room.profile.id;
               return (
                 <div
@@ -329,7 +353,7 @@ export default function ChatPage({ params }) {
               <div className="chat-window-messages">
                 {loadingChat ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                    <Loader size={24} className="spinner" style={{ color: '#D4AF37' }} />
+                    <Loader size={24} className="spinner" style={{ color: 'var(--gold-accent)' }} />
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="empty-state" style={{ fontSize: '0.9rem' }}>
@@ -379,7 +403,7 @@ export default function ChatPage({ params }) {
             </>
           ) : (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(212, 175, 55, 0.3)', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(14, 165, 233, 0.3)', marginBottom: '1rem' }}>
                 <BookOpen size={48} />
               </div>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>Your Sanctuary Inbox</h3>

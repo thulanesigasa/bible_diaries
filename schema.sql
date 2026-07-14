@@ -20,6 +20,10 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS first_name TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS surname TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS privacy_mode TEXT DEFAULT 'public';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS allow_dms BOOLEAN DEFAULT true;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_likes BOOLEAN DEFAULT true;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_comments BOOLEAN DEFAULT true;
 
 -- Enable RLS on profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;

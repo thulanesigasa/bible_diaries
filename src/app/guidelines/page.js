@@ -17,43 +17,59 @@ export default function GuidelinesPage() {
       <section style={{ display: 'flex', flexDirection: 'column', gap: '2rem', color: 'var(--text-secondary)' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.75rem', fontWeight: '600' }}>
-            1. Respect and Mutual Edification
-          </h2>
-          <p style={{ lineHeight: '1.7' }}>
-            bible_diaries is a space for spiritual fellowship, praying, and journaling. All communications, comments, and private messages must remain edifying, respectful, and supportive. Harassment, condescension, or debate of an aggressive nature is not tolerated.
-          </p>
-        </div>
-
-        <div>
-          <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.75rem', fontWeight: '600' }}>
-            2. Content Guidelines
+            1. Biblical Principles of Communication
           </h2>
           <p style={{ lineHeight: '1.7', marginBottom: '0.75rem' }}>
-            To keep the platform focused and clean, please adhere to:
+            bible_diaries is a space for spiritual fellowship, praying, and journaling. We encourage all members to structure their conversations around scriptural guidelines:
           </p>
           <ul style={{ paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.7' }}>
-            <li>Keep posts centered on biblical reflections, personal walks of faith, or prayer testimonies.</li>
-            <li>Do not publish spam, commercial advertisements, or solicitations.</li>
-            <li>Maintain clear, readable language so believers of all backgrounds can engage.</li>
+            <li><strong>Ephesians 4:29:</strong> Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs.</li>
+            <li><strong>Colossians 4:6:</strong> Let your conversation be always full of grace, seasoned with salt, so that you may know how to answer everyone.</li>
+            <li><strong>James 1:19:</strong> Everyone should be quick to listen, slow to speak, and slow to anger.</li>
           </ul>
         </div>
 
         <div>
           <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.75rem', fontWeight: '600' }}>
-            3. Grace and Support
+            2. Fellowship Decorum & Sharing
           </h2>
-          <p style={{ lineHeight: '1.7' }}>
-            Be quick to listen, slow to speak, and slow to anger. Encourage members on their testimonies. Leave uplifting comments that help edify their walks. We are here to carry one another's burdens.
+          <p style={{ lineHeight: '1.7', marginBottom: '0.75rem' }}>
+            To keep the platform focused and clean, please adhere to these core values:
           </p>
+          <ul style={{ paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.7' }}>
+            <li><strong>Edifying Content:</strong> Keep diary posts centered on biblical reflections, personal walks of faith, prayer requests, or personal testimonies.</li>
+            <li><strong>Avoid Division:</strong> bible_diaries hosts believers from diverse Christian backgrounds. Avoid aggressive theological arguments or denominational debates that create division rather than unity.</li>
+            <li><strong>Encouraging Feedback:</strong> Leave uplifting, supportive comments on entries. Carrying each other's burdens in prayer is central to our community.</li>
+          </ul>
         </div>
 
         <div>
           <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.75rem', fontWeight: '600' }}>
-            4. Moderation & Reporting
+            3. Prohibited Behaviors
           </h2>
-          <p style={{ lineHeight: '1.7' }}>
-            We moderate the public feed to ensure a clean spiritual environment. Content that violates our guidelines will be flagged and removed. Repeat offenders will face account termination.
+          <p style={{ lineHeight: '1.7', marginBottom: '0.75rem' }}>
+            The following actions will lead to immediate content deletion and potential account suspension:
           </p>
+          <ul style={{ paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.7' }}>
+            <li><strong>Harassment & Bullying:</strong> Posting personal attacks, hateful content, or demeaning remarks.</li>
+            <li><strong>Spam & Promotions:</strong> Utilizing public timelines or private chats to sell products, solicit funds, or post repetitive ads.</li>
+            <li><strong>Inappropriate Media:</strong> Uploading profile avatars or header images that contain offensive, explicit, or non-spiritual designs.</li>
+            <li><strong>Impersonation:</strong> Creating accounts pretending to be other members or pastors within the community.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.75rem', fontWeight: '600' }}>
+            4. Moderation & Correction Workflow
+          </h2>
+          <p style={{ lineHeight: '1.7', marginBottom: '0.75rem' }}>
+            To protect our sanctuary, we employ a progressive moderation workflow:
+          </p>
+          <ul style={{ paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.7' }}>
+            <li><strong>First Infraction:</strong> Friendly warning from a community moderator and removal of the offending comment or post.</li>
+            <li><strong>Second Infraction:</strong> Temporary suspension of posting and private messaging privileges for 7 days.</li>
+            <li><strong>Third Infraction:</strong> Permanent account ban and deletion of all profile databases.</li>
+          </ul>
         </div>
       </section>
 
