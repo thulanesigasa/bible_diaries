@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
-import { Loader, Camera, Save, Send } from 'lucide-react';
+import { Loader, Camera, Save, Send, User, BookOpen, Sliders, Shield, Users, Bell } from 'lucide-react';
 
 export default function Settings() {
   const { user, profile, setProfile, showToast } = useApp();
@@ -146,10 +146,14 @@ export default function Settings() {
               fontWeight: '600',
               fontSize: '0.95rem',
               borderBottom: activeTab === 'personal' ? '2px solid var(--gold-accent)' : '2px solid transparent',
-              color: activeTab === 'personal' ? 'var(--gold-accent)' : 'var(--text-secondary)'
+              color: activeTab === 'personal' ? 'var(--gold-accent)' : 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
           >
-            Personal Profile
+            <User size={16} />
+            <span>Personal Profile</span>
           </button>
           <button
             type="button"
@@ -159,10 +163,14 @@ export default function Settings() {
               fontWeight: '600',
               fontSize: '0.95rem',
               borderBottom: activeTab === 'spiritual' ? '2px solid var(--gold-accent)' : '2px solid transparent',
-              color: activeTab === 'spiritual' ? 'var(--gold-accent)' : 'var(--text-secondary)'
+              color: activeTab === 'spiritual' ? 'var(--gold-accent)' : 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
           >
-            Spiritual Journey
+            <BookOpen size={16} />
+            <span>Spiritual Journey</span>
           </button>
           <button
             type="button"
@@ -172,10 +180,14 @@ export default function Settings() {
               fontWeight: '600',
               fontSize: '0.95rem',
               borderBottom: activeTab === 'preferences' ? '2px solid var(--gold-accent)' : '2px solid transparent',
-              color: activeTab === 'preferences' ? 'var(--gold-accent)' : 'var(--text-secondary)'
+              color: activeTab === 'preferences' ? 'var(--gold-accent)' : 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
           >
-            Preferences
+            <Sliders size={16} />
+            <span>Preferences</span>
           </button>
         </div>
 
@@ -358,8 +370,9 @@ export default function Settings() {
               
               {/* Profile Privacy Options */}
               <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
-                  Profile Privacy Visibility
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Shield size={18} style={{ color: 'var(--gold-accent)' }} />
+                  <span>Profile Privacy Visibility</span>
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
@@ -400,8 +413,9 @@ export default function Settings() {
 
               {/* Messaging & Interaction Options */}
               <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
-                  Platform Fellowship
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Users size={18} style={{ color: 'var(--gold-accent)' }} />
+                  <span>Platform Fellowship</span>
                 </h4>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                   <input 
@@ -421,8 +435,9 @@ export default function Settings() {
 
               {/* Notification Settings */}
               <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
-                  Notification Settings
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '600', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Bell size={18} style={{ color: 'var(--gold-accent)' }} />
+                  <span>Notification Settings</span>
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
