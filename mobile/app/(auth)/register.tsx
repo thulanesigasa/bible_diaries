@@ -62,7 +62,7 @@ export default function RegisterScreen() {
             full_name: `${firstName} ${surname}`,
             phone_number: phoneNumber,
             address: address,
-            avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', // placeholder
+            avatar_url: null,
             bio: 'Walking in faith.',
             favorite_verse: 'Philippians 4:13 - I can do all things through Christ...',
             spiritual_journey: 'Searching for truth.'

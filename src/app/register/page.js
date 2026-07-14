@@ -118,7 +118,7 @@ export default function Register() {
             full_name: `${firstName} ${surname}`,
             phone_number: phoneNumber,
             address: address,
-            avatar_url: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', // placeholder
+            avatar_url: avatarUrl || null,
             bio: '',
             favorite_verse: '',
             spiritual_journey: ''
