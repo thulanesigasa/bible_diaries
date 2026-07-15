@@ -39,7 +39,7 @@ export default function FeedScreen() {
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
 
-  const { user, profile, showToast, setHideTabBar } = useApp();
+  const { user, profile, showToast, setHideTabBar, accent } = useApp();
   const router = useRouter();
 
   const openModal = () => {
@@ -263,8 +263,8 @@ export default function FeedScreen() {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{item.category}</Text>
+          <View style={[styles.categoryBadge, { borderColor: accent }]}>
+            <Text style={[styles.categoryText, { color: accent }]}>{item.category}</Text>
           </View>
         </View>
 
@@ -300,7 +300,7 @@ export default function FeedScreen() {
             style={styles.actionBtn}
             onPress={() => handleToggleFavorite(item)}
           >
-            <Bookmark size={18} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
+            <Bookmark size={18} color={isFav ? accent : '#475569'} fill={isFav ? accent : 'transparent'} />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -328,7 +328,7 @@ export default function FeedScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0EA5E9" />
+        <ActivityIndicator size="large" color={accent} />
       </View>
     );
   }
@@ -393,13 +393,13 @@ export default function FeedScreen() {
                       key={cat}
                       style={[
                         styles.catSelectBtn,
-                        selectedCategory === cat && styles.catSelectBtnActive
+                        selectedCategory === cat && { borderColor: accent, backgroundColor: `${accent}15` }
                       ]}
                       onPress={() => setSelectedCategory(cat)}
                     >
                       <Text style={[
                         styles.catSelectText,
-                        selectedCategory === cat && styles.catSelectTextActive
+                        selectedCategory === cat && { color: accent }
                       ]}>{cat}</Text>
                     </TouchableOpacity>
                   ))}
@@ -430,12 +430,12 @@ export default function FeedScreen() {
                   value={isAnonymous}
                   onValueChange={setIsAnonymous}
                   trackColor={{ false: '#E2E8F0', true: '#bae6fd' }}
-                  thumbColor={isAnonymous ? '#0EA5E9' : '#94A3B8'}
+                  thumbColor={isAnonymous ? accent : '#94A3B8'}
                 />
               </View>
 
               <TouchableOpacity 
-                style={[styles.btnPublish, publishing && styles.btnDisabled]}
+                style={[styles.btnPublish, { backgroundColor: accent }, publishing && styles.btnDisabled]}
                 onPress={handleCreatePost}
                 disabled={publishing}
               >
@@ -462,7 +462,7 @@ export default function FeedScreen() {
             </TouchableOpacity>
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Diary</Text>
             <TouchableOpacity onPress={handleEditPostSubmit}>
-              <Text style={{ fontSize: 16, color: '#0EA5E9', fontWeight: 'bold' }}>Save</Text>
+              <Text style={{ fontSize: 16, color: accent, fontWeight: 'bold' }}>Save</Text>
             </TouchableOpacity>
           </View>
           <TextInput
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#0EA5E9',
+    color: '#475569',
   },
   postContent: {
     fontSize: 14,
@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   catSelectBtnActive: {
-    borderColor: '#0EA5E9',
+    borderColor: 'rgba(14, 165, 233, 0.08)',
     backgroundColor: 'rgba(14, 165, 233, 0.08)',
   },
   catSelectText: {
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   catSelectTextActive: {
-    color: '#0EA5E9',
+    color: '#64748B',
   },
   textArea: {
     backgroundColor: '#F8FAFC',
@@ -710,7 +710,7 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   btnPublish: {
-    backgroundColor: '#0EA5E9',
+    backgroundColor: '#64748B',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',

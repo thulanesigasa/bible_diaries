@@ -18,6 +18,7 @@ const AppContext = createContext<{
   loading: boolean;
   hideTabBar: boolean;
   setHideTabBar: React.Dispatch<React.SetStateAction<boolean>>;
+  accent: string;
 } | null>(null);
 
 export function useApp() {
@@ -151,6 +152,9 @@ export default function RootLayout() {
     }
   }, [user, loading, segments, fontsLoaded]);
 
+  // Derive accent from gender stored in profile
+  const accent = profile?.gender === 'Female' ? '#EC4899' : '#0EA5E9';
+
   if (!fontsLoaded || (loading && !user)) {
     return (
       <View style={styles.loadingContainer}>
@@ -161,13 +165,13 @@ export default function RootLayout() {
   }
 
   return (
-    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar }}>
+    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar, accent }}>
       <View style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" />
-          <Stack.Screen name="post/[id]" options={{ headerShown: true, title: 'Reflection', headerTintColor: '#0EA5E9' }} />
-          <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: '#0EA5E9' }} />
+          <Stack.Screen name="post/[id]" options={{ headerShown: true, title: 'Reflection', headerTintColor: accent }} />
+          <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: accent }} />
           <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
         </Stack>
 

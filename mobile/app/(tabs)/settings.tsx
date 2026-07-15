@@ -19,7 +19,7 @@ import Avatar from '../../components/Avatar';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function SettingsTabScreen() {
-  const { user, profile, setProfile, showToast } = useApp();
+  const { user, profile, setProfile, showToast, accent } = useApp();
   const router = useRouter();
 
   const [firstName, setFirstName] = useState(profile?.first_name || profile?.full_name?.split(' ')[0] || '');
@@ -40,6 +40,9 @@ export default function SettingsTabScreen() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'personal' | 'preferences'>('personal');
 
+  // Derive track colour from accent (softened tint)
+  const trackOn = accent === '#EC4899' ? '#fbcfe8' : '#bae6fd';
+
   const handleImageUpload = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -59,7 +62,6 @@ export default function SettingsTabScreen() {
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         
-        // 5MB size limit check
         if (asset.fileSize && asset.fileSize > 1024 * 1024 * 5) {
           showToast('Image size should be less than 5MB', 'error');
           return;
@@ -143,16 +145,16 @@ export default function SettingsTabScreen() {
       {/* Tabs */}
       <View style={styles.tabsRow}>
         <TouchableOpacity 
-          style={[styles.tab, activeTab === 'personal' && styles.tabActive]}
+          style={[styles.tab, activeTab === 'personal' && { borderBottomColor: accent }]}
           onPress={() => setActiveTab('personal')}
         >
-          <Text style={[styles.tabText, activeTab === 'personal' && styles.tabTextActive]}>Personal</Text>
+          <Text style={[styles.tabText, activeTab === 'personal' && { color: accent }]}>Personal</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[styles.tab, activeTab === 'preferences' && styles.tabActive]}
+          style={[styles.tab, activeTab === 'preferences' && { borderBottomColor: accent }]}
           onPress={() => setActiveTab('preferences')}
         >
-          <Text style={[styles.tabText, activeTab === 'preferences' && styles.tabTextActive]}>Preferences</Text>
+          <Text style={[styles.tabText, activeTab === 'preferences' && { color: accent }]}>Preferences</Text>
         </TouchableOpacity>
       </View>
 
@@ -163,7 +165,7 @@ export default function SettingsTabScreen() {
             <View style={styles.avatarContainer}>
               <View style={{ position: 'relative' }}>
                 <Avatar src={avatarUrl} fullName={`${firstName} ${surname}`} email={user?.email} size={90} />
-                <TouchableOpacity style={styles.cameraBadge} onPress={handleImageUpload}>
+                <TouchableOpacity style={[styles.cameraBadge, { backgroundColor: accent }]} onPress={handleImageUpload}>
                   <Camera size={14} color="#FFFFFF" />
                 </TouchableOpacity>
               </View>
@@ -172,84 +174,37 @@ export default function SettingsTabScreen() {
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>First Name</Text>
-              <TextInput
-                style={styles.input}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="First Name"
-                placeholderTextColor="#94A3B8"
-              />
+              <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="First Name" placeholderTextColor="#94A3B8" />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Surname</Text>
-              <TextInput
-                style={styles.input}
-                value={surname}
-                onChangeText={setSurname}
-                placeholder="Surname"
-                placeholderTextColor="#94A3B8"
-              />
+              <TextInput style={styles.input} value={surname} onChangeText={setSurname} placeholder="Surname" placeholderTextColor="#94A3B8" />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                placeholder="Phone Number"
-                placeholderTextColor="#94A3B8"
-                keyboardType="phone-pad"
-              />
+              <TextInput style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} placeholder="Phone Number" placeholderTextColor="#94A3B8" keyboardType="phone-pad" />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Address</Text>
-              <TextInput
-                style={styles.input}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="Address"
-                placeholderTextColor="#94A3B8"
-              />
+              <TextInput style={styles.input} value={address} onChangeText={setAddress} placeholder="Address" placeholderTextColor="#94A3B8" />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Biography</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={bio}
-                onChangeText={setBio}
-                placeholder="Share a short bio..."
-                placeholderTextColor="#94A3B8"
-                multiline
-                numberOfLines={3}
-              />
+              <TextInput style={[styles.input, styles.textArea]} value={bio} onChangeText={setBio} placeholder="Share a short bio..." placeholderTextColor="#94A3B8" multiline numberOfLines={3} />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Favorite Verse</Text>
-              <TextInput
-                style={styles.input}
-                value={favoriteVerse}
-                onChangeText={setFavoriteVerse}
-                placeholder="Favorite Scripture Verse"
-                placeholderTextColor="#94A3B8"
-              />
+              <TextInput style={styles.input} value={favoriteVerse} onChangeText={setFavoriteVerse} placeholder="Favorite Scripture Verse" placeholderTextColor="#94A3B8" />
             </View>
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Testimony & Journey</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={spiritualJourney}
-                onChangeText={setSpiritualJourney}
-                placeholder="Share your spiritual journey..."
-                placeholderTextColor="#94A3B8"
-                multiline
-                numberOfLines={4}
-              />
+              <TextInput style={[styles.input, styles.textArea]} value={spiritualJourney} onChangeText={setSpiritualJourney} placeholder="Share your spiritual journey..." placeholderTextColor="#94A3B8" multiline numberOfLines={4} />
             </View>
           </View>
         ) : (
@@ -259,12 +214,7 @@ export default function SettingsTabScreen() {
                 <Text style={styles.toggleTitle}>Private & Anonymous Mode</Text>
                 <Text style={styles.toggleDesc}>Hide your details from other members in the fellowship directory.</Text>
               </View>
-              <Switch
-                value={isPrivateMode}
-                onValueChange={setIsPrivateMode}
-                trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-                thumbColor={isPrivateMode ? '#0EA5E9' : '#94A3B8'}
-              />
+              <Switch value={isPrivateMode} onValueChange={setIsPrivateMode} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={isPrivateMode ? accent : '#94A3B8'} />
             </View>
 
             <View style={styles.toggleRow}>
@@ -272,12 +222,7 @@ export default function SettingsTabScreen() {
                 <Text style={styles.toggleTitle}>Allow Direct Messaging</Text>
                 <Text style={styles.toggleDesc}>Permit other believers to send you private messages from the Connect tab.</Text>
               </View>
-              <Switch
-                value={allowDms}
-                onValueChange={setAllowDms}
-                trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-                thumbColor={allowDms ? '#0EA5E9' : '#94A3B8'}
-              />
+              <Switch value={allowDms} onValueChange={setAllowDms} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={allowDms ? accent : '#94A3B8'} />
             </View>
 
             <View style={styles.toggleRow}>
@@ -285,12 +230,7 @@ export default function SettingsTabScreen() {
                 <Text style={styles.toggleTitle}>Likes Alerts Notifications</Text>
                 <Text style={styles.toggleDesc}>Receive email alerts when someone likes your reflections.</Text>
               </View>
-              <Switch
-                value={emailLikes}
-                onValueChange={setEmailLikes}
-                trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-                thumbColor={emailLikes ? '#0EA5E9' : '#94A3B8'}
-              />
+              <Switch value={emailLikes} onValueChange={setEmailLikes} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={emailLikes ? accent : '#94A3B8'} />
             </View>
 
             <View style={styles.toggleRow}>
@@ -298,12 +238,7 @@ export default function SettingsTabScreen() {
                 <Text style={styles.toggleTitle}>Comments Alerts Notifications</Text>
                 <Text style={styles.toggleDesc}>Receive email alerts when a member comments on your reflections.</Text>
               </View>
-              <Switch
-                value={emailComments}
-                onValueChange={setEmailComments}
-                trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-                thumbColor={emailComments ? '#0EA5E9' : '#94A3B8'}
-              />
+              <Switch value={emailComments} onValueChange={setEmailComments} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={emailComments ? accent : '#94A3B8'} />
             </View>
           </View>
         )}
@@ -311,7 +246,7 @@ export default function SettingsTabScreen() {
         {/* Buttons */}
         <View style={styles.btnArea}>
           <TouchableOpacity 
-            style={[styles.saveBtn, saving && styles.btnDisabled]} 
+            style={[styles.saveBtn, { backgroundColor: accent }, saving && styles.btnDisabled]} 
             onPress={handleSave}
             disabled={saving}
           >
@@ -350,16 +285,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
-  tabActive: {
-    borderBottomColor: '#0EA5E9',
-  },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#64748B',
-  },
-  tabTextActive: {
-    color: '#0EA5E9',
   },
   scrollContainer: {
     padding: 20,
@@ -376,7 +305,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#0EA5E9',
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -443,7 +371,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   saveBtn: {
-    backgroundColor: '#0EA5E9',
     borderRadius: 8,
     height: 48,
     alignItems: 'center',
