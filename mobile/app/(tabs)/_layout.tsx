@@ -12,14 +12,14 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#0EA5E9',
+        tabBarActiveTintColor: '#EC4899', // Pink tint
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
           display: hideTabBar ? 'none' : 'flex',
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? 28 : 24,
-          left: horizontalPadding,
-          right: horizontalPadding,
+          marginHorizontal: horizontalPadding, // Pushes against default left:0
+          width: 220, // Explicit bounded pill width
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
           height: 50, // More compact height
@@ -52,17 +52,17 @@ export default function TabLayout() {
             <Text style={{ 
               fontSize: 8.5, 
               fontWeight: focused ? '700' : '500', 
-              color: focused ? '#0EA5E9' : '#64748B',
+              color: focused ? '#EC4899' : '#64748B',
               marginTop: 1
             }}>
               {children}
             </Text>
             {focused && (
               <View style={{ 
-                width: 3, 
-                height: 3, 
-                borderRadius: 1.5, 
-                backgroundColor: '#0EA5E9', 
+                width: 4, 
+                height: 4, 
+                borderRadius: 2, 
+                backgroundColor: '#EC4899', 
                 marginTop: 2
               }} />
             )}
