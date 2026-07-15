@@ -16,9 +16,8 @@ export default function TabLayout() {
           display: hideTabBar ? 'none' : 'flex',
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? 28 : 24,
-          width: 200,
-          left: '50%',
-          marginLeft: -100,
+          left: '20%',
+          right: '20%',
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
           height: 56,
