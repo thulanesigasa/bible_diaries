@@ -11,7 +11,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Universal Storage Adapter to prevent native module crashes on web views
 const customStorage = {
-  getItem: async (key: string) => {
+  getItem: async (key) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         return window.localStorage.getItem(key);
@@ -24,7 +24,7 @@ const customStorage = {
       return null;
     }
   },
-  setItem: async (key: string, value: string) => {
+  setItem: async (key, value) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.setItem(key, value);
@@ -37,7 +37,7 @@ const customStorage = {
       // Ignore
     }
   },
-  removeItem: async (key: string) => {
+  removeItem: async (key) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.removeItem(key);
