@@ -1108,3 +1108,60 @@ input::-webkit-contacts-auto-fill-button {
 .checkbox-apple label:hover:after {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+
+/* Split Signup Page Layout */
+.auth-split-container {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.auth-split-canvas {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.04) 0%, rgba(14, 165, 233, 0.01) 100%);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-split-canvas::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.auth-split-form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3.5rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .auth-split-container {
+    grid-template-columns: 1fr;
+  }
+  .auth-split-canvas {
+    display: none;
+  }
+  .auth-split-form-container {
+    padding: 3rem 1.5rem;
+  }
+  .mobile-only-logo {
+    display: inline-flex !important;
+  }
+}
+

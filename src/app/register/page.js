@@ -146,17 +146,42 @@ export default function Register() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', padding: '2rem 1.5rem' }}>
-      <div className="diary-card" style={{ width: '100%', maxWidth: '540px', padding: '2.5rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-primary)' }}>
-        
-        {/* Header */}
-        <div className="auth-header" style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
+    <div className="auth-split-container">
+      {/* Left Panel: Canvas Graphic */}
+      <div className="auth-split-canvas">
+        <div style={{ maxWidth: '420px', zIndex: 2 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '2rem', fontSize: '2.25rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
             bible_diaries
           </div>
-          <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
-          <p className="auth-subtitle">Join our community to share and browse diaries</p>
+          <h1 style={{ fontSize: '2.5rem', lineHeight: '1.2', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+            Document Your Spiritual Walk
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+            Join a sanctuary of believers sharing daily reflections, testimony logs, and encouraging fellowship in private chat spaces.
+          </p>
+          
+          <div style={{ padding: '1.5rem', backgroundColor: 'rgba(14, 165, 233, 0.04)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(14, 165, 233, 0.1)' }}>
+            <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '8px', lineHeight: '1.6' }}>
+              "Thy word is a lamp unto my feet, and a light unto my path."
+            </p>
+            <span style={{ fontSize: '0.8rem', color: 'var(--gold-accent)', fontWeight: '600', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              Psalm 119:105
+            </span>
+          </div>
         </div>
+      </div>
+
+      {/* Right Panel: Form Section */}
+      <div className="auth-split-form-container">
+        <div style={{ width: '100%' }}>
+          {/* Header */}
+          <div className="auth-header" style={{ marginBottom: '2rem' }}>
+            <div style={{ display: 'none', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }} className="mobile-only-logo">
+              bible_diaries
+            </div>
+            <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
+            <p className="auth-subtitle">Join our community to share and browse diaries</p>
+          </div>
 
         {/* Step Indicator */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
@@ -451,6 +476,7 @@ export default function Register() {
             Log In
           </Link>
         </p>
+        </div>
       </div>
     </div>
   );
