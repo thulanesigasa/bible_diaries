@@ -5,7 +5,8 @@ import {
   FlatList, 
   TouchableOpacity, 
   StyleSheet, 
-  ActivityIndicator 
+  ActivityIndicator,
+  ScrollView 
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
@@ -173,25 +174,31 @@ export default function FiltersScreen() {
   return (
     <View style={styles.container}>
       {/* Categories Bar */}
-      <View style={styles.categoriesBar}>
-        {CATEGORIES.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            style={[
-              styles.categoryTab,
-              activeCategory === cat && styles.categoryTabActive
-            ]}
-            onPress={() => {
-              setLoading(true);
-              setActiveCategory(cat);
-            }}
-          >
-            <Text style={[
-              styles.categoryTabText,
-              activeCategory === cat && styles.categoryTabTextActive
-            ]}>{cat}</Text>
-          </TouchableOpacity>
-        ))}
+      <View style={{ backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: 'rgba(15, 23, 42, 0.08)' }}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesScrollContainer}
+        >
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[
+                styles.categoryTab,
+                activeCategory === cat && styles.categoryTabActive
+              ]}
+              onPress={() => {
+                setLoading(true);
+                setActiveCategory(cat);
+              }}
+            >
+              <Text style={[
+                styles.categoryTabText,
+                activeCategory === cat && styles.categoryTabTextActive
+              ]}>{cat}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {loading ? (
@@ -222,14 +229,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  categoriesBar: {
+  listContainer: {
+    padding: 16,
+    paddingBottom: 110,
+  },
+  categoriesScrollContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(15, 23, 42, 0.08)',
-    justifyContent: 'space-between',
+    gap: 8,
   },
   categoryTab: {
     paddingVertical: 6,

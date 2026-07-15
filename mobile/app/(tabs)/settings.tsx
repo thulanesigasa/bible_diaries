@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 110,
   },
   section: {
     gap: 16,

@@ -15,6 +15,8 @@ const AppContext = createContext<{
   setProfile: React.Dispatch<React.SetStateAction<any>>;
   showToast: (msg: string, type?: 'success' | 'error') => void;
   loading: boolean;
+  hideTabBar: boolean;
+  setHideTabBar: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
 export function useApp() {
@@ -33,6 +35,7 @@ export default function RootLayout() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [hideTabBar, setHideTabBar] = useState(false);
   const [toasts, setToasts] = useState<{ id: string; message: string; type?: 'success' | 'error' }[]>([]);
 
   const router = useRouter();
@@ -126,7 +129,7 @@ export default function RootLayout() {
   }
 
   return (
-    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading }}>
+    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar }}>
       <View style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />

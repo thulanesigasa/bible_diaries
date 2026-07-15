@@ -32,8 +32,18 @@ export default function FeedScreen() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
-  const { user, profile, showToast } = useApp();
+  const { user, profile, showToast, setHideTabBar } = useApp();
   const router = useRouter();
+
+  const openModal = () => {
+    setShowCreateModal(true);
+    setHideTabBar(true);
+  };
+
+  const closeModal = () => {
+    setShowCreateModal(false);
+    setHideTabBar(false);
+  };
 
   const fetchPosts = async () => {
     try {
@@ -100,7 +110,7 @@ export default function FeedScreen() {
         showToast('Reflection published successfully!');
         setNewContent('');
         setIsAnonymous(false);
-        setShowCreateModal(false);
+        closeModal();
         fetchPosts();
       }
     } catch (e) {
@@ -270,7 +280,7 @@ export default function FeedScreen() {
       {/* Floating Add Post Button */}
       <TouchableOpacity 
         style={styles.fab}
-        onPress={() => setShowCreateModal(true)}
+        onPress={openModal}
       >
         <Plus size={24} color="#FFFFFF" />
       </TouchableOpacity>
@@ -280,7 +290,7 @@ export default function FeedScreen() {
         visible={showCreateModal}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowCreateModal(false)}
+        onRequestClose={closeModal}
       >
         <View style={styles.modalBg}>
           <KeyboardAvoidingView
@@ -288,17 +298,24 @@ export default function FeedScreen() {
             style={styles.modalContent}
           >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Share Reflection</Text>
-              <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-                <X size={20} color="#0F172A" />
+              <View>
+                <Text style={styles.modalTitle}>Share Your Reflection</Text>
+                <Text style={styles.modalSubTitle}>Inspire the fellowship with your daily walk of faith.</Text>
+              </View>
+              <TouchableOpacity onPress={closeModal} style={styles.modalCloseBtn}>
+                <X size={20} color="#64748B" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.modalForm}>
+            <ScrollView contentContainerStyle={styles.modalForm} keyboardShouldPersistTaps="handled">
               {/* Category selector */}
               <View style={styles.modalSection}>
                 <Text style={styles.sectionLabel}>Select Category</Text>
-                <View style={styles.categoryRow}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.categoryScrollContainer}
+                >
                   {CATEGORIES.map((cat) => (
                     <TouchableOpacity
                       key={cat}
@@ -314,7 +331,7 @@ export default function FeedScreen() {
                       ]}>{cat}</Text>
                     </TouchableOpacity>
                   ))}
-                </View>
+                </ScrollView>
               </View>
 
               {/* Text Input */}
@@ -380,7 +397,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-    paddingBottom: 80,
+    paddingBottom: 110,
   },
   postCard: {
     backgroundColor: '#FFFFFF',
@@ -465,10 +482,11 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     textAlign: 'center',
     fontStyle: 'italic',
+    marginTop: 20,
   },
   fab: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 90, // Positioned above floating tab bar
     right: 20,
     width: 54,
     height: 54,
@@ -481,33 +499,51 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 6,
+    zIndex: 99,
   },
   modalBg: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '85%',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '90%',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(15, 23, 42, 0.08)',
+    borderBottomColor: 'rgba(15, 23, 42, 0.06)',
   },
   modalTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#0F172A',
   },
+  modalSubTitle: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    padding: 6,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+  },
   modalForm: {
-    padding: 20,
+    padding: 24,
     gap: 20,
   },
   modalSection: {
@@ -517,18 +553,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#475569',
+    marginBottom: 4,
   },
-  categoryRow: {
+  categoryScrollContainer: {
     flexDirection: 'row',
     gap: 8,
+    paddingRight: 20,
   },
   catSelectBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.08)',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#F8FAFC',
   },
   catSelectBtnActive: {
@@ -538,7 +577,7 @@ const styles = StyleSheet.create({
   catSelectText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: '#64748B',
   },
   catSelectTextActive: {
     color: '#0EA5E9',
@@ -547,8 +586,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: 12,
+    padding: 14,
     fontSize: 14,
     color: '#0F172A',
     minHeight: 120,

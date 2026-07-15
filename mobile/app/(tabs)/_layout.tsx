@@ -1,10 +1,11 @@
 import React from 'react';
-import { Tabs, useRouter } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
+import { Tabs } from 'expo-router';
+import { TouchableOpacity, View, Text, Platform } from 'react-native';
 import { BookOpen, Filter, Users, MessageSquare, Settings } from 'lucide-react-native';
+import { useApp } from '../_layout';
 
 export default function TabLayout() {
-  const router = useRouter();
+  const { hideTabBar } = useApp();
 
   return (
     <Tabs
@@ -12,12 +13,23 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#0EA5E9',
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
+          display: hideTabBar ? 'none' : 'flex',
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 24 : 16,
+          left: 16,
+          right: 16,
           backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(15, 23, 42, 0.08)',
-          height: 60,
-          paddingBottom: 8,
+          borderRadius: 24,
+          height: 64,
+          paddingBottom: Platform.OS === 'ios' ? 12 : 8,
           paddingTop: 8,
+          borderWidth: 1,
+          borderColor: 'rgba(15, 23, 42, 0.08)',
+          shadowColor: '#0F172A',
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.06,
+          shadowRadius: 15,
+          elevation: 5,
         },
         headerStyle: {
           backgroundColor: '#FFFFFF',
@@ -32,6 +44,27 @@ export default function TabLayout() {
           fontSize: 18,
           fontFamily: 'SpaceMono',
         },
+        tabBarLabel: ({ focused, children }) => (
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ 
+              fontSize: 10, 
+              fontWeight: focused ? '700' : '500', 
+              color: focused ? '#0EA5E9' : '#64748B',
+              marginTop: 1
+            }}>
+              {children}
+            </Text>
+            {focused && (
+              <View style={{ 
+                width: 4, 
+                height: 4, 
+                borderRadius: 2, 
+                backgroundColor: '#0EA5E9', 
+                marginTop: 3
+              }} />
+            )}
+          </View>
+        )
       }}>
       <Tabs.Screen
         name="index"
