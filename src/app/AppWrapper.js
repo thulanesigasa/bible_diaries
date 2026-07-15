@@ -58,7 +58,7 @@ export default function AppWrapper({ children }) {
             setProfile({
               id: currentUser.id,
               full_name: currentUser.user_metadata?.full_name || 'Anonymous Believer',
-              avatar_url: currentUser.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+              avatar_url: currentUser.user_metadata?.avatar_url || null,
               bio: currentUser.user_metadata?.bio || '',
               favorite_verse: currentUser.user_metadata?.favorite_verse || '',
               spiritual_journey: currentUser.user_metadata?.spiritual_journey || ''

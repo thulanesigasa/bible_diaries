@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { Loader, Camera, Save, Send, User, BookOpen, Sliders, Shield, Users, Bell } from 'lucide-react';
+import Avatar from '../../components/Avatar';
 
 export default function Settings() {
   const { user, profile, setProfile, showToast } = useApp();
@@ -203,11 +204,12 @@ export default function Settings() {
               {/* Avatar Upload Area */}
               <div className="avatar-upload-area">
                 <div style={{ position: 'relative' }}>
-                  <img 
-                    src={avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                    alt="Avatar" 
-                    className="avatar-upload-preview"
-                  />
+                   <Avatar 
+                     src={avatarUrl} 
+                     fullName={profile?.full_name} 
+                     size={70} 
+                     className="avatar-upload-preview"
+                   />
                   <label 
                     htmlFor="settings-avatar-upload" 
                     style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: 'var(--gold-accent)', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContext: 'center', cursor: 'pointer', border: '2px solid var(--bg-primary)', justifyContent: 'center' }}

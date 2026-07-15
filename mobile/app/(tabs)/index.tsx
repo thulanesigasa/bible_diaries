@@ -54,7 +54,7 @@ export default function FeedScreen() {
   const fetchPosts = async () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Mobile Feed fetchPosts - Session exists:', !!sessionData.session, 'User ID:', sessionData.session?.user?.id);
+      console.log('Mobile Feed fetchPosts - Client ID:', supabase.instanceId, 'Session exists:', !!sessionData.session, 'User ID:', sessionData.session?.user?.id);
       
       const { data, error } = await supabase
         .from('diaries')

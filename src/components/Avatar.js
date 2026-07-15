@@ -14,7 +14,7 @@ export function getInitials(fullName, email) {
   return 'U';
 }
 
-export default function Avatar({ src, fullName, email, size = 40, style = {} }) {
+export default function Avatar({ src, fullName, email, size = 40, className = '', style = {} }) {
   const [imageError, setImageError] = useState(false);
 
   // Check if image is available, not a generic unsplash placeholder, and hasn't failed to load
@@ -31,6 +31,7 @@ export default function Avatar({ src, fullName, email, size = 40, style = {} }) 
       <img
         src={src}
         alt={fullName || 'User Avatar'}
+        className={className}
         onError={() => setImageError(true)}
         style={{
           width: size,
@@ -46,6 +47,7 @@ export default function Avatar({ src, fullName, email, size = 40, style = {} }) 
 
   return (
     <div
+      className={className}
       style={{
         width: size,
         height: size,

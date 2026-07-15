@@ -144,10 +144,12 @@ export default function Connect() {
             </button>
             
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', textAlign: 'center' }}>
-              <img 
-                src={selectedProfile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                alt={selectedProfile.full_name} 
-                style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--gold-accent)' }}
+              <Avatar 
+                src={selectedProfile.avatar_url} 
+                fullName={selectedProfile.full_name} 
+                email={selectedProfile.email} 
+                size={90}
+                style={{ border: '3px solid var(--gold-accent)' }}
               />
               <div>
                 <h2 style={{ fontSize: '1.5rem', marginBottom: '4px' }}>{selectedProfile.full_name}</h2>

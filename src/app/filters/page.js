@@ -15,6 +15,7 @@ import {
   User,
   X
 } from 'lucide-react';
+import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
@@ -310,10 +311,12 @@ export default function FiltersPage() {
                           }
                         }}
                       >
-                        <img 
-                          src={post.profiles?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                          alt={post.profiles?.full_name} 
-                          className="diary-card-avatar"
+                        <Avatar 
+                          src={post.profiles?.avatar_url} 
+                          fullName={post.profiles?.full_name} 
+                          email={post.profiles?.email} 
+                          size={40}
+                          style={{ marginRight: '10px' }}
                         />
                         <div>
                           <div className="diary-card-author-name">{post.profiles?.full_name}</div>

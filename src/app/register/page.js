@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../AppWrapper';
 import { Loader, Camera, ChevronRight, ChevronLeft, Check, Eye, EyeOff } from 'lucide-react';
+import Avatar from '../../components/Avatar';
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -429,11 +430,12 @@ export default function Register() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="avatar-upload-area" style={{ marginBottom: '0.5rem' }}>
                 <div style={{ position: 'relative' }}>
-                  <img 
-                    src={avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'} 
-                    alt="Avatar preview" 
-                    className="avatar-upload-preview"
-                  />
+                   <Avatar 
+                     src={avatarUrl} 
+                     fullName={`${firstName} ${surname}`.trim() || 'Believer'} 
+                     size={70} 
+                     className="avatar-upload-preview"
+                   />
                   <label 
                     htmlFor="avatar-upload" 
                     style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: '#D4AF37', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContext: 'center', cursor: 'pointer', border: '2px solid #0A0D14', justifyContent: 'center' }}

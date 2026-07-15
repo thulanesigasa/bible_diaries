@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useApp } from '../../AppWrapper';
 import { Send, Loader, User, BookOpen } from 'lucide-react';
+import Avatar from '../../../components/Avatar';
 
 export default function ChatPage({ params }) {
   // Use React's use() to read params since in Next 15+ it is a Promise!
@@ -245,9 +246,11 @@ export default function ChatPage({ params }) {
                   className={`chat-room-item ${active ? 'active' : ''}`}
                   onClick={() => router.push(`/chat/${room.profile.id}`)}
                 >
-                  <img
-                    src={room.profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
-                    alt={room.profile.full_name}
+                  <Avatar
+                    src={room.profile.avatar_url}
+                    fullName={room.profile.full_name}
+                    email={room.profile.email}
+                    size={40}
                     className="chat-room-avatar"
                   />
                   <div className="chat-room-info">
@@ -266,11 +269,13 @@ export default function ChatPage({ params }) {
             <>
               {/* Header */}
               <div className="chat-window-header">
-                <img
-                  src={activePartner.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
-                  alt={activePartner.full_name}
-                  style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--gold-accent)' }}
-                />
+                 <Avatar
+                   src={activePartner.avatar_url}
+                   fullName={activePartner.full_name}
+                   email={activePartner.email}
+                   size={36}
+                   style={{ border: '1px solid var(--gold-accent)' }}
+                 />
                 <div>
                   <h4 style={{ fontSize: '1rem', fontWeight: '600' }}>{activePartner.full_name}</h4>
                   {activePartner.favorite_verse && (
