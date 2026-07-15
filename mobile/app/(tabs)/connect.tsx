@@ -28,7 +28,7 @@ export default function ConnectScreen() {
       // Fetch all user profiles from supabase, excluding the current logged-in user
       let query = supabase.from('profiles').select('*');
       if (user) {
-        query = query.ne('id', user.id);
+        query = query.neq('id', user.id);
       }
       
       const { data, error } = await query;
@@ -65,7 +65,7 @@ export default function ConnectScreen() {
     return (
       <TouchableOpacity 
         style={styles.profileCard}
-        onPress={() => router.push(`/profile/${item.id}`)}
+        onPress={() => router.push((`/profile/${item.id}`) as any)}
         activeOpacity={0.7}
       >
         <Avatar 

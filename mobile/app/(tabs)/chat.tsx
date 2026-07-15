@@ -105,7 +105,7 @@ export default function ChatScreen() {
     return (
       <TouchableOpacity 
         style={styles.convCard}
-        onPress={() => router.push(`/chat/${item.id}`)}
+        onPress={() => router.push((`/chat/${item.id}`) as any)}
         activeOpacity={0.7}
       >
         <Avatar 

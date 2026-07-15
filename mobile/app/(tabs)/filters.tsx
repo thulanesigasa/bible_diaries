@@ -117,7 +117,7 @@ export default function FiltersScreen() {
             style={styles.authorRow}
             onPress={() => {
               if (!item.is_anonymous) {
-                router.push(`/profile/${item.author_id}`);
+                router.push((`/profile/${item.author_id}`) as any);
               }
             }}
             disabled={item.is_anonymous}
@@ -143,7 +143,7 @@ export default function FiltersScreen() {
         </View>
 
         <TouchableOpacity 
-          onPress={() => router.push(`/post/${item.id}`)}
+          onPress={() => router.push((`/post/${item.id}`) as any)}
           activeOpacity={0.7}
         >
           <Text style={styles.postContent}>{item.content}</Text>
@@ -157,7 +157,7 @@ export default function FiltersScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionBtn} onPress={() => router.push(`/post/${item.id}`)}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => router.push((`/post/${item.id}`) as any)}>
             <MessageSquare size={18} color="#475569" />
             <Text style={styles.actionText}>{item.comments?.length || 0}</Text>
           </TouchableOpacity>

@@ -9,7 +9,10 @@ import {
   Image, 
   ActivityIndicator,
   Modal,
-  Switch
+  Switch,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
@@ -176,7 +179,7 @@ export default function FeedScreen() {
             style={styles.authorRow}
             onPress={() => {
               if (!item.is_anonymous) {
-                router.push(`/profile/${item.author_id}`);
+                router.push((`/profile/${item.author_id}`) as any);
               }
             }}
             disabled={item.is_anonymous}
@@ -203,7 +206,7 @@ export default function FeedScreen() {
 
         {/* Content body */}
         <TouchableOpacity 
-          onPress={() => router.push(`/post/${item.id}`)}
+          onPress={() => router.push((`/post/${item.id}`) as any)}
           activeOpacity={0.7}
         >
           <Text style={styles.postContent}>{item.content}</Text>
@@ -223,7 +226,7 @@ export default function FeedScreen() {
 
           <TouchableOpacity 
             style={styles.actionBtn}
-            onPress={() => router.push(`/post/${item.id}`)}
+            onPress={() => router.push((`/post/${item.id}`) as any)}
           >
             <MessageSquare size={18} color="#475569" />
             <Text style={styles.actionText}>{item.comments?.length || 0}</Text>

@@ -5,7 +5,8 @@ import {
   ScrollView, 
   TouchableOpacity, 
   StyleSheet, 
-  ActivityIndicator 
+  ActivityIndicator,
+  Platform 
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
@@ -114,7 +115,7 @@ export default function MemberProfileScreen() {
         <View style={styles.actionContainer}>
           <TouchableOpacity 
             style={styles.messageBtn}
-            onPress={() => router.push(`/chat/${profileData?.id}`)}
+            onPress={() => router.push((`/chat/${profileData?.id}`) as any)}
           >
             <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
             <Text style={styles.messageBtnText}>Send Private Message</Text>
