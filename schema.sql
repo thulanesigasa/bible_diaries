@@ -92,6 +92,7 @@ ALTER TABLE public.diaries ENABLE ROW LEVEL SECURITY;
 -- Drop diaries policies if they exist
 DROP POLICY IF EXISTS "Allow public read access to diaries" ON public.diaries;
 DROP POLICY IF EXISTS "Allow users to insert their own diaries" ON public.diaries;
+DROP POLICY IF EXISTS "Allow users to update their own diaries" ON public.diaries;
 DROP POLICY IF EXISTS "Allow users to delete their own diaries" ON public.diaries;
 
 -- Recreate diaries policies
@@ -168,6 +169,7 @@ ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 -- Drop comments policies if they exist
 DROP POLICY IF EXISTS "Allow public read access to comments" ON public.comments;
 DROP POLICY IF EXISTS "Allow users to insert their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Allow users to update their own comments" ON public.comments;
 DROP POLICY IF EXISTS "Allow users to delete their own comments" ON public.comments;
 DROP POLICY IF EXISTS "Allow post author or commentor to delete comment" ON public.comments;
 

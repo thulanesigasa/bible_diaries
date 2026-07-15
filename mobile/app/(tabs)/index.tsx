@@ -14,9 +14,9 @@ import {
   Platform,
   ScrollView,
   Share,
-  Alert,
-  SafeAreaView
+  Alert
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
@@ -228,8 +228,8 @@ export default function FeedScreen() {
   };
 
   const renderPostItem = ({ item }: { item: any }) => {
-    const isLiked = item.likes?.some((l: any) => l.user_id === user.id);
-    const isFav = item.favorites?.some((f: any) => f.user_id === user.id) || false;
+    const isLiked = item.likes?.some((l: any) => l.user_id === user?.id);
+    const isFav = item.favorites?.some((f: any) => f.user_id === user?.id) || false;
     const authorName = item.is_anonymous ? 'Anonymous Believer' : (item.profiles?.full_name || 'Believer');
     const authorAvatar = item.is_anonymous
       ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'

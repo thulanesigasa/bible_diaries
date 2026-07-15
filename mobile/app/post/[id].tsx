@@ -11,9 +11,9 @@ import {
   Platform,
   Share,
   Alert,
-  Modal,
-  SafeAreaView
+  Modal
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
@@ -287,28 +287,12 @@ export default function PostDetailsScreen() {
 
               <TouchableOpacity style={styles.actionBtn} onPress={handleToggleFavorite}>
                 <Bookmark size={20} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
-                <Text style={[styles.actionText, isFav && { color: '#0EA5E9' }]}>
-                  {isFav ? 'Bookmarked' : 'Bookmark'}
-                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(post?.content, post?.profiles?.full_name)}>
                 <Share2 size={20} color="#475569" />
                 <Text style={styles.actionText}>Share</Text>
               </TouchableOpacity>
-
-              {user?.id === post?.author_id && (
-                <>
-                  <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditContent(post?.content); setIsEditingPost(true); }}>
-                    <Edit2 size={20} color="#475569" />
-                    <Text style={styles.actionText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionBtn} onPress={handleDeletePost}>
-                    <Trash2 size={20} color="#EF4444" />
-                    <Text style={[styles.actionText, { color: '#EF4444' }]}>Delete</Text>
-                  </TouchableOpacity>
-                </>
-              )}
             </View>
 
             <Text style={styles.sectionDivider}>Comments ({comments.length})</Text>

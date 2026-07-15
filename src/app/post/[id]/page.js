@@ -454,26 +454,12 @@ export default function PostPage({ params }) {
 
           <button className="action-btn" onClick={handleFavorite}>
             <Bookmark size={20} />
-            <span>Save Reflection</span>
           </button>
 
           <button className="action-btn" onClick={handleShare}>
             <Share2 size={20} />
             <span>Share</span>
           </button>
-
-          {user?.id === post.author_id && (
-            <>
-              <button className="action-btn" onClick={() => setIsEditingPost(true)}>
-                <Edit2 size={20} />
-                <span>Edit</span>
-              </button>
-              <button className="action-btn" style={{ color: '#EF4444' }} onClick={handleDeletePost}>
-                <Trash2 size={20} />
-                <span>Delete</span>
-              </button>
-            </>
-          )}
         </div>
 
         {/* Comments Section (Permanently expanded for easy reading) */}
