@@ -7,7 +7,7 @@ import { useApp } from '../_layout';
 export default function TabLayout() {
   const { hideTabBar } = useApp();
   const { width } = useWindowDimensions();
-  const horizontalPadding = (width - 220) / 2;
+  const horizontalPadding = (width - 280) / 2;
 
   return (
     <Tabs
@@ -19,7 +19,7 @@ export default function TabLayout() {
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? 28 : 24,
           marginHorizontal: horizontalPadding, // Pushes against default left:0
-          width: 220, // Explicit bounded pill width
+          width: 280, // Explicit bounded pill width
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
           height: 50, // More compact height
