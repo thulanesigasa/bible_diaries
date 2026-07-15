@@ -163,8 +163,8 @@ export default function FiltersScreen() {
 
         <View style={styles.actionsBar}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => handleToggleLike(item)}>
-            <Heart size={18} color={isLiked ? '#EF4444' : '#475569'} fill={isLiked ? '#EF4444' : 'transparent'} />
-            <Text style={[styles.actionText, isLiked && { color: '#EF4444' }]}>
+            <Heart size={18} color={isLiked ? '#EC4899' : '#475569'} fill={isLiked ? '#EC4899' : 'transparent'} />
+            <Text style={[styles.actionText, isLiked && { color: '#EC4899' }]}>
               {item.likes?.length || 0}
             </Text>
           </TouchableOpacity>

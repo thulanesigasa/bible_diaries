@@ -498,9 +498,9 @@ export default function PostPage({ params }) {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                           <button 
                             onClick={() => handleLikeComment(comment.id)} 
-                            style={{ color: commentLiked ? 'var(--gold-accent)' : 'inherit', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}
+                            style={{ color: commentLiked ? 'var(--heart-red)' : 'inherit', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}
                           >
-                            <Heart size={12} fill={commentLiked ? 'var(--gold-accent)' : 'none'} />
+                            <Heart size={12} fill={commentLiked ? 'var(--heart-red)' : 'none'} />
                             <span>{comment.comment_likes?.length || 0} Likes</span>
                           </button>
                           
@@ -557,9 +557,9 @@ export default function PostPage({ params }) {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.4rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                                 <button 
                                   onClick={() => handleLikeComment(reply.id)} 
-                                  style={{ color: replyLiked ? 'var(--gold-accent)' : 'inherit', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}
+                                  style={{ color: replyLiked ? 'var(--heart-red)' : 'inherit', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '2px' }}
                                 >
-                                  <Heart size={11} fill={replyLiked ? 'var(--gold-accent)' : 'none'} />
+                                  <Heart size={11} fill={replyLiked ? 'var(--heart-red)' : 'none'} />
                                   <span>{reply.comment_likes?.length || 0} Likes</span>
                                 </button>
 
