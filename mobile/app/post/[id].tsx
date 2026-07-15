@@ -180,6 +180,9 @@ export default function PostDetailsScreen() {
 
     setSubmittingComment(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Mobile post detail handlePostComment - Session user:', sessionData.session?.user?.id, 'Token slice:', sessionData.session?.access_token?.slice(-15));
+      
       const { error } = await supabase
         .from('comments')
         .insert({
@@ -239,8 +242,8 @@ export default function PostDetailsScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 80}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <FlatList
         data={comments}
