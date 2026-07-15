@@ -20,7 +20,7 @@ export default function ConnectScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
   const fetchProfiles = async () => {
@@ -48,7 +48,7 @@ export default function ConnectScreen() {
 
   useEffect(() => {
     fetchProfiles();
-  }, []);
+  }, [user]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -73,12 +73,13 @@ export default function ConnectScreen() {
           fullName={item.full_name} 
           size={50}
           style={{ marginRight: 14 }}
+          accent={accent}
         />
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{item.full_name || 'Believer'}</Text>
           {item.favorite_verse ? (
             <View style={styles.verseRow}>
-              <BookOpen size={13} color="#0EA5E9" style={{ marginRight: 4 }} />
+              <BookOpen size={13} color={accent} style={{ marginRight: 4 }} />
               <Text style={styles.profileVerse} numberOfLines={1}>
                 "{item.favorite_verse}"
               </Text>
@@ -112,7 +113,7 @@ export default function ConnectScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0EA5E9" />
+          <ActivityIndicator size="large" color={accent} />
         </View>
       ) : (
         <FlatList

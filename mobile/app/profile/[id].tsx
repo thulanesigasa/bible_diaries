@@ -19,7 +19,7 @@ export default function MemberProfileScreen() {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
   const fetchProfileDetails = async () => {
@@ -50,7 +50,7 @@ export default function MemberProfileScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0EA5E9" />
+        <ActivityIndicator size="large" color={accent} />
       </View>
     );
   }
@@ -67,6 +67,7 @@ export default function MemberProfileScreen() {
           fullName={profileData?.full_name} 
           size={90}
           style={{ marginBottom: 16, borderOpacity: 0.1 }}
+          accent={accent}
         />
         <Text style={styles.fullName}>{profileData?.full_name || 'Believer'}</Text>
         <Text style={styles.bioText}>{profileData?.bio || 'Sharing the walk of faith.'}</Text>
@@ -83,8 +84,8 @@ export default function MemberProfileScreen() {
       {profileData?.favorite_verse ? (
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <BookOpen size={16} color="#0EA5E9" style={{ marginRight: 6 }} />
-            <Text style={styles.sectionTitle}>Favorite Bible Scripture</Text>
+            <BookOpen size={16} color={accent} style={{ marginRight: 6 }} />
+            <Text style={[styles.sectionTitle, { color: accent }]}>Favorite Bible Scripture</Text>
           </View>
           <Text style={styles.verseText}>
             "{profileData.favorite_verse}"
@@ -95,8 +96,8 @@ export default function MemberProfileScreen() {
       {/* Testimony / Journey Block */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
-          <Award size={16} color="#0EA5E9" style={{ marginRight: 6 }} />
-          <Text style={styles.sectionTitle}>Spiritual Journey & Testimony</Text>
+          <Award size={16} color={accent} style={{ marginRight: 6 }} />
+          <Text style={[styles.sectionTitle, { color: accent }]}>Spiritual Journey & Testimony</Text>
         </View>
         <Text style={styles.testimonyText}>
           {profileData?.spiritual_journey || 'No testimony description provided yet.'}
@@ -107,7 +108,7 @@ export default function MemberProfileScreen() {
       {!isMe && (
         <View style={styles.actionContainer}>
           <TouchableOpacity 
-            style={styles.messageBtn}
+            style={[styles.messageBtn, { backgroundColor: accent }]}
             onPress={() => router.push((`/chat/${profileData?.id}`) as any)}
           >
             <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />

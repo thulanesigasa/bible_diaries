@@ -117,6 +117,7 @@ export default function RootLayout() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth event:', event, 'Has session:', !!session, 'Session user:', session?.user?.email);
       const activeUser = session?.user ?? null;
       setUser(activeUser);
       if (activeUser) {
@@ -158,7 +159,7 @@ export default function RootLayout() {
   if (!fontsLoaded || (loading && !user)) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0EA5E9" />
+        <ActivityIndicator size="large" color={accent} />
         <Text style={styles.loadingText}>Aligning hearts...</Text>
       </View>
     );
@@ -178,7 +179,7 @@ export default function RootLayout() {
         {/* Floating Toast notification HUD overlay */}
         <View style={styles.toastContainer} pointerEvents="none">
           {toasts.map((toast) => (
-            <View key={toast.id} style={[styles.toast, toast.type === 'error' && styles.toastError]}>
+            <View key={toast.id} style={[styles.toast, { borderLeftColor: accent }, toast.type === 'error' && styles.toastError]}>
               <Text style={styles.toastText}>{toast.message}</Text>
             </View>
           ))}
@@ -215,7 +216,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#0EA5E9',
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

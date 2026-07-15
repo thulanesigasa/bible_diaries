@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import { useApp } from '../app/_layout';
 
 interface AvatarProps {
   src?: string | null;
@@ -24,8 +25,19 @@ export function getInitials(fullName?: string | null, email?: string | null) {
   return 'U';
 }
 
-export default function Avatar({ src, fullName, email, size = 40, style, accent = '#0EA5E9' }: AvatarProps) {
+export default function Avatar({ src, fullName, email, size = 40, style, accent }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
+  let appAccent = '#0EA5E9';
+  try {
+    const app = useApp();
+    if (app && app.accent) {
+      appAccent = app.accent;
+    }
+  } catch (e) {
+    // Context might not be available during initial mount/auth
+  }
+
+  const activeAccent = accent !== undefined ? accent : appAccent;
 
   const initials = getInitials(fullName, email);
   const fontSize = size * 0.4;
@@ -55,11 +67,11 @@ export default function Avatar({ src, fullName, email, size = 40, style, accent 
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: accent,
+          backgroundColor: activeAccent,
           alignItems: 'center',
           justifyContent: 'center',
           borderWidth: 1.5,
-          borderColor: `${accent}33`,
+          borderColor: `${activeAccent}33`,
         },
         style
       ]}

@@ -18,7 +18,7 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
   const fetchConversations = async () => {
@@ -38,7 +38,11 @@ export default function ChatScreen() {
       (chats || []).forEach(chat => {
         const partnerId = chat.sender_id === user.id ? chat.receiver_id : chat.sender_id;
         if (!partnerMap.has(partnerId)) {
-          partnerMap.set(partnerId, chat); // Keep the latest message
+          partnerMap.set(partnerId, {
+            id: partnerId,
+            lastMessage: chat.message,
+            timestamp: chat.created_at,
+          });
         }
       });
 
@@ -48,7 +52,7 @@ export default function ChatScreen() {
         return;
       }
 
-      // Fetch profiles of all partner IDs
+      // Fetch profiles of these partners
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -56,24 +60,20 @@ export default function ChatScreen() {
 
       if (profilesError) throw profilesError;
 
-      // Merge profile information into conversation items
-      const merged = profiles.map((prof: any) => {
-        const lastMessage = partnerMap.get(prof.id);
+      const results = profiles.map(profile => {
+        const entry = partnerMap.get(profile.id);
         return {
-          id: prof.id,
-          profile: prof,
-          lastMessage: lastMessage?.message || '',
-          timestamp: lastMessage?.created_at || ''
+          ...entry,
+          profile,
         };
       });
 
       // Sort by last message timestamp descending
-      merged.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      results.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-      setConversations(merged);
+      setConversations(results);
     } catch (e: any) {
-      console.error(e);
-      showToast('Failed to load conversations: ' + e.message, 'error');
+      showToast(e.message, 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -83,10 +83,10 @@ export default function ChatScreen() {
   useEffect(() => {
     fetchConversations();
 
-    // Subscribe to real-time chats to refresh inbox
+    // Subscribe to chats postgres changes
     const channel = supabase
-      .channel('chat-inbox-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => {
+      .channel('chat-list')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, () => {
         fetchConversations();
       })
       .subscribe();
@@ -94,7 +94,7 @@ export default function ChatScreen() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -105,7 +105,7 @@ export default function ChatScreen() {
     return (
       <TouchableOpacity 
         style={styles.convCard}
-        onPress={() => router.push((`/chat/${item.id}`) as any)}
+        onPress={() => router.push((`/chat/${item.profile.id}`) as any)}
         activeOpacity={0.7}
       >
         <Avatar 
@@ -113,6 +113,7 @@ export default function ChatScreen() {
           fullName={item.profile.full_name} 
           size={48}
           style={{ marginRight: 14 }}
+          accent={accent}
         />
         <View style={styles.convInfo}>
           <Text style={styles.partnerName}>{item.profile.full_name || 'Believer'}</Text>
@@ -136,7 +137,7 @@ export default function ChatScreen() {
     <View style={styles.container}>
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0EA5E9" />
+          <ActivityIndicator size="large" color={accent} />
         </View>
       ) : (
         <FlatList

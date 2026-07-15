@@ -54,6 +54,9 @@ export default function FeedScreen() {
 
   const fetchPosts = async () => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Mobile Feed fetchPosts - Session exists:', !!sessionData.session, 'User ID:', sessionData.session?.user?.id);
+      
       const { data, error } = await supabase
         .from('diaries')
         .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
@@ -264,7 +267,7 @@ export default function FeedScreen() {
             </View>
           </TouchableOpacity>
 
-          <View style={[styles.categoryBadge, { borderColor: accent }]}>
+          <View style={[styles.categoryBadge, { backgroundColor: `${accent}15` }]}>
             <Text style={[styles.categoryText, { color: accent }]}>{item.category}</Text>
           </View>
         </View>

@@ -25,11 +25,10 @@ export default function ChatWindowScreen() {
   const [sending, setSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
-  // Fetch partner profile
-  const fetchPartnerProfile = async () => {
+  const fetchPartnerDetails = async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -38,7 +37,8 @@ export default function ChatWindowScreen() {
         .single();
 
       if (error) {
-        showToast('Error loading partner profile', 'error');
+        showToast(error.message, 'error');
+        router.back();
       } else {
         setPartnerProfile(data);
       }
@@ -47,9 +47,7 @@ export default function ChatWindowScreen() {
     }
   };
 
-  // Fetch messages between user and partner
   const fetchMessages = async () => {
-    if (!user) return;
     try {
       const { data, error } = await supabase
         .from('chats')
@@ -61,7 +59,6 @@ export default function ChatWindowScreen() {
         showToast(error.message, 'error');
       } else {
         setMessages(data || []);
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       }
     } catch (e) {
       console.error(e);
@@ -70,27 +67,25 @@ export default function ChatWindowScreen() {
     }
   };
 
+  // Realtime subscription for new messages
   useEffect(() => {
-    fetchPartnerProfile();
+    fetchPartnerDetails();
     fetchMessages();
 
-    // Subscribe to real-time chat messages
     const channel = supabase
-      .channel(`chat-room-${id}`)
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'chats' 
-      }, (payload) => {
-        const newMsg = payload.new;
-        if (
-          (newMsg.sender_id === user.id && newMsg.receiver_id === id) ||
-          (newMsg.sender_id === id && newMsg.receiver_id === user.id)
-        ) {
-          setMessages((prev) => [...prev, newMsg]);
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      .channel(`chat:${user.id}:${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chats',
+          filter: `sender_id=eq.${id},receiver_id=eq.${user.id}`
+        },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new]);
         }
-      })
+      )
       .subscribe();
 
     return () => {
@@ -99,7 +94,7 @@ export default function ChatWindowScreen() {
   }, [id]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user || sending) return;
+    if (!newMessage.trim() || sending) return;
 
     setSending(true);
     try {
@@ -137,11 +132,12 @@ export default function ChatWindowScreen() {
             fullName={partnerProfile.full_name} 
             size={30}
             style={{ marginRight: 8, alignSelf: 'flex-end' }}
+            accent={accent}
           />
         )}
         <View style={[
           styles.messageBubble,
-          isMe ? styles.bubbleRight : styles.bubbleLeft
+          isMe ? [styles.bubbleRight, { backgroundColor: accent }] : styles.bubbleLeft
         ]}>
           <Text style={[
             styles.messageText,
@@ -161,7 +157,7 @@ export default function ChatWindowScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0EA5E9" />
+        <ActivityIndicator size="large" color={accent} />
       </View>
     );
   }
@@ -182,10 +178,11 @@ export default function ChatWindowScreen() {
           fullName={partnerProfile?.full_name} 
           size={36}
           style={{ marginRight: 10 }}
+          accent={accent}
         />
         <View>
           <Text style={styles.headerTitle}>{partnerProfile?.full_name || 'Believer'}</Text>
-          <Text style={styles.headerSubtitle}>Online Fellowship</Text>
+          <Text style={[styles.headerSubtitle, { color: accent }]}>Online Fellowship</Text>
         </View>
       </View>
 
@@ -211,7 +208,7 @@ export default function ChatWindowScreen() {
           multiline
         />
         <TouchableOpacity 
-          style={[styles.sendBtn, !newMessage.trim() && styles.sendBtnDisabled]}
+          style={[styles.sendBtn, { backgroundColor: accent }, !newMessage.trim() && styles.sendBtnDisabled]}
           onPress={handleSendMessage}
           disabled={!newMessage.trim() || sending}
         >
