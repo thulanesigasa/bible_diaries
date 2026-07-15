@@ -32,6 +32,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 -- Drop profiles policies if they exist
 DROP POLICY IF EXISTS "Allow public read access to profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Allow users to insert their own profile" ON public.profiles;
 
 -- Recreate profiles policies
 CREATE POLICY "Allow public read access to profiles"
@@ -100,10 +101,18 @@ CREATE POLICY "Allow public read access to diaries"
 
 CREATE POLICY "Allow users to insert their own diaries"
     ON public.diaries FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = author_id);
+
+CREATE POLICY "Allow users to update their own diaries"
+    ON public.diaries FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = author_id)
     WITH CHECK (auth.uid() = author_id);
 
 CREATE POLICY "Allow users to delete their own diaries"
     ON public.diaries FOR DELETE
+    TO authenticated
     USING (auth.uid() = author_id);
 
 
@@ -129,10 +138,12 @@ CREATE POLICY "Allow public read access to likes"
 
 CREATE POLICY "Allow users to insert their own likes"
     ON public.likes FOR INSERT
+    TO authenticated
     WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Allow users to delete their own likes"
     ON public.likes FOR DELETE
+    TO authenticated
     USING (auth.uid() = user_id);
 
 
@@ -167,10 +178,18 @@ CREATE POLICY "Allow public read access to comments"
 
 CREATE POLICY "Allow users to insert their own comments"
     ON public.comments FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = author_id);
+
+CREATE POLICY "Allow users to update their own comments"
+    ON public.comments FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = author_id)
     WITH CHECK (auth.uid() = author_id);
 
 CREATE POLICY "Allow post author or commentor to delete comment"
     ON public.comments FOR DELETE
+    TO authenticated
     USING (
         auth.uid() = author_id 
         OR auth.uid() IN (SELECT author_id FROM public.diaries WHERE id = post_id)

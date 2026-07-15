@@ -16,7 +16,8 @@ import {
   CornerDownRight,
   UserCheck,
   UserX,
-  X
+  X,
+  Edit2
 } from 'lucide-react';
 import Link from 'next/link';
 import Avatar from '../../../components/Avatar';
@@ -48,6 +49,10 @@ export default function PostPage({ params }) {
   // Custom themed confirm modal state
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, commentId: null, message: '' });
 
+  // Post Edit State
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editContent, setEditContent] = useState('');
+
   const fetchPostDetails = async () => {
     if (!postId) return;
     try {
@@ -62,11 +67,37 @@ export default function PostPage({ params }) {
         showToast(error.message, 'error');
       } else {
         setPost(data);
+        setEditContent(data.content);
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!window.confirm("Are you sure you want to delete this diary entry?")) return;
+    try {
+      const { error } = await supabase.from('diaries').delete().eq('id', postId);
+      if (error) throw error;
+      showToast('Diary deleted successfully.');
+      router.push('/feed');
+    } catch (err) {
+      showToast('Error deleting diary: ' + err.message, 'error');
+    }
+  };
+
+  const handleEditPostSubmit = async () => {
+    if (!editContent.trim()) return;
+    try {
+      const { error } = await supabase.from('diaries').update({ content: editContent.trim() }).eq('id', postId);
+      if (error) throw error;
+      showToast('Diary updated successfully.');
+      setIsEditingPost(false);
+      fetchPostDetails();
+    } catch (err) {
+      showToast('Error updating diary: ' + err.message, 'error');
     }
   };
 
@@ -387,9 +418,24 @@ export default function PostPage({ params }) {
         </div>
 
         {/* Content */}
-        <div className="diary-card-content" style={{ fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
-          {post.content}
-        </div>
+        {isEditingPost ? (
+          <div className="diary-card-content" style={{ marginBottom: '2rem' }}>
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="modern-input"
+              style={{ minHeight: '150px', marginBottom: '10px' }}
+            />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setIsEditingPost(false)}>Cancel</button>
+              <button className="btn-primary" onClick={handleEditPostSubmit}>Save</button>
+            </div>
+          </div>
+        ) : (
+          <div className="diary-card-content" style={{ fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+            {post.content}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="diary-card-actions" style={{ padding: '1rem 0', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem' }}>
@@ -415,6 +461,19 @@ export default function PostPage({ params }) {
             <Share2 size={20} />
             <span>Share</span>
           </button>
+
+          {user?.id === post.author_id && (
+            <>
+              <button className="action-btn" onClick={() => setIsEditingPost(true)}>
+                <Edit2 size={20} />
+                <span>Edit</span>
+              </button>
+              <button className="action-btn" style={{ color: '#EF4444' }} onClick={handleDeletePost}>
+                <Trash2 size={20} />
+                <span>Delete</span>
+              </button>
+            </>
+          )}
         </div>
 
         {/* Comments Section (Permanently expanded for easy reading) */}

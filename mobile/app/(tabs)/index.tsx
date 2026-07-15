@@ -13,12 +13,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Share
+  Share,
+  Alert,
+  SafeAreaView
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send, Share2 } from 'lucide-react-native';
+import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send, Share2, Edit2, Trash2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
@@ -32,6 +34,10 @@ export default function FeedScreen() {
   const [selectedCategory, setSelectedCategory] = useState('Hope');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   const { user, profile, showToast, setHideTabBar } = useApp();
   const router = useRouter();
@@ -118,6 +124,44 @@ export default function FeedScreen() {
       showToast('Failed to publish post.', 'error');
     } finally {
       setPublishing(false);
+    }
+  };
+
+  const handleDeletePost = (postId: string) => {
+    Alert.alert(
+      "Delete Diary",
+      "Are you sure you want to delete this diary entry?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const { error } = await supabase.from('diaries').delete().eq('id', postId);
+              if (error) throw error;
+              showToast('Diary deleted successfully.');
+              fetchPosts();
+            } catch (err: any) {
+              showToast('Error deleting diary: ' + err.message, 'error');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEditPostSubmit = async () => {
+    if (!editContent.trim() || !editingPostId) return;
+    try {
+      const { error } = await supabase.from('diaries').update({ content: editContent.trim() }).eq('id', editingPostId);
+      if (error) throw error;
+      showToast('Diary updated successfully.');
+      setIsEditingPost(false);
+      setEditingPostId(null);
+      fetchPosts();
+    } catch (err: any) {
+      showToast('Error updating diary: ' + err.message, 'error');
     }
   };
 
@@ -265,6 +309,17 @@ export default function FeedScreen() {
           >
             <Share2 size={18} color="#475569" />
           </TouchableOpacity>
+
+          {user?.id === item.author_id && (
+            <>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditingPostId(item.id); setEditContent(item.content); setIsEditingPost(true); }}>
+                <Edit2 size={18} color="#475569" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => handleDeletePost(item.id)}>
+                <Trash2 size={18} color="#EF4444" />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
     );
@@ -397,6 +452,29 @@ export default function FeedScreen() {
           </KeyboardAvoidingView>
         </View>
       </Modal>
+
+      {/* Edit Post Modal */}
+      <Modal visible={isEditingPost} animationType="slide" presentationStyle="pageSheet">
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+            <TouchableOpacity onPress={() => setIsEditingPost(false)}>
+              <Text style={{ fontSize: 16, color: '#64748B' }}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Diary</Text>
+            <TouchableOpacity onPress={handleEditPostSubmit}>
+              <Text style={{ fontSize: 16, color: '#0EA5E9', fontWeight: 'bold' }}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            style={{ flex: 1, padding: 16, fontSize: 16, textAlignVertical: 'top' }}
+            multiline
+            value={editContent}
+            onChangeText={setEditContent}
+            autoFocus
+          />
+        </SafeAreaView>
+      </Modal>
+
     </View>
   );
 }

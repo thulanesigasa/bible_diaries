@@ -17,7 +17,9 @@ import {
   Eye,
   CheckCircle,
   User,
-  X
+  X,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import Avatar from '../../components/Avatar';
 
@@ -46,6 +48,10 @@ export default function Feed() {
 
   // Active Profile Modal State
   const [selectedProfile, setSelectedProfile] = useState(null);
+
+  // Edit State
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editingContent, setEditingContent] = useState('');
 
   // Fetch Feed posts
   const fetchPosts = async () => {
@@ -258,6 +264,41 @@ export default function Feed() {
     }
   };
 
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this diary entry?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('diaries')
+        .delete()
+        .eq('id', postId);
+      
+      if (error) throw error;
+      showToast('Diary deleted successfully.');
+      fetchPosts();
+    } catch (err) {
+      showToast('Error deleting diary: ' + err.message, 'error');
+    }
+  };
+
+  const handleEditSubmit = async (postId) => {
+    if (!editingContent.trim()) return;
+    try {
+      const { error } = await supabase
+        .from('diaries')
+        .update({ content: editingContent.trim() })
+        .eq('id', postId);
+
+      if (error) throw error;
+      showToast('Diary updated successfully.');
+      setEditingPostId(null);
+      setEditingContent('');
+      fetchPosts();
+    } catch (err) {
+      showToast('Error updating diary: ' + err.message, 'error');
+    }
+  };
+
   // Sharing functionality (web share and clipboard)
   const handleShare = async (post) => {
     const textToShare = `"${post.content}" - Written by ${post.profiles?.full_name} on bible_diaries #${post.category}`;
@@ -444,13 +485,28 @@ export default function Feed() {
                     </div>
 
                     {/* Content Section */}
-                    <div 
-                       className="diary-card-content"
-                       onClick={() => router.push(`/post/${post.id}`)}
-                       style={{ cursor: 'pointer' }}
-                     >
-                       {post.content}
-                     </div>
+                    {editingPostId === post.id ? (
+                      <div className="diary-card-content">
+                        <textarea
+                          value={editingContent}
+                          onChange={(e) => setEditingContent(e.target.value)}
+                          className="modern-input"
+                          style={{ minHeight: '100px', marginBottom: '10px' }}
+                        />
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                          <button className="btn-secondary" onClick={() => setEditingPostId(null)}>Cancel</button>
+                          <button className="btn-primary" onClick={() => handleEditSubmit(post.id)}>Save</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div 
+                         className="diary-card-content"
+                         onClick={() => router.push(`/post/${post.id}`)}
+                         style={{ cursor: 'pointer' }}
+                       >
+                         {post.content}
+                       </div>
+                    )}
  
                      {/* Action Hub */}
                      <div className="diary-card-actions">
@@ -477,6 +533,29 @@ export default function Feed() {
                          <Bookmark size={18} />
                          <span>Save</span>
                        </button>
+
+                       {user?.id === post.author_id && (
+                         <>
+                           <button 
+                             className="action-btn"
+                             onClick={() => {
+                               setEditingPostId(post.id);
+                               setEditingContent(post.content);
+                             }}
+                           >
+                             <Edit2 size={16} />
+                             <span>Edit</span>
+                           </button>
+                           <button 
+                             className="action-btn"
+                             style={{ color: '#EF4444' }}
+                             onClick={() => handleDeletePost(post.id)}
+                           >
+                             <Trash2 size={16} />
+                             <span>Delete</span>
+                           </button>
+                         </>
+                       )}
  
                        <button 
                          className="action-btn"

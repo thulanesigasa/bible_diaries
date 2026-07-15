@@ -9,21 +9,27 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Share
+  Share,
+  Alert,
+  Modal,
+  SafeAreaView
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { Heart, MessageSquare, Bookmark, Send, ArrowLeft, Share2 } from 'lucide-react-native';
+import { Heart, MessageSquare, Bookmark, Send, ArrowLeft, Share2, Edit2, Trash2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 export default function PostDetailsScreen() {
-  const { id } = useLocalSearchParams();
+  const { id: rawId } = useLocalSearchParams();
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const [post, setPost] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editContent, setEditContent] = useState('');
 
   const { user, showToast } = useApp();
   const router = useRouter();
@@ -125,6 +131,43 @@ export default function PostDetailsScreen() {
     }
   };
 
+  const handleDeletePost = () => {
+    Alert.alert(
+      "Delete Diary",
+      "Are you sure you want to delete this diary entry?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const { error } = await supabase.from('diaries').delete().eq('id', id);
+              if (error) throw error;
+              showToast('Diary deleted successfully.');
+              router.replace('/(tabs)');
+            } catch (err: any) {
+              showToast('Error deleting diary: ' + err.message, 'error');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEditPostSubmit = async () => {
+    if (!editContent.trim()) return;
+    try {
+      const { error } = await supabase.from('diaries').update({ content: editContent.trim() }).eq('id', id);
+      if (error) throw error;
+      showToast('Diary updated successfully.');
+      setIsEditingPost(false);
+      fetchPostDetails();
+    } catch (err: any) {
+      showToast('Error updating diary: ' + err.message, 'error');
+    }
+  };
+
   const handlePostComment = async () => {
     if (!newComment.trim() || !user || submittingComment) return;
 
@@ -196,8 +239,8 @@ export default function PostDetailsScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 80}
     >
       <FlatList
         data={comments}
@@ -253,6 +296,19 @@ export default function PostDetailsScreen() {
                 <Share2 size={20} color="#475569" />
                 <Text style={styles.actionText}>Share</Text>
               </TouchableOpacity>
+
+              {user?.id === post?.author_id && (
+                <>
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditContent(post?.content); setIsEditingPost(true); }}>
+                    <Edit2 size={20} color="#475569" />
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionBtn} onPress={handleDeletePost}>
+                    <Trash2 size={20} color="#EF4444" />
+                    <Text style={[styles.actionText, { color: '#EF4444' }]}>Delete</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
 
             <Text style={styles.sectionDivider}>Comments ({comments.length})</Text>
@@ -283,6 +339,27 @@ export default function PostDetailsScreen() {
           <Send size={18} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+      <Modal visible={isEditingPost} animationType="slide" presentationStyle="pageSheet">
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+            <TouchableOpacity onPress={() => setIsEditingPost(false)}>
+              <Text style={{ fontSize: 16, color: '#64748B' }}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Diary</Text>
+            <TouchableOpacity onPress={handleEditPostSubmit}>
+              <Text style={{ fontSize: 16, color: '#0EA5E9', fontWeight: 'bold' }}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            style={{ flex: 1, padding: 16, fontSize: 16, textAlignVertical: 'top' }}
+            multiline
+            value={editContent}
+            onChangeText={setEditContent}
+            autoFocus
+          />
+        </SafeAreaView>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
