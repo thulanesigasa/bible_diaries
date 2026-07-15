@@ -32,14 +32,6 @@ export default function TabLayout() {
           fontSize: 18,
           fontFamily: 'SpaceMono',
         },
-        headerRight: () => (
-          <TouchableOpacity 
-            onPress={() => router.push('/settings')} 
-            style={{ marginRight: 16, padding: 4 }}
-          >
-            <Settings size={20} color="#475569" />
-          </TouchableOpacity>
-        ),
       }}>
       <Tabs.Screen
         name="index"
@@ -79,6 +71,16 @@ export default function TabLayout() {
             <MessageSquare size={size || 22} color={color} />
           ),
           headerTitle: 'Conversations',
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <Settings size={size || 22} color={color} />
+          ),
+          headerTitle: 'Settings',
         }}
       />
     </Tabs>

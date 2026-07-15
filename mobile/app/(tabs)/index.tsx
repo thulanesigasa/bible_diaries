@@ -20,7 +20,7 @@ import { supabase } from '../../src/lib/supabase';
 import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
-const CATEGORIES = ['Hope', 'Faith', 'Love', 'Wisdom'];
+const CATEGORIES = ['Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
 export default function FeedScreen() {
   const [posts, setPosts] = useState<any[]>([]);

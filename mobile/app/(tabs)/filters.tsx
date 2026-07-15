@@ -13,7 +13,7 @@ import { supabase } from '../../src/lib/supabase';
 import { Heart, MessageSquare, Bookmark } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
-const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Wisdom'];
+const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
 export default function FiltersScreen() {
   const [posts, setPosts] = useState<any[]>([]);
