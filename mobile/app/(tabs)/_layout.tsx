@@ -12,13 +12,12 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: '#0EA5E9',
         tabBarInactiveTintColor: '#94A3B8',
-        safeAreaInsets: { bottom: 0, top: 0, left: 0, right: 0 }, // Disable default safe area overrides
         tabBarStyle: {
           display: hideTabBar ? 'none' : 'flex',
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? 24 : 16,
-          left: '22%',
-          right: '22%',
+          bottom: Platform.OS === 'ios' ? 28 : 24,
+          left: '25%',
+          right: '25%',
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
           height: 50, // More compact height
