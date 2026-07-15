@@ -15,14 +15,14 @@ export default function TabLayout() {
         tabBarStyle: {
           display: hideTabBar ? 'none' : 'flex',
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? 24 : 16,
-          left: 16,
-          right: 16,
+          bottom: Platform.OS === 'ios' ? 28 : 24,
+          left: 24,
+          right: 24,
           backgroundColor: '#FFFFFF',
-          borderRadius: 24,
-          height: 64,
-          paddingBottom: Platform.OS === 'ios' ? 12 : 8,
-          paddingTop: 8,
+          borderRadius: 28,
+          height: 56,
+          paddingBottom: Platform.OS === 'ios' ? 8 : 4,
+          paddingTop: 6,
           borderWidth: 1,
           borderColor: 'rgba(15, 23, 42, 0.08)',
           shadowColor: '#0F172A',
@@ -47,7 +47,7 @@ export default function TabLayout() {
         tabBarLabel: ({ focused, children }) => (
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ 
-              fontSize: 10, 
+              fontSize: 9, 
               fontWeight: focused ? '700' : '500', 
               color: focused ? '#0EA5E9' : '#64748B',
               marginTop: 1
@@ -56,11 +56,11 @@ export default function TabLayout() {
             </Text>
             {focused && (
               <View style={{ 
-                width: 4, 
-                height: 4, 
-                borderRadius: 2, 
+                width: 3, 
+                height: 3, 
+                borderRadius: 1.5, 
                 backgroundColor: '#0EA5E9', 
-                marginTop: 3
+                marginTop: 2
               }} />
             )}
           </View>
@@ -70,8 +70,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Feed',
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen size={size || 22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <BookOpen size={18} color={color} />
           ),
           headerTitle: 'bible_diaries',
         }}
@@ -80,8 +80,8 @@ export default function TabLayout() {
         name="filters"
         options={{
           title: 'Filters',
-          tabBarIcon: ({ color, size }) => (
-            <Filter size={size || 22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Filter size={18} color={color} />
           ),
           headerTitle: 'Explore Categories',
         }}
@@ -90,8 +90,8 @@ export default function TabLayout() {
         name="connect"
         options={{
           title: 'Connect',
-          tabBarIcon: ({ color, size }) => (
-            <Users size={size || 22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Users size={18} color={color} />
           ),
           headerTitle: 'Fellowship',
         }}
@@ -100,8 +100,8 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color, size }) => (
-            <MessageSquare size={size || 22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MessageSquare size={18} color={color} />
           ),
           headerTitle: 'Conversations',
         }}
@@ -110,8 +110,8 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Settings size={size || 22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Settings size={18} color={color} />
           ),
           headerTitle: 'Settings',
         }}
