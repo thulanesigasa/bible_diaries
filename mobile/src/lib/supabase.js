@@ -10,10 +10,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Universal Storage Adapter to prevent native module crashes on web views
-const memoryStorage = new Map<string, string>();
+const memoryStorage = new Map();
 
 const customStorage = {
-  getItem: async (key: string) => {
+  getItem: async (key) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         return window.localStorage.getItem(key);
@@ -24,12 +24,12 @@ const customStorage = {
       const val = await AsyncStorage.getItem(key);
       console.log('customStorage getItem key:', key, 'exists:', !!val);
       return val;
-    } catch (e: any) {
+    } catch (e) {
       console.warn('customStorage getItem failed, using memory fallback:', e.message);
       return memoryStorage.get(key) || null;
     }
   },
-  setItem: async (key: string, value: string) => {
+  setItem: async (key, value) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.setItem(key, value);
@@ -39,12 +39,12 @@ const customStorage = {
     try {
       await AsyncStorage.setItem(key, value);
       console.log('customStorage setItem key:', key, 'success');
-    } catch (e: any) {
+    } catch (e) {
       console.warn('customStorage setItem failed, using memory fallback:', e.message);
       memoryStorage.set(key, value);
     }
   },
-  removeItem: async (key: string) => {
+  removeItem: async (key) => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.removeItem(key);
@@ -54,7 +54,7 @@ const customStorage = {
     try {
       await AsyncStorage.removeItem(key);
       console.log('customStorage removeItem key:', key, 'success');
-    } catch (e: any) {
+    } catch (e) {
       console.warn('customStorage removeItem failed, using memory fallback:', e.message);
       memoryStorage.delete(key);
     }
