@@ -37,7 +37,7 @@ export default function Avatar({ src, fullName, email, size = 40, style = {} }) 
           height: size,
           borderRadius: '50%',
           objectFit: 'cover',
-          border: '1.5px solid rgba(14, 165, 233, 0.15)',
+          border: '1.5px solid rgba(var(--gold-accent-rgb), 0.15)',
           ...style
         }}
       />
@@ -50,14 +50,14 @@ export default function Avatar({ src, fullName, email, size = 40, style = {} }) 
         width: size,
         height: size,
         borderRadius: '50%',
-        backgroundColor: '#0EA5E9',
+        backgroundColor: 'var(--gold-accent)',
         color: '#FFFFFF',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: '700',
         fontSize: fontSize,
-        border: '1.5px solid rgba(14, 165, 233, 0.2)',
+        border: '1.5px solid rgba(var(--gold-accent-rgb), 0.2)',
         userSelect: 'none',
         ...style
       }}

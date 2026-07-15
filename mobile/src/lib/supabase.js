@@ -61,4 +61,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+supabase.instanceId = Math.random().toString(36).substring(2, 9);
+console.log('--- SUPABASE INSTANCE CREATED --- ID:', supabase.instanceId);
+
 export default supabase;

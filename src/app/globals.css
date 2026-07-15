@@ -1174,3 +1174,7 @@ body.theme-female {
   --gold-accent-rgb: 236, 72, 153;
   --chat-sent: #EC4899;
 }
+
+body.theme-female .checkbox-apple input[type="checkbox"]:checked + label {
+  background: linear-gradient(to bottom, #EC4899, #F472B6);
+}

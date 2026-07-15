@@ -118,7 +118,7 @@ export default function RootLayout() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event, 'Has session:', !!session, 'Session user:', session?.user?.email);
+      console.log('Layout client ID:', supabase.instanceId, 'Auth event:', event, 'Has session:', !!session, 'Session user:', session?.user?.email);
       const activeUser = session?.user ?? null;
       setUser(activeUser);
       if (activeUser) {

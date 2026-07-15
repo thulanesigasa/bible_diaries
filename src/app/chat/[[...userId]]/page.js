@@ -335,7 +335,7 @@ export default function ChatPage({ params }) {
             </>
           ) : (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(14, 165, 233, 0.3)', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(var(--gold-accent-rgb), 0.3)', marginBottom: '1rem' }}>
                 <BookOpen size={48} />
               </div>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>Your Sanctuary Inbox</h3>
