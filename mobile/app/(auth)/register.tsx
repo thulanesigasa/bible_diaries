@@ -366,7 +366,6 @@ export default function RegisterScreen() {
                     ]}
                     onPress={() => setGender('Male')}
                   >
-                    <Text style={{ fontSize: 22, marginBottom: 4 }}>👨</Text>
                     <Text style={[
                       styles.genderText,
                       gender === 'Male' && styles.genderTextActive
@@ -381,7 +380,6 @@ export default function RegisterScreen() {
                     ]}
                     onPress={() => setGender('Female')}
                   >
-                    <Text style={{ fontSize: 22, marginBottom: 4 }}>👩</Text>
                     <Text style={[
                       styles.genderText,
                       gender === 'Female' && styles.genderTextActive
@@ -674,8 +672,8 @@ const styles = StyleSheet.create({
   },
   genderBtn: {
     flex: 1,
-    paddingVertical: 16,
-    borderRadius: 12,
+    height: 44,
+    borderRadius: 8,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
