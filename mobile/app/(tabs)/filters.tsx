@@ -276,10 +276,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  listContainer: {
-    padding: 16,
-    paddingBottom: 24,
-  },
+
   postCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
