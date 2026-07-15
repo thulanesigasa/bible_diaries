@@ -13,7 +13,9 @@ import {
 import { useRouter, Link } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { BookOpen, Check, Eye, EyeOff } from 'lucide-react-native';
+import { BookOpen, Check, Eye, EyeOff, Camera } from 'lucide-react-native';
+import Avatar from '../../components/Avatar';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function RegisterScreen() {
   const [step, setStep] = useState(1);
@@ -29,6 +31,7 @@ export default function RegisterScreen() {
   const [surname, setSurname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +60,46 @@ export default function RegisterScreen() {
   };
 
   const strength = getPasswordStrength(password);
+
+  const handleImageUpload = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Permission to access photos is required.', 'error');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        
+        // 5MB limit check
+        if (asset.fileSize && asset.fileSize > 1024 * 1024 * 5) {
+          showToast('Image size should be less than 5MB', 'error');
+          return;
+        }
+
+        if (asset.base64) {
+          const mimeType = asset.mimeType || 'image/jpeg';
+          const base64Data = `data:${mimeType};base64,${asset.base64}`;
+          setAvatarUrl(base64Data);
+          showToast('Profile photo updated.');
+        } else {
+          setAvatarUrl(asset.uri);
+          showToast('Profile photo selected.');
+        }
+      }
+    } catch (e: any) {
+      showToast('Error picking image: ' + e.message, 'error');
+    }
+  };
 
   const handleNext = () => {
     if (step === 1) {
@@ -106,7 +149,7 @@ export default function RegisterScreen() {
             full_name: `${firstName} ${surname}`,
             phone_number: phoneNumber,
             address: address,
-            avatar_url: null,
+            avatar_url: avatarUrl || null,
             bio: 'Walking in faith.',
             favorite_verse: '',
             spiritual_journey: ''
@@ -147,7 +190,7 @@ export default function RegisterScreen() {
           {/* Step Indicator */}
           <View style={styles.stepIndicatorRow}>
             {[1, 2, 3].map((num) => (
-              <View key={num} style={styles.stepWrapper}>
+              <View key={num} style={num < 3 ? styles.stepWrapper : styles.stepWrapperLast}>
                 <View style={[
                   styles.stepDot,
                   step === num && styles.stepDotActive,
@@ -259,7 +302,7 @@ export default function RegisterScreen() {
               </View>
 
               <TouchableOpacity 
-                style={styles.btnPrimary}
+                style={[styles.btnPrimary, { marginTop: 8 }]}
                 onPress={handleNext}
               >
                 <Text style={styles.btnText}>Continue</Text>
@@ -322,9 +365,30 @@ export default function RegisterScreen() {
             </View>
           )}
 
-          {/* Step 3: Location Details */}
+          {/* Step 3: Profile Photo & Location Details */}
           {step === 3 && (
             <View style={styles.form}>
+              {/* Profile Photo Upload area */}
+              <View style={styles.avatarContainer}>
+                <View style={{ position: 'relative' }}>
+                  <Avatar 
+                    src={avatarUrl} 
+                    fullName={firstName || 'New'} 
+                    size={80}
+                  />
+                  <TouchableOpacity 
+                    style={styles.avatarCameraBtn}
+                    onPress={handleImageUpload}
+                  >
+                    <Camera size={14} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+                <View style={{ flex: 1, marginLeft: 16 }}>
+                  <Text style={styles.avatarTitle}>Profile Photo</Text>
+                  <Text style={styles.avatarSubtitle}>Upload a picture of yourself, or we will assign a default initials avatar.</Text>
+                </View>
+              </View>
+
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Physical Address</Text>
                 <TextInput
@@ -426,6 +490,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  stepWrapperLast: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   stepDot: {
     width: 28,
     height: 28,
@@ -488,13 +556,46 @@ const styles = StyleSheet.create({
     padding: 6,
     zIndex: 10,
   },
+  avatarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.04)',
+  },
+  avatarCameraBtn: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#0EA5E9',
+    borderRadius: 14,
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  avatarTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  avatarSubtitle: {
+    fontSize: 11,
+    color: '#64748B',
+    lineHeight: 15,
+  },
   btnPrimary: {
     backgroundColor: '#0EA5E9',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
   },
   btnDisabled: {
     opacity: 0.7,
