@@ -180,7 +180,7 @@ export default function PostDetailsScreen() {
     setSubmittingComment(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Mobile post detail handlePostComment - Client ID:', supabase.instanceId, 'Session user:', sessionData.session?.user?.id, 'Token slice:', sessionData.session?.access_token?.slice(-15));
+      console.log('Mobile post detail handlePostComment - Client ID:', (supabase as any).instanceId, 'Session user:', sessionData.session?.user?.id, 'Token slice:', sessionData.session?.access_token?.slice(-15));
       
       const { error } = await supabase
         .from('comments')

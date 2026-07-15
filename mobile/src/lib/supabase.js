@@ -19,8 +19,11 @@ const customStorage = {
       return null;
     }
     try {
-      return await AsyncStorage.getItem(key);
+      const val = await AsyncStorage.getItem(key);
+      console.log('customStorage getItem key:', key, 'exists:', !!val);
+      return val;
     } catch (e) {
+      console.error('customStorage getItem error:', e);
       return null;
     }
   },
@@ -33,8 +36,9 @@ const customStorage = {
     }
     try {
       await AsyncStorage.setItem(key, value);
+      console.log('customStorage setItem key:', key, 'success');
     } catch (e) {
-      // Ignore
+      console.error('customStorage setItem error:', e);
     }
   },
   removeItem: async (key) => {
