@@ -12,23 +12,25 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: '#0EA5E9',
         tabBarInactiveTintColor: '#94A3B8',
+        safeAreaInsets: { bottom: 0, top: 0, left: 0, right: 0 }, // Disable default safe area overrides
         tabBarStyle: {
           display: hideTabBar ? 'none' : 'flex',
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? 28 : 24,
-          left: '20%',
-          right: '20%',
+          bottom: Platform.OS === 'ios' ? 24 : 16,
+          left: '22%',
+          right: '22%',
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
-          height: 56,
-          paddingBottom: Platform.OS === 'ios' ? 8 : 4,
-          paddingTop: 6,
+          height: 50, // More compact height
+          paddingBottom: 4,
+          paddingTop: 4,
           borderWidth: 1,
           borderColor: 'rgba(15, 23, 42, 0.08)',
+          borderTopWidth: 0, // Strip default top border
           shadowColor: '#0F172A',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.06,
-          shadowRadius: 15,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
           elevation: 5,
         },
         headerStyle: {
@@ -47,7 +49,7 @@ export default function TabLayout() {
         tabBarLabel: ({ focused, children }) => (
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ 
-              fontSize: 9, 
+              fontSize: 8.5, 
               fontWeight: focused ? '700' : '500', 
               color: focused ? '#0EA5E9' : '#64748B',
               marginTop: 1
@@ -71,7 +73,7 @@ export default function TabLayout() {
         options={{
           title: 'Feed',
           tabBarIcon: ({ color }) => (
-            <BookOpen size={18} color={color} />
+            <BookOpen size={16} color={color} />
           ),
           headerTitle: 'bible_diaries',
         }}
@@ -81,7 +83,7 @@ export default function TabLayout() {
         options={{
           title: 'Filters',
           tabBarIcon: ({ color }) => (
-            <Filter size={18} color={color} />
+            <Filter size={16} color={color} />
           ),
           headerTitle: 'Explore Categories',
         }}
@@ -91,7 +93,7 @@ export default function TabLayout() {
         options={{
           title: 'Connect',
           tabBarIcon: ({ color }) => (
-            <Users size={18} color={color} />
+            <Users size={16} color={color} />
           ),
           headerTitle: 'Fellowship',
         }}
@@ -101,7 +103,7 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           tabBarIcon: ({ color }) => (
-            <MessageSquare size={18} color={color} />
+            <MessageSquare size={16} color={color} />
           ),
           headerTitle: 'Conversations',
         }}
@@ -111,7 +113,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => (
-            <Settings size={18} color={color} />
+            <Settings size={16} color={color} />
           ),
           headerTitle: 'Settings',
         }}
