@@ -86,9 +86,9 @@ export default function LoginScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
-              <View style={styles.passwordWrapper}>
+              <View style={{ position: 'relative', justifyContent: 'center' }}>
                 <TextInput
-                  style={[styles.input, { flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRightWidth: 0 }]}
+                  style={styles.input}
                   placeholder="Enter password"
                   placeholderTextColor="#94A3B8"
                   value={password}
@@ -98,7 +98,7 @@ export default function LoginScreen() {
                   editable={!loading}
                 />
                 <TouchableOpacity 
-                  style={styles.eyeBtn}
+                  style={styles.eyeBtnAbsolute}
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -144,24 +144,16 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
+    width: '100%',
   },
   header: {
     alignItems: 'center',
@@ -209,22 +201,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0F172A',
   },
-  passwordWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  eyeBtn: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderLeftWidth: 0,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  eyeBtnAbsolute: {
+    position: 'absolute',
+    right: 14,
+    padding: 6,
+    zIndex: 10,
   },
   btnPrimary: {
     backgroundColor: '#0EA5E9',
