@@ -36,7 +36,7 @@ export default function FeedScreen() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*')
+        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (error) {
