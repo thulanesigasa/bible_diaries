@@ -58,7 +58,7 @@ export default function Feed() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*))')
+        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*)), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -526,13 +526,13 @@ export default function Feed() {
                          <span>{post.comments?.length || 0}</span>
                        </button>
  
-                       <button 
-                         className="action-btn"
-                         onClick={() => handleFavorite(post.id)}
-                       >
-                         <Bookmark size={18} />
-                         <span>Save</span>
-                       </button>
+                        <button 
+                          className={`action-btn ${post.favorites?.some(f => f.user_id === user?.id) ? 'active-favorite' : ''}`}
+                          onClick={() => handleFavorite(post.id)}
+                        >
+                          <Bookmark size={18} />
+                          <span>Save</span>
+                        </button>
 
                        {user?.id === post.author_id && (
                          <>

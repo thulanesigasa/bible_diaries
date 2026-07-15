@@ -16,7 +16,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { Heart, MessageSquare, Bookmark, Send, ArrowLeft, Share2, Edit2, Trash2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -31,7 +30,7 @@ export default function PostDetailsScreen() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editContent, setEditContent] = useState('');
 
-  const { user, showToast, accent } = useApp();
+  const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const fetchPostDetails = async () => {

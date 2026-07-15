@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { Heart, MessageSquare, Bookmark, Share2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -23,7 +22,7 @@ export default function FiltersScreen() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const { user, showToast, accent } = useApp();
+  const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const fetchPosts = async () => {

@@ -19,6 +19,7 @@ const AppContext = createContext<{
   hideTabBar: boolean;
   setHideTabBar: React.Dispatch<React.SetStateAction<boolean>>;
   accent: string;
+  supabase: any;
 } | null>(null);
 
 export function useApp() {
@@ -166,7 +167,7 @@ export default function RootLayout() {
   }
 
   return (
-    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar, accent }}>
+    <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar, accent, supabase }}>
       <View style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />

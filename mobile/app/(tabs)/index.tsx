@@ -19,7 +19,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send, Share2, Edit2, Trash2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -39,7 +38,7 @@ export default function FeedScreen() {
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
 
-  const { user, profile, showToast, setHideTabBar, accent } = useApp();
+  const { user, profile, showToast, setHideTabBar, accent, supabase } = useApp();
   const router = useRouter();
 
   const openModal = () => {

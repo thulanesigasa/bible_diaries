@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { ChevronRight, MessageSquare } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -18,7 +17,7 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { user, showToast, accent } = useApp();
+  const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const fetchConversations = async () => {

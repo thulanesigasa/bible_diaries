@@ -146,7 +146,7 @@ export default function PostPage({ params }) {
   const handleFavorite = async () => {
     if (!user || !post) return;
     
-    const isFav = await checkIsFavorite(post.id);
+    const isFav = post.favorites?.some(f => f.user_id === user.id);
 
     try {
       if (isFav) {
@@ -158,6 +158,10 @@ export default function PostPage({ params }) {
 
         if (error) throw error;
         showToast('Removed from saved list.');
+        setPost(prev => ({
+          ...prev,
+          favorites: (prev.favorites || []).filter(f => f.user_id !== user.id)
+        }));
       } else {
         const { error } = await supabase
           .from('favorites')
@@ -165,6 +169,10 @@ export default function PostPage({ params }) {
 
         if (error) throw error;
         showToast('Saved to your favorites!');
+        setPost(prev => ({
+          ...prev,
+          favorites: [...(prev.favorites || []), { post_id: post.id, user_id: user.id }]
+        }));
       }
     } catch (err) {
       showToast('Failed to bookmark: ' + err.message, 'error');
@@ -452,7 +460,10 @@ export default function PostPage({ params }) {
             <span>{post.comments?.length || 0} Comments</span>
           </button>
 
-          <button className="action-btn" onClick={handleFavorite}>
+          <button 
+            className={`action-btn ${post.favorites?.some(f => f.user_id === user?.id) ? 'active-favorite' : ''}`} 
+            onClick={handleFavorite}
+          >
             <Bookmark size={20} />
           </button>
 

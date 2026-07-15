@@ -40,7 +40,7 @@ export default function FiltersPage() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*))')
+        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*)), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -361,7 +361,7 @@ export default function FiltersPage() {
                       </button>
 
                       <button 
-                        className="action-btn"
+                        className={`action-btn ${post.favorites?.some(f => f.user_id === user?.id) ? 'active-favorite' : ''}`}
                         onClick={() => handleFavorite(post.id)}
                       >
                         <Bookmark size={18} />

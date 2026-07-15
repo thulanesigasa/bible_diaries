@@ -13,13 +13,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { Camera, Save, LogOut } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function SettingsTabScreen() {
-  const { user, profile, setProfile, showToast, accent } = useApp();
+  const { user, profile, setProfile, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const [firstName, setFirstName] = useState(profile?.first_name || profile?.full_name?.split(' ')[0] || '');

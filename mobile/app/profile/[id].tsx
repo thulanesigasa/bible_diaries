@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { ArrowLeft, MessageSquare, BookOpen, MapPin, Award } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -19,7 +18,7 @@ export default function MemberProfileScreen() {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const { user, showToast, accent } = useApp();
+  const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const fetchProfileDetails = async () => {

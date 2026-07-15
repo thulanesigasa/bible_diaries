@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
 import { Send, ArrowLeft } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
@@ -25,7 +24,7 @@ export default function ChatWindowScreen() {
   const [sending, setSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  const { user, showToast, accent } = useApp();
+  const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
   const fetchPartnerDetails = async () => {
