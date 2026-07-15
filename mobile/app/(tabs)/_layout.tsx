@@ -1,11 +1,12 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { TouchableOpacity, View, Text, Platform } from 'react-native';
+import { TouchableOpacity, View, Text, Platform, useWindowDimensions } from 'react-native';
 import { BookOpen, Filter, Users, MessageSquare, Settings } from 'lucide-react-native';
 import { useApp } from '../_layout';
 
 export default function TabLayout() {
   const { hideTabBar } = useApp();
+  const { width } = useWindowDimensions();
 
   return (
     <Tabs
@@ -17,8 +18,7 @@ export default function TabLayout() {
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? 28 : 24,
           width: 220,
-          left: '50%',
-          transform: [{ translateX: -110 }],
+          left: (width / 2) - 110,
           backgroundColor: '#FFFFFF',
           borderRadius: 16, // Curved rectangular shape
           height: 50, // More compact height
