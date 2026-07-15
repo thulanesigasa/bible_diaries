@@ -254,6 +254,7 @@ export default function FeedScreen() {
               email={item.is_anonymous ? null : item.profiles?.email} 
               size={38}
               style={{ marginRight: 10 }}
+              accent={accent}
             />
             <View>
               <Text style={styles.authorName}>{authorName}</Text>

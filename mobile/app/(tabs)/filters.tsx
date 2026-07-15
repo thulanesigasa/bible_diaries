@@ -23,7 +23,7 @@ export default function FiltersScreen() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
   const fetchPosts = async () => {
@@ -118,8 +118,8 @@ export default function FiltersScreen() {
   };
 
   const renderPostItem = ({ item }: { item: any }) => {
-    const isLiked = item.likes?.some((l: any) => l.user_id === user.id);
-    const isFav = item.favorites?.some((f: any) => f.user_id === user.id) || false;
+    const isLiked = item.likes?.some((l: any) => l.user_id === user?.id);
+    const isFav = item.favorites?.some((f: any) => f.user_id === user?.id) || false;
     const authorName = item.is_anonymous ? 'Anonymous Believer' : (item.profiles?.full_name || 'Believer');
 
     return (
@@ -140,6 +140,7 @@ export default function FiltersScreen() {
               email={item.is_anonymous ? null : item.profiles?.email} 
               size={38}
               style={{ marginRight: 10 }}
+              accent={accent}
             />
             <View>
               <Text style={styles.authorName}>{authorName}</Text>
@@ -149,8 +150,8 @@ export default function FiltersScreen() {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{item.category}</Text>
+          <View style={[styles.categoryBadge, { backgroundColor: `${accent}15` }]}>
+            <Text style={[styles.categoryText, { color: accent }]}>{item.category}</Text>
           </View>
         </View>
 
@@ -175,7 +176,7 @@ export default function FiltersScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionBtn} onPress={() => handleToggleFavorite(item)}>
-            <Bookmark size={18} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
+            <Bookmark size={18} color={isFav ? accent : '#475569'} fill={isFav ? accent : 'transparent'} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(item.content, item.profiles?.full_name)}>
@@ -200,7 +201,7 @@ export default function FiltersScreen() {
               key={cat}
               style={[
                 styles.categoryTab,
-                activeCategory === cat && styles.categoryTabActive
+                activeCategory === cat && { backgroundColor: accent }
               ]}
               onPress={() => {
                 setLoading(true);
@@ -218,7 +219,7 @@ export default function FiltersScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0EA5E9" />
+          <ActivityIndicator size="large" color={accent} />
         </View>
       ) : (
         <FlatList

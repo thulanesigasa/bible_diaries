@@ -31,7 +31,7 @@ export default function PostDetailsScreen() {
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editContent, setEditContent] = useState('');
 
-  const { user, showToast } = useApp();
+  const { user, showToast, accent } = useApp();
   const router = useRouter();
 
   const fetchPostDetails = async () => {
@@ -227,13 +227,13 @@ export default function PostDetailsScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0EA5E9" />
+        <ActivityIndicator size="large" color={accent} />
       </View>
     );
   }
 
-  const isLiked = post?.likes?.some((l: any) => l.user_id === user.id);
-  const isFav = post?.favorites?.some((f: any) => f.user_id === user.id) || false;
+  const isLiked = post?.likes?.some((l: any) => l.user_id === user?.id);
+  const isFav = post?.favorites?.some((f: any) => f.user_id === user?.id) || false;
   const authorName = post?.is_anonymous ? 'Anonymous Believer' : (post?.profiles?.full_name || 'Believer');
 
   return (
@@ -265,8 +265,8 @@ export default function PostDetailsScreen() {
                   </Text>
                 </View>
               </View>
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>{post?.category}</Text>
+              <View style={[styles.categoryBadge, { backgroundColor: `${accent}15` }]}>
+                <Text style={[styles.categoryText, { color: accent }]}>{post?.category}</Text>
               </View>
             </View>
 
@@ -286,7 +286,7 @@ export default function PostDetailsScreen() {
               </View>
 
               <TouchableOpacity style={styles.actionBtn} onPress={handleToggleFavorite}>
-                <Bookmark size={20} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
+                <Bookmark size={20} color={isFav ? accent : '#475569'} fill={isFav ? accent : 'transparent'} />
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(post?.content, post?.profiles?.full_name)}>
@@ -316,7 +316,7 @@ export default function PostDetailsScreen() {
           multiline
         />
         <TouchableOpacity 
-          style={[styles.sendBtn, !newComment.trim() && styles.sendBtnDisabled]}
+          style={[styles.sendBtn, { backgroundColor: accent }, !newComment.trim() && styles.sendBtnDisabled]}
           onPress={handlePostComment}
           disabled={!newComment.trim() || submittingComment}
         >
@@ -332,7 +332,7 @@ export default function PostDetailsScreen() {
             </TouchableOpacity>
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Edit Diary</Text>
             <TouchableOpacity onPress={handleEditPostSubmit}>
-              <Text style={{ fontSize: 16, color: '#0EA5E9', fontWeight: 'bold' }}>Save</Text>
+              <Text style={{ fontSize: 16, color: accent, fontWeight: 'bold' }}>Save</Text>
             </TouchableOpacity>
           </View>
           <TextInput
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#0EA5E9',
+    backgroundColor: '#64748B',
     justifyContent: 'center',
     alignItems: 'center',
   },

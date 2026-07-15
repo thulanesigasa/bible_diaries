@@ -7,6 +7,7 @@ interface AvatarProps {
   email?: string | null;
   size?: number;
   style?: any;
+  accent?: string;
 }
 
 export function getInitials(fullName?: string | null, email?: string | null) {
@@ -23,7 +24,7 @@ export function getInitials(fullName?: string | null, email?: string | null) {
   return 'U';
 }
 
-export default function Avatar({ src, fullName, email, size = 40, style }: AvatarProps) {
+export default function Avatar({ src, fullName, email, size = 40, style, accent = '#0EA5E9' }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
 
   const initials = getInitials(fullName, email);
@@ -54,11 +55,11 @@ export default function Avatar({ src, fullName, email, size = 40, style }: Avata
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: '#0EA5E9',
+          backgroundColor: accent,
           alignItems: 'center',
           justifyContent: 'center',
           borderWidth: 1.5,
-          borderColor: 'rgba(14, 165, 233, 0.2)',
+          borderColor: `${accent}33`,
         },
         style
       ]}
