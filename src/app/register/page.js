@@ -29,6 +29,21 @@ export default function Register() {
   const { showToast } = useApp();
   const router = useRouter();
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (gender === 'Female') {
+        document.body.classList.add('theme-female');
+      } else {
+        document.body.classList.remove('theme-female');
+      }
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.body.classList.remove('theme-female');
+      }
+    };
+  }, [gender]);
+
   const getPasswordStrength = (pwd) => {
     if (!pwd) return { score: 0, label: '', color: '#374151' };
     let score = 0;

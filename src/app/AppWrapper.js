@@ -93,6 +93,23 @@ export default function AppWrapper({ children }) {
     }
   }, [user, loading, pathname, router]);
 
+  // Handle dynamic gender styling class on body
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (profile) {
+        if (profile.gender === 'Female') {
+          document.body.classList.add('theme-female');
+        } else {
+          document.body.classList.remove('theme-female');
+        }
+      } else {
+        if (pathname !== '/register') {
+          document.body.classList.remove('theme-female');
+        }
+      }
+    }
+  }, [profile, pathname]);
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {

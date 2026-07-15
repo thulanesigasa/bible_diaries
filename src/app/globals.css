@@ -7,7 +7,7 @@
   --bg-secondary: #F8FAFC;
   --bg-tertiary: #F1F5F9;
   --border-color: rgba(15, 23, 42, 0.08); /* Subtle Slate border */
-  --border-focus: rgba(14, 165, 233, 0.4);
+  --border-focus: rgba(var(--gold-accent-rgb), 0.4);
   
   --text-primary: #0F172A; /* Slate-900 (Dominant text) */
   --text-secondary: #475569; /* Slate-600 */
@@ -16,6 +16,7 @@
   --gold-accent: #0EA5E9; /* Sky Blue (Secondary 20%) */
   --gold-hover: #0284C7;
   --gold-glow: rgba(14, 165, 233, 0.15);
+  --gold-accent-rgb: 14, 165, 233;
   
   --heart-red: #EC4899;
   --heart-glow: rgba(236, 72, 153, 0.15);
@@ -189,7 +190,7 @@ input:focus, textarea:focus, select:focus {
 
 .nav-link:hover, .nav-link.active {
   color: var(--gold-hover);
-  background: rgba(14, 165, 233, 0.08);
+  background: rgba(var(--gold-accent-rgb), 0.08);
 }
 
 .user-badge {
@@ -276,8 +277,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .category-tab.active {
-  background: rgba(14, 165, 233, 0.08);
-  border-color: rgba(14, 165, 233, 0.2);
+  background: rgba(var(--gold-accent-rgb), 0.08);
+  border-color: rgba(var(--gold-accent-rgb), 0.2);
   color: var(--gold-accent);
 }
 
@@ -427,7 +428,7 @@ input:focus, textarea:focus, select:focus {
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid rgba(14, 165, 233, 0.3);
+  border: 1.5px solid rgba(var(--gold-accent-rgb), 0.3);
 }
 
 .diary-card-author-name {
@@ -448,8 +449,8 @@ input:focus, textarea:focus, select:focus {
   font-size: 0.75rem;
   padding: 2px 8px;
   border-radius: 12px;
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.15);
+  background: rgba(var(--gold-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--gold-accent-rgb), 0.15);
   color: var(--gold-accent);
   font-weight: 500;
 }
@@ -707,8 +708,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .chat-room-item.active {
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.2);
+  background: rgba(var(--gold-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--gold-accent-rgb), 0.2);
 }
 
 .chat-room-avatar {
@@ -1118,7 +1119,7 @@ input::-webkit-contacts-auto-fill-button {
 }
 
 .auth-split-canvas {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.04) 0%, rgba(14, 165, 233, 0.01) 100%);
+  background: linear-gradient(135deg, rgba(var(--gold-accent-rgb), 0.04) 0%, rgba(var(--gold-accent-rgb), 0.01) 100%);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -1136,7 +1137,7 @@ input::-webkit-contacts-auto-fill-button {
   width: 50%;
   height: 50%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--gold-accent-rgb), 0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -1165,3 +1166,11 @@ input::-webkit-contacts-auto-fill-button {
   }
 }
 
+
+/* Female theme override */
+body.theme-female {
+  --gold-accent: #EC4899; /* Pink */
+  --gold-hover: #D01C70;
+  --gold-accent-rgb: 236, 72, 153;
+  --chat-sent: #EC4899;
+}
