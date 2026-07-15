@@ -32,7 +32,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -40,7 +40,13 @@ export default function LoginScreen() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        showToast('Welcome back, brother/sister!');
+        const userGender = data.user?.user_metadata?.gender;
+        const greeting = userGender === 'Male' 
+          ? 'Welcome back, brother!' 
+          : userGender === 'Female' 
+            ? 'Welcome back, sister!' 
+            : 'Welcome back, brother/sister!';
+        showToast(greeting);
       }
     } catch (err) {
       showToast('An unexpected error occurred.', 'error');

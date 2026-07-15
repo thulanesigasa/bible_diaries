@@ -24,6 +24,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS privacy_mode TEXT DEFAULT '
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS allow_dms BOOLEAN DEFAULT true;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_likes BOOLEAN DEFAULT true;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_comments BOOLEAN DEFAULT true;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS gender TEXT;
 
 -- Enable RLS on profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -46,7 +47,7 @@ CREATE POLICY "Allow users to update their own profile"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, full_name, first_name, surname, address, phone_number, avatar_url, bio, favorite_verse, spiritual_journey)
+    INSERT INTO public.profiles (id, full_name, first_name, surname, address, phone_number, avatar_url, bio, favorite_verse, spiritual_journey, gender)
     VALUES (
         new.id,
         COALESCE(new.raw_user_meta_data->>'full_name', (new.raw_user_meta_data->>'first_name') || ' ' || (new.raw_user_meta_data->>'surname'), 'New Member'),
@@ -57,7 +58,8 @@ BEGIN
         new.raw_user_meta_data->>'avatar_url',
         new.raw_user_meta_data->>'bio',
         new.raw_user_meta_data->>'favorite_verse',
-        new.raw_user_meta_data->>'spiritual_journey'
+        new.raw_user_meta_data->>'spiritual_journey',
+        new.raw_user_meta_data->>'gender'
     );
     RETURN new;
 END;

@@ -32,7 +32,13 @@ export default function Login() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        showToast('Welcome back, brother/sister!');
+        const userGender = data.user?.user_metadata?.gender;
+        const greeting = userGender === 'Male' 
+          ? 'Welcome back, brother!' 
+          : userGender === 'Female' 
+            ? 'Welcome back, sister!' 
+            : 'Welcome back, brother/sister!';
+        showToast(greeting);
         router.push('/feed');
       }
     } catch (err) {

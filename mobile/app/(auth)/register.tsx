@@ -32,6 +32,7 @@ export default function RegisterScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [gender, setGender] = useState('Male');
   
   const [loading, setLoading] = useState(false);
 
@@ -117,8 +118,8 @@ export default function RegisterScreen() {
       }
       setStep(2);
     } else if (step === 2) {
-      if (!firstName || !surname || !phoneNumber) {
-        showToast('Please fill in your name, surname, and phone number.', 'error');
+      if (!firstName || !surname || !phoneNumber || !gender) {
+        showToast('Please fill in your name, surname, phone number, and gender.', 'error');
         return;
       }
       setStep(3);
@@ -150,6 +151,7 @@ export default function RegisterScreen() {
             phone_number: phoneNumber,
             address: address,
             avatar_url: avatarUrl || null,
+            gender: gender,
             bio: 'Walking in faith.',
             favorite_verse: '',
             spiritual_journey: ''
@@ -345,6 +347,37 @@ export default function RegisterScreen() {
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
                 />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Gender</Text>
+                <View style={styles.genderRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.genderBtn,
+                      gender === 'Male' && styles.genderBtnActive
+                    ]}
+                    onPress={() => setGender('Male')}
+                  >
+                    <Text style={[
+                      styles.genderText,
+                      gender === 'Male' && styles.genderTextActive
+                    ]}>Male</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.genderBtn,
+                      gender === 'Female' && styles.genderBtnActive
+                    ]}
+                    onPress={() => setGender('Female')}
+                  >
+                    <Text style={[
+                      styles.genderText,
+                      gender === 'Female' && styles.genderTextActive
+                    ]}>Female</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View style={styles.btnRow}>
@@ -638,5 +671,32 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#0EA5E9',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 4,
+  },
+  genderBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.04)',
+  },
+  genderBtnActive: {
+    backgroundColor: '#0EA5E9',
+    borderColor: '#0EA5E9',
+  },
+  genderText: {
+    color: '#64748B',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  genderTextActive: {
+    color: '#FFFFFF',
   },
 });

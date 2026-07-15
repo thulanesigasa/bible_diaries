@@ -20,6 +20,7 @@ export default function Register() {
   const [firstName, setFirstName] = useState('');
   const [surname, setSurname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [gender, setGender] = useState('Male');
   
   const [address, setAddress] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -90,8 +91,8 @@ export default function Register() {
         return;
       }
     } else if (step === 2) {
-      if (!firstName || !surname || !phoneNumber) {
-        showToast('Please fill in your name, surname, and phone number.', 'error');
+      if (!firstName || !surname || !phoneNumber || !gender) {
+        showToast('Please fill in your name, surname, phone number, and gender.', 'error');
         return;
       }
     }
@@ -124,6 +125,7 @@ export default function Register() {
             phone_number: phoneNumber,
             address: address,
             avatar_url: avatarUrl || null,
+            gender: gender,
             bio: '',
             favorite_verse: '',
             spiritual_journey: ''
@@ -369,6 +371,19 @@ export default function Register() {
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   required
                 />
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label" htmlFor="gender">Gender</label>
+                <select
+                  id="gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  required
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
