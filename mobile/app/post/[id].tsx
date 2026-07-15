@@ -8,12 +8,13 @@ import {
   StyleSheet, 
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Share
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { Heart, MessageSquare, Bookmark, Send, ArrowLeft } from 'lucide-react-native';
+import { Heart, MessageSquare, Bookmark, Send, ArrowLeft, Share2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 export default function PostDetailsScreen() {
@@ -114,6 +115,16 @@ export default function PostDetailsScreen() {
     }
   };
 
+  const handleShare = async (content: string, author: string) => {
+    try {
+      await Share.share({
+        message: `Reflection by ${author || 'a believer'} on bible_diaries:\n\n"${content}"`,
+      });
+    } catch (e: any) {
+      showToast(e.message, 'error');
+    }
+  };
+
   const handlePostComment = async () => {
     if (!newComment.trim() || !user || submittingComment) return;
 
@@ -188,14 +199,6 @@ export default function PostDetailsScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      {/* Custom Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#0F172A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reflection</Text>
-      </View>
-
       <FlatList
         data={comments}
         renderItem={renderCommentItem}
@@ -244,6 +247,11 @@ export default function PostDetailsScreen() {
                 <Text style={[styles.actionText, isFav && { color: '#0EA5E9' }]}>
                   {isFav ? 'Bookmarked' : 'Bookmark'}
                 </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(post?.content, post?.profiles?.full_name)}>
+                <Share2 size={20} color="#475569" />
+                <Text style={styles.actionText}>Share</Text>
               </TouchableOpacity>
             </View>
 

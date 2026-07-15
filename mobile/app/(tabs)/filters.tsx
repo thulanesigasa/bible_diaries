@@ -6,12 +6,13 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ActivityIndicator,
-  ScrollView 
+  ScrollView,
+  Share
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { Heart, MessageSquare, Bookmark } from 'lucide-react-native';
+import { Heart, MessageSquare, Bookmark, Share2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
@@ -106,6 +107,16 @@ export default function FiltersScreen() {
     }
   };
 
+  const handleShare = async (content: string, author: string) => {
+    try {
+      await Share.share({
+        message: `Reflection by ${author || 'a believer'} on bible_diaries:\n\n"${content}"`,
+      });
+    } catch (e: any) {
+      showToast(e.message, 'error');
+    }
+  };
+
   const renderPostItem = ({ item }: { item: any }) => {
     const isLiked = item.likes?.some((l: any) => l.user_id === user.id);
     const isFav = item.favorites?.some((f: any) => f.user_id === user.id) || false;
@@ -165,6 +176,10 @@ export default function FiltersScreen() {
 
           <TouchableOpacity style={styles.actionBtn} onPress={() => handleToggleFavorite(item)}>
             <Bookmark size={18} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(item.content, item.profiles?.full_name)}>
+            <Share2 size={18} color="#475569" />
           </TouchableOpacity>
         </View>
       </View>

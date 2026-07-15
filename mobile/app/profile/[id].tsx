@@ -59,13 +59,6 @@ export default function MemberProfileScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={22} color="#0F172A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Believer Profile</Text>
-      </View>
 
       {/* Main Card */}
       <View style={styles.profileCard}>

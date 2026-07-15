@@ -63,7 +63,38 @@ export default function RootLayout() {
         setProfile(data[0]);
         setLoading(false);
       } else {
-        setProfile(null);
+        // Self-heal: profile row is missing in public.profiles table!
+        // We will read user metadata and insert it into profiles dynamically
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          const meta = authUser.user_metadata || {};
+          const fName = meta.first_name || meta.full_name?.split(' ')[0] || 'Believer';
+          const sName = meta.surname || meta.full_name?.split(' ').slice(1).join(' ') || '';
+          
+          const newProfile = {
+            id: userId,
+            first_name: fName,
+            surname: sName,
+            full_name: meta.full_name || `${fName} ${sName}`.trim(),
+            address: meta.address || '',
+            phone_number: meta.phone_number || '',
+            avatar_url: meta.avatar_url || null,
+            gender: meta.gender || 'Male',
+            bio: 'Walking in faith.',
+            favorite_verse: '',
+            spiritual_journey: ''
+          };
+
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert(newProfile);
+
+          if (insertError) {
+            console.error('Self-healing profile insert failed:', insertError.message);
+          } else {
+            setProfile(newProfile);
+          }
+        }
         setLoading(false);
       }
     } catch (e) {
@@ -136,7 +167,7 @@ export default function RootLayout() {
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="post/[id]" options={{ headerShown: true, title: 'Reflection', headerTintColor: '#0EA5E9' }} />
           <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: '#0EA5E9' }} />
-          <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: 'Conversation', headerTintColor: '#0EA5E9' }} />
+          <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
         </Stack>
 
         {/* Floating Toast notification HUD overlay */}

@@ -12,12 +12,13 @@ import {
   Switch,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Share
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
-import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send } from 'lucide-react-native';
+import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send, Share2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
@@ -99,7 +100,6 @@ export default function FeedScreen() {
         author_id: user.id,
         content: newContent.trim(),
         category: selectedCategory,
-        is_anonymous: isAnonymous,
         created_at: new Date().toISOString()
       };
 
@@ -118,6 +118,16 @@ export default function FeedScreen() {
       showToast('Failed to publish post.', 'error');
     } finally {
       setPublishing(false);
+    }
+  };
+
+  const handleShare = async (content: string, author: string) => {
+    try {
+      await Share.share({
+        message: `Reflection by ${author || 'a believer'} on bible_diaries:\n\n"${content}"`,
+      });
+    } catch (e: any) {
+      showToast(e.message, 'error');
     }
   };
 
@@ -247,6 +257,13 @@ export default function FeedScreen() {
             onPress={() => handleToggleFavorite(item)}
           >
             <Bookmark size={18} color={isFav ? '#0EA5E9' : '#475569'} fill={isFav ? '#0EA5E9' : 'transparent'} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => handleShare(item.content, item.profiles?.full_name)}
+          >
+            <Share2 size={18} color="#475569" />
           </TouchableOpacity>
         </View>
       </View>
