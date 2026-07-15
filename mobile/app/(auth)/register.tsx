@@ -17,6 +17,10 @@ import { BookOpen, Check, Eye, EyeOff, Camera } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 import * as ImagePicker from 'expo-image-picker';
 
+// Colour palettes
+const MALE_ACCENT   = '#0EA5E9';  // blue
+const FEMALE_ACCENT = '#EC4899';  // pink
+
 export default function RegisterScreen() {
   const [step, setStep] = useState(1);
   
@@ -38,6 +42,9 @@ export default function RegisterScreen() {
 
   const { showToast } = useApp();
   const router = useRouter();
+
+  // Derive accent colour from gender — live update as user taps
+  const accent = gender === 'Female' ? FEMALE_ACCENT : MALE_ACCENT;
 
   const getPasswordStrength = (pwd: string) => {
     if (!pwd) return { score: 0, label: '', color: '#475569' };
@@ -81,7 +88,6 @@ export default function RegisterScreen() {
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         
-        // 5MB limit check
         if (asset.fileSize && asset.fileSize > 1024 * 1024 * 5) {
           showToast('Image size should be less than 5MB', 'error');
           return;
@@ -179,11 +185,12 @@ export default function RegisterScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
+
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.logoRow}>
-              <BookOpen size={24} color="#0EA5E9" style={{ marginRight: 8 }} />
-              <Text style={styles.logoText}>bible_diaries</Text>
+              <BookOpen size={24} color={accent} style={{ marginRight: 8 }} />
+              <Text style={[styles.logoText, { color: accent }]}>bible_diaries</Text>
             </View>
             <Text style={styles.title}>Create Your Account</Text>
             <Text style={styles.subtitle}>Join our community to share and browse diaries</Text>
@@ -195,8 +202,7 @@ export default function RegisterScreen() {
               <View key={num} style={num < 3 ? styles.stepWrapper : styles.stepWrapperLast}>
                 <View style={[
                   styles.stepDot,
-                  step === num && styles.stepDotActive,
-                  step > num && styles.stepDotCompleted
+                  (step === num || step > num) && { backgroundColor: accent, borderColor: accent },
                 ]}>
                   {step > num ? (
                     <Check size={14} color="#FFFFFF" />
@@ -210,7 +216,7 @@ export default function RegisterScreen() {
                 {num < 3 && (
                   <View style={[
                     styles.stepLine,
-                    step > num && styles.stepLineActive
+                    step > num && { backgroundColor: accent }
                   ]} />
                 )}
               </View>
@@ -304,7 +310,7 @@ export default function RegisterScreen() {
               </View>
 
               <TouchableOpacity 
-                style={[styles.btnPrimary, { marginTop: 8 }]}
+                style={[styles.btnPrimary, { backgroundColor: accent, marginTop: 8 }]}
                 onPress={handleNext}
               >
                 <Text style={styles.btnText}>Continue</Text>
@@ -352,26 +358,30 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Gender</Text>
                 <View style={styles.genderRow}>
+                  {/* Male Button */}
                   <TouchableOpacity
                     style={[
                       styles.genderBtn,
-                      gender === 'Male' && styles.genderBtnActive
+                      gender === 'Male' && { backgroundColor: MALE_ACCENT, borderColor: MALE_ACCENT }
                     ]}
                     onPress={() => setGender('Male')}
                   >
+                    <Text style={{ fontSize: 22, marginBottom: 4 }}>👨</Text>
                     <Text style={[
                       styles.genderText,
                       gender === 'Male' && styles.genderTextActive
                     ]}>Male</Text>
                   </TouchableOpacity>
 
+                  {/* Female Button */}
                   <TouchableOpacity
                     style={[
                       styles.genderBtn,
-                      gender === 'Female' && styles.genderBtnActive
+                      gender === 'Female' && { backgroundColor: FEMALE_ACCENT, borderColor: FEMALE_ACCENT }
                     ]}
                     onPress={() => setGender('Female')}
                   >
+                    <Text style={{ fontSize: 22, marginBottom: 4 }}>👩</Text>
                     <Text style={[
                       styles.genderText,
                       gender === 'Female' && styles.genderTextActive
@@ -389,7 +399,7 @@ export default function RegisterScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.btnPrimary, { flex: 1 }]}
+                  style={[styles.btnPrimary, { flex: 1, backgroundColor: accent }]}
                   onPress={handleNext}
                 >
                   <Text style={styles.btnText}>Continue</Text>
@@ -410,7 +420,7 @@ export default function RegisterScreen() {
                     size={80}
                   />
                   <TouchableOpacity 
-                    style={styles.avatarCameraBtn}
+                    style={[styles.avatarCameraBtn, { backgroundColor: accent }]}
                     onPress={handleImageUpload}
                   >
                     <Camera size={14} color="#FFFFFF" />
@@ -443,7 +453,7 @@ export default function RegisterScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.btnPrimary, { flex: 1 }, loading && styles.btnDisabled]}
+                  style={[styles.btnPrimary, { flex: 1, backgroundColor: accent }, loading && styles.btnDisabled]}
                   onPress={handleRegister}
                   disabled={loading}
                 >
@@ -462,7 +472,7 @@ export default function RegisterScreen() {
             <Text style={styles.footerLinkText}>Already have an account? </Text>
             <Link href="/(auth)/login" asChild>
               <TouchableOpacity>
-                <Text style={styles.linkText}>Sign In</Text>
+                <Text style={[styles.linkText, { color: accent }]}>Sign In</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -498,7 +508,6 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#0EA5E9',
   },
   title: {
     fontSize: 20,
@@ -537,14 +546,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepDotActive: {
-    backgroundColor: '#0EA5E9',
-    borderColor: '#0EA5E9',
-  },
-  stepDotCompleted: {
-    backgroundColor: '#0EA5E9',
-    borderColor: '#0EA5E9',
-  },
   stepDotText: {
     fontSize: 12,
     fontWeight: '600',
@@ -558,9 +559,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F1F5F9',
     marginHorizontal: 8,
-  },
-  stepLineActive: {
-    backgroundColor: '#0EA5E9',
   },
   form: {
     gap: 16,
@@ -603,7 +601,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#0EA5E9',
     borderRadius: 14,
     width: 26,
     height: 26,
@@ -624,7 +621,6 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   btnPrimary: {
-    backgroundColor: '#0EA5E9',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -670,7 +666,6 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0EA5E9',
   },
   genderRow: {
     flexDirection: 'row',
@@ -679,17 +674,13 @@ const styles = StyleSheet.create({
   },
   genderBtn: {
     flex: 1,
-    height: 44,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderRadius: 12,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.04)',
-  },
-  genderBtnActive: {
-    backgroundColor: '#0EA5E9',
-    borderColor: '#0EA5E9',
   },
   genderText: {
     color: '#64748B',
