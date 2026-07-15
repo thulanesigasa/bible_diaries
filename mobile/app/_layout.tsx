@@ -112,7 +112,7 @@ export default function RootLayout() {
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
       // Redirect to feed tab if logged in
-      router.replace('/(tabs)/feed');
+      router.replace('/(tabs)');
     }
   }, [user, loading, segments, fontsLoaded]);
 
@@ -134,7 +134,6 @@ export default function RootLayout() {
           <Stack.Screen name="post/[id]" options={{ headerShown: true, title: 'Reflection', headerTintColor: '#0EA5E9' }} />
           <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: '#0EA5E9' }} />
           <Stack.Screen name="chat/[id]" options={{ headerShown: true, title: 'Conversation', headerTintColor: '#0EA5E9' }} />
-          <Stack.Screen name="settings" options={{ headerShown: true, title: 'Edit Profile', headerTintColor: '#0EA5E9' }} />
         </Stack>
 
         {/* Floating Toast notification HUD overlay */}
