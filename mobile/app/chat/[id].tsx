@@ -11,12 +11,14 @@ import {
   ActivityIndicator 
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../_layout';
 import { Send, ArrowLeft } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 
 export default function ChatWindowScreen() {
   const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [partnerProfile, setPartnerProfile] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -81,7 +83,7 @@ export default function ChatWindowScreen() {
           table: 'chats',
           filter: `sender_id=eq.${id},receiver_id=eq.${user.id}`
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => [...prev, payload.new]);
         }
       )
@@ -168,7 +170,7 @@ export default function ChatWindowScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 90}
     >
       {/* Custom Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={22} color="#0F172A" />
         </TouchableOpacity>
