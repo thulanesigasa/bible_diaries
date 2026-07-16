@@ -203,8 +203,8 @@ export default function ChatWindowScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 30}
     >
       {/* Custom Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>

@@ -335,7 +335,8 @@ export default function ChatPage({ params }) {
                     );
                   })
                 )}
-                <div ref={messagesEndRef} />
+                {/* Spacer to ensure the last message isn't hidden by padding when scrolling */}
+                <div ref={messagesEndRef} style={{ height: '10px', flexShrink: 0 }} />
               </div>
 
               {/* Input Area */}

@@ -757,6 +757,7 @@ input:focus, textarea:focus, select:focus {
 
 .chat-window-messages {
   flex: 1;
+  min-height: 0;
   padding: 1.5rem;
   overflow-y: auto;
   display: flex;
@@ -809,6 +810,9 @@ input:focus, textarea:focus, select:focus {
   border-top: 1px solid var(--border-color);
   display: flex;
   gap: 1rem;
+  background-color: var(--bg-primary);
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .chat-input {
