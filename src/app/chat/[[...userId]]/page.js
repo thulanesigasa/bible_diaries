@@ -26,10 +26,16 @@ export default function ChatPage({ params }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   // Auto-scroll messages to bottom
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   useEffect(() => {
@@ -309,7 +315,7 @@ export default function ChatPage({ params }) {
               </div>
 
               {/* Message History List */}
-              <div className="chat-window-messages">
+              <div className="chat-window-messages" ref={scrollContainerRef}>
                 {loadingChat ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
                     <Loader size={24} className="spinner" style={{ color: 'var(--gold-accent)' }} />
