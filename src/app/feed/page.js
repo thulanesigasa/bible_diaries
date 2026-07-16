@@ -225,7 +225,7 @@ export default function Feed() {
 
   const insertVersePreview = () => {
     if (versePreview) {
-      setNewScripture(`${versePreview.reference} — "${versePreview.text}"`);
+      setNewScripture(`${versePreview.text} - ${versePreview.reference} ${versePreview.translation.toUpperCase()}`);
       showToast('Verse inserted into Scripture!');
       setVersePreview(null);
     }
