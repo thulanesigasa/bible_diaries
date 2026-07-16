@@ -161,7 +161,11 @@ export default function ChatPage({ params }) {
           (msg.sender_id === user.id && msg.receiver_id === activeChatUserId) ||
           (msg.sender_id === activeChatUserId && msg.receiver_id === user.id)
         ) {
-          setMessages(prev => [...prev, msg]);
+          setMessages(prev => {
+            // Avoid duplicates from optimistic update
+            if (prev.some(m => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          });
           // Refresh inbox list last message preview
           fetchChatRooms();
         }
@@ -169,7 +173,6 @@ export default function ChatPage({ params }) {
       .subscribe();
 
     return () => {
-      supabase.from('chats').delete; // dummy reference
       channel.unsubscribe();
     };
   }, [user, activeChatUserId]);
@@ -179,26 +182,45 @@ export default function ChatPage({ params }) {
     e.preventDefault();
     if (!inputText.trim() || !activeChatUserId) return;
 
-    setSending(true);
     const text = inputText.trim();
     setInputText('');
 
-    try {
-      const messageBody = {
-        sender_id: user.id,
-        receiver_id: activeChatUserId,
-        message: text
-      };
+    // Optimistic update: show message immediately
+    const optimisticMsg = {
+      id: `temp-${Date.now()}`,
+      sender_id: user.id,
+      receiver_id: activeChatUserId,
+      message: text,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
 
+    setSending(true);
+    try {
       const { data, error } = await supabase
         .from('chats')
-        .insert(messageBody);
+        .insert({
+          sender_id: user.id,
+          receiver_id: activeChatUserId,
+          message: text
+        })
+        .select()
+        .single();
 
       if (error) {
         showToast(error.message, 'error');
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+        setInputText(text);
+      } else if (data) {
+        // Replace optimistic message with real one
+        setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data : m));
+        fetchChatRooms();
       }
     } catch (err) {
       showToast('Error sending message: ' + err.message, 'error');
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+      setInputText(text);
     } finally {
       setSending(false);
     }

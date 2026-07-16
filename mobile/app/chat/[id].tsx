@@ -73,18 +73,31 @@ export default function ChatWindowScreen() {
     fetchPartnerDetails();
     fetchMessages();
 
+    // Listen for any new message INSERT in the chats table
     const channel = supabase
-      .channel(`chat:${user.id}:${id}`)
+      .channel(`chat-window:${user.id}:${id}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'chats',
-          filter: `sender_id=eq.${id},receiver_id=eq.${user.id}`
         },
         (payload: any) => {
-          setMessages((prev) => [...prev, payload.new]);
+          const msg = payload.new;
+          // Only add messages that belong to THIS conversation
+          const isForUs =
+            (msg.sender_id === user.id && msg.receiver_id === id) ||
+            (msg.sender_id === id && msg.receiver_id === user.id);
+          if (isForUs) {
+            setMessages((prev) => {
+              // Avoid duplicates (in case optimistic update already added it)
+              if (prev.some((m) => m.id === msg.id)) return prev;
+              return [...prev, msg];
+            });
+            // Auto-scroll to bottom
+            setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+          }
         }
       )
       .subscribe();
@@ -97,23 +110,47 @@ export default function ChatWindowScreen() {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
 
+    const messageText = newMessage.trim();
+    setNewMessage('');
+
+    // Optimistic update: immediately show the message
+    const optimisticMsg = {
+      id: `temp-${Date.now()}`,
+      sender_id: user.id,
+      receiver_id: id,
+      message: messageText,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+
     setSending(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('chats')
         .insert({
           sender_id: user.id,
           receiver_id: id,
-          message: newMessage.trim(),
-        });
+          message: messageText,
+        })
+        .select()
+        .single();
 
       if (error) {
         showToast(error.message, 'error');
-      } else {
-        setNewMessage('');
+        // Remove optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
+        setNewMessage(messageText); // restore the text
+      } else if (data) {
+        // Replace optimistic message with real one
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMsg.id ? data : m))
+        );
       }
     } catch (e: any) {
       showToast(e.message, 'error');
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
+      setNewMessage(messageText);
     } finally {
       setSending(false);
     }
@@ -166,8 +203,8 @@ export default function ChatWindowScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 90}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       {/* Custom Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
