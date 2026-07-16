@@ -225,11 +225,8 @@ export default function Feed() {
 
   const insertVersePreview = () => {
     if (versePreview) {
-      setNewContent(prev => {
-        const spacer = prev && !prev.endsWith('\n\n') ? '\n\n' : '';
-        return prev + spacer + `"${versePreview.text}" - ${versePreview.reference} (${versePreview.translation.toUpperCase()})\n\n`;
-      });
-      showToast('Verse inserted!');
+      setNewScripture(`${versePreview.reference} — "${versePreview.text}"`);
+      showToast('Verse inserted into Scripture!');
       setVersePreview(null);
     }
   };
