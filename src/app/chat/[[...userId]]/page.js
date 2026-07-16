@@ -152,36 +152,51 @@ export default function ChatPage({ params }) {
 
   // Realtime subscription setup
   useEffect(() => {
-    if (!user || !activeChatUserId) return;
+    if (!user) return;
 
-    // Listen to changes
-    const channel = supabase.channel(`room_${activeChatUserId}`)
+    // Listen to all chats involving this user
+    const channel = supabase.channel(`user_inbox_${user.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'chats'
       }, (payload) => {
+        console.log('REALTIME EVENT RECEIVED:', payload);
         const msg = payload.new;
-        // Verify message is relevant to this active chat
-        if (
-          (msg.sender_id === user.id && msg.receiver_id === activeChatUserId) ||
-          (msg.sender_id === activeChatUserId && msg.receiver_id === user.id)
-        ) {
-          setMessages(prev => {
-            // Avoid duplicates from optimistic update
-            if (prev.some(m => m.id === msg.id)) return prev;
-            return [...prev, msg];
-          });
-          // Refresh inbox list last message preview
+        
+        // Check if the message involves the current user
+        const involvesUser = 
+          msg.sender_id.toLowerCase() === user.id.toLowerCase() || 
+          msg.receiver_id.toLowerCase() === user.id.toLowerCase();
+          
+        if (involvesUser) {
+          // Always refresh the inbox list when a new message arrives for us
           fetchChatRooms();
+
+          // If the message belongs to the currently open chat, append it
+          if (activeChatUserId) {
+            const belongsToActiveChat = 
+              (msg.sender_id.toLowerCase() === user.id.toLowerCase() && msg.receiver_id.toLowerCase() === activeChatUserId.toLowerCase()) ||
+              (msg.sender_id.toLowerCase() === activeChatUserId.toLowerCase() && msg.receiver_id.toLowerCase() === user.id.toLowerCase());
+              
+            if (belongsToActiveChat) {
+              setMessages(prev => {
+                // Avoid duplicates from optimistic update
+                if (prev.some(m => m.id === msg.id)) return prev;
+                return [...prev, msg];
+              });
+            }
+          }
         }
       })
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('Realtime subscription status:', status, err);
+      });
 
     return () => {
       channel.unsubscribe();
     };
-  }, [user, activeChatUserId]);
+  }, [user?.id, activeChatUserId]);
 
   // Send message
   const handleSendMessage = async (e) => {
