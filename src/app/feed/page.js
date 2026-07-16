@@ -32,6 +32,8 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   
   // Post Creator State
+  const [newTitle, setNewTitle] = useState('');
+  const [newScripture, setNewScripture] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newCategory, setNewCategory] = useState('Faith');
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +53,10 @@ export default function Feed() {
 
   // Edit State
   const [editingPostId, setEditingPostId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [editingScripture, setEditingScripture] = useState('');
   const [editingContent, setEditingContent] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // Fetch Feed posts
   const fetchPosts = async () => {
@@ -117,6 +122,8 @@ export default function Feed() {
         .from('diaries')
         .insert({
           author_id: user.id,
+          title: newTitle.trim() || null,
+          scripture: newScripture.trim() || null,
           content: newContent,
           category: newCategory
         });
@@ -125,6 +132,8 @@ export default function Feed() {
         showToast(error.message, 'error');
       } else {
         showToast('Diary shared on the global feed!');
+        setNewTitle('');
+        setNewScripture('');
         setNewContent('');
         setModStatus(null);
         fetchPosts();
@@ -264,20 +273,25 @@ export default function Feed() {
     }
   };
 
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm("Are you sure you want to delete this diary entry?")) return;
-    
+  const handleDeletePost = (postId) => {
+    setDeleteConfirmId(postId);
+  };
+
+  const executeDeletePost = async () => {
+    if (!deleteConfirmId) return;
     try {
       const { error } = await supabase
         .from('diaries')
         .delete()
-        .eq('id', postId);
+        .eq('id', deleteConfirmId);
       
       if (error) throw error;
       showToast('Diary deleted successfully.');
+      setDeleteConfirmId(null);
       fetchPosts();
     } catch (err) {
       showToast('Error deleting diary: ' + err.message, 'error');
+      setDeleteConfirmId(null);
     }
   };
 
@@ -286,7 +300,11 @@ export default function Feed() {
     try {
       const { error } = await supabase
         .from('diaries')
-        .update({ content: editingContent.trim() })
+        .update({ 
+          title: editingTitle.trim() || null,
+          scripture: editingScripture.trim() || null,
+          content: editingContent.trim() 
+        })
         .eq('id', postId);
 
       if (error) throw error;
@@ -372,6 +390,27 @@ export default function Feed() {
             </h3>
             
             <form onSubmit={handleCreatePost}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <input
+                  type="text"
+                  placeholder="Give your reflection a Title (Optional)"
+                  className="post-creator-textarea"
+                  style={{ minHeight: 'auto', padding: '0.75rem 1rem' }}
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  disabled={submitting}
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Scripture reference (e.g. John 3:16) (Optional)"
+                  className="post-creator-textarea"
+                  style={{ minHeight: 'auto', padding: '0.75rem 1rem', fontStyle: 'italic' }}
+                  value={newScripture}
+                  onChange={(e) => setNewScripture(e.target.value)}
+                  disabled={submitting}
+                />
+              </div>
               <textarea
                 placeholder="What has scripture spoken to you today? Share a testimony, meditation, or diary entry..."
                 className="post-creator-textarea"
@@ -486,7 +525,22 @@ export default function Feed() {
 
                     {/* Content Section */}
                     {editingPostId === post.id ? (
-                      <div className="diary-card-content">
+                      <div className="diary-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <input
+                          type="text"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          className="modern-input"
+                          placeholder="Title (Optional)"
+                        />
+                        <input
+                          type="text"
+                          value={editingScripture}
+                          onChange={(e) => setEditingScripture(e.target.value)}
+                          className="modern-input"
+                          placeholder="Scripture (Optional)"
+                          style={{ fontStyle: 'italic' }}
+                        />
                         <textarea
                           value={editingContent}
                           onChange={(e) => setEditingContent(e.target.value)}
@@ -504,6 +558,16 @@ export default function Feed() {
                          onClick={() => router.push(`/post/${post.id}`)}
                          style={{ cursor: 'pointer' }}
                        >
+                         {post.title && (
+                           <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-color)' }}>
+                             {post.title}
+                           </h3>
+                         )}
+                         {post.scripture && (
+                           <blockquote style={{ borderLeft: '3px solid var(--primary-color)', paddingLeft: '1rem', fontStyle: 'italic', color: 'var(--text-light)', margin: '0 0 1rem 0', background: 'rgba(0,0,0,0.02)', padding: '0.75rem', borderRadius: '4px' }}>
+                             {post.scripture}
+                           </blockquote>
+                         )}
                          {post.content}
                        </div>
                     )}
@@ -540,6 +604,8 @@ export default function Feed() {
                              className="action-btn"
                              onClick={() => {
                                setEditingPostId(post.id);
+                               setEditingTitle(post.title || '');
+                               setEditingScripture(post.scripture || '');
                                setEditingContent(post.content);
                              }}
                            >
@@ -630,6 +696,42 @@ export default function Feed() {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="modal-backdrop" onClick={() => setDeleteConfirmId(null)}>
+          <div className="modal-content glass-panel" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Delete Diary</h3>
+              <button className="icon-btn" onClick={() => setDeleteConfirmId(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                Are you sure you want to delete this diary entry?
+              </p>
+              
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => setDeleteConfirmId(null)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn-primary" 
+                  onClick={executeDeletePost}
+                  style={{ backgroundColor: 'var(--primary-color)' }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -158,13 +158,22 @@ export default function FiltersScreen() {
           onPress={() => router.push((`/post/${item.id}`) as any)}
           activeOpacity={0.7}
         >
+          {item.title ? <Text style={styles.postTitle}>{item.title}</Text> : null}
+          {item.scripture ? (
+            <View style={[styles.scriptureQuote, { borderLeftColor: accent, backgroundColor: `${accent}10` }]}>
+              <Text style={styles.scriptureText}>{item.scripture}</Text>
+            </View>
+          ) : null}
           <Text style={styles.postContent}>{item.content}</Text>
         </TouchableOpacity>
 
         <View style={styles.actionsBar}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => handleToggleLike(item)}>
-            <Heart size={18} color={isLiked ? '#EC4899' : '#475569'} fill={isLiked ? '#EC4899' : 'transparent'} />
-            <Text style={[styles.actionText, isLiked && { color: '#EC4899' }]}>
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => handleToggleLike(item)}
+          >
+            <Heart size={18} color={isLiked ? accent : '#475569'} fill={isLiked ? accent : 'transparent'} />
+            <Text style={[styles.actionText, isLiked && { color: accent }]}>
               {item.likes?.length || 0}
             </Text>
           </TouchableOpacity>
@@ -320,6 +329,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#0EA5E9',
     fontWeight: '600',
+  },
+  postTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  scriptureQuote: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#64748B',
+    paddingLeft: 10,
+    marginVertical: 8,
+    backgroundColor: '#F1F5F9',
+    padding: 10,
+    borderRadius: 4,
+  },
+  scriptureText: {
+    fontStyle: 'italic',
+    color: '#334155',
+    fontSize: 14,
+    lineHeight: 20,
   },
   postContent: {
     fontSize: 15,

@@ -81,10 +81,16 @@ CREATE TRIGGER on_auth_user_created
 CREATE TABLE IF NOT EXISTS public.diaries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     author_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    title TEXT,
+    scripture TEXT,
     content TEXT NOT NULL,
     category TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure new columns exist if table was already created in an earlier step
+ALTER TABLE public.diaries ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE public.diaries ADD COLUMN IF NOT EXISTS scripture TEXT;
 
 -- Enable RLS on diaries
 ALTER TABLE public.diaries ENABLE ROW LEVEL SECURITY;

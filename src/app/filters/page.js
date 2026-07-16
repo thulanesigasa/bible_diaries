@@ -342,6 +342,16 @@ export default function FiltersPage() {
                       onClick={() => router.push(`/post/${post.id}`)}
                       style={{ cursor: 'pointer' }}
                     >
+                      {post.title && (
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-color)' }}>
+                          {post.title}
+                        </h3>
+                      )}
+                      {post.scripture && (
+                        <blockquote style={{ borderLeft: '3px solid var(--primary-color)', paddingLeft: '1rem', fontStyle: 'italic', color: 'var(--text-light)', margin: '0 0 1rem 0', background: 'rgba(0,0,0,0.02)', padding: '0.75rem', borderRadius: '4px' }}>
+                          {post.scripture}
+                        </blockquote>
+                      )}
                       {post.content}
                     </div>
 

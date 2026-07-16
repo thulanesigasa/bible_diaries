@@ -28,7 +28,9 @@ export default function PostDetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editScripture, setEditScripture] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
@@ -131,27 +133,20 @@ export default function PostDetailsScreen() {
   };
 
   const handleDeletePost = () => {
-    Alert.alert(
-      "Delete Diary",
-      "Are you sure you want to delete this diary entry?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const { error } = await supabase.from('diaries').delete().eq('id', id);
-              if (error) throw error;
-              showToast('Diary deleted successfully.');
-              router.replace('/(tabs)');
-            } catch (err: any) {
-              showToast('Error deleting diary: ' + err.message, 'error');
-            }
-          }
-        }
-      ]
-    );
+    setDeleteConfirm(true);
+  };
+
+  const executeDeletePost = async () => {
+    try {
+      const { error } = await supabase.from('diaries').delete().eq('id', id);
+      if (error) throw error;
+      showToast('Diary deleted successfully.');
+      setDeleteConfirm(false);
+      router.replace('/(tabs)');
+    } catch (err: any) {
+      showToast('Error deleting diary: ' + err.message, 'error');
+      setDeleteConfirm(false);
+    }
   };
 
   const handleEditPostSubmit = async () => {
@@ -272,12 +267,18 @@ export default function PostDetailsScreen() {
               </View>
             </View>
 
+            {post?.title ? <Text style={styles.postTitle}>{post?.title}</Text> : null}
+            {post?.scripture ? (
+              <View style={[styles.scriptureQuote, { borderLeftColor: accent, backgroundColor: `${accent}10` }]}>
+                <Text style={styles.scriptureText}>{post?.scripture}</Text>
+              </View>
+            ) : null}
             <Text style={styles.postContent}>{post?.content}</Text>
 
             <View style={styles.actionsBar}>
               <TouchableOpacity style={styles.actionBtn} onPress={handleToggleLike}>
-                <Heart size={20} color={isLiked ? '#EC4899' : '#475569'} fill={isLiked ? '#EC4899' : 'transparent'} />
-                <Text style={[styles.actionText, isLiked && { color: '#EC4899' }]}>
+                <Heart size={20} color={isLiked ? accent : '#475569'} fill={isLiked ? accent : 'transparent'} />
+                <Text style={[styles.actionText, isLiked && { color: accent }]}>
                   {post?.likes?.length || 0}
                 </Text>
               </TouchableOpacity>
@@ -346,6 +347,33 @@ export default function PostDetailsScreen() {
           />
         </SafeAreaView>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal visible={deleteConfirm} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: '#FFFFFF', borderRadius: 16, padding: 24, width: '100%', maxWidth: 400 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A', marginBottom: 12 }}>Delete Diary</Text>
+            <Text style={{ fontSize: 15, color: '#475569', marginBottom: 24, lineHeight: 22 }}>
+              Are you sure you want to delete this diary entry?
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+              <TouchableOpacity 
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }}
+                onPress={() => setDeleteConfirm(false)}
+              >
+                <Text style={{ color: '#475569', fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: accent }}
+                onPress={executeDeletePost}
+              >
+                <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </KeyboardAvoidingView>
   );
 }
@@ -417,6 +445,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0EA5E9',
     fontWeight: '600',
+  },
+  postTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 8,
+    lineHeight: 24,
+  },
+  scriptureQuote: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#64748B',
+    paddingLeft: 12,
+    marginVertical: 10,
+    backgroundColor: '#F1F5F9',
+    padding: 12,
+    borderRadius: 6,
+  },
+  scriptureText: {
+    fontStyle: 'italic',
+    color: '#334155',
+    fontSize: 15,
+    lineHeight: 22,
   },
   postContent: {
     fontSize: 16,

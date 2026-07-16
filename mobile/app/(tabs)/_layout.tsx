@@ -5,14 +5,14 @@ import { BookOpen, Filter, Users, MessageSquare, Settings } from 'lucide-react-n
 import { useApp } from '../_layout';
 
 export default function TabLayout() {
-  const { hideTabBar } = useApp();
+  const { hideTabBar, accent } = useApp();
   const { width } = useWindowDimensions();
   const horizontalPadding = (width - 280) / 2;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#EC4899', // Pink tint
+        tabBarActiveTintColor: accent,
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
           display: hideTabBar ? 'none' : 'flex',
@@ -52,7 +52,7 @@ export default function TabLayout() {
             <Text style={{ 
               fontSize: 8.5, 
               fontWeight: focused ? '700' : '500', 
-              color: focused ? '#EC4899' : '#64748B',
+              color: focused ? accent : '#64748B',
               marginTop: 1
             }}>
               {children}
@@ -62,7 +62,7 @@ export default function TabLayout() {
                 width: 4, 
                 height: 4, 
                 borderRadius: 2, 
-                backgroundColor: '#EC4899', 
+                backgroundColor: accent, 
                 marginTop: 2
               }} />
             )}

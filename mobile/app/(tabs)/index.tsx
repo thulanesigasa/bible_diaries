@@ -29,6 +29,8 @@ export default function FeedScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newScripture, setNewScripture] = useState('');
   const [newContent, setNewContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Hope');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -36,7 +38,10 @@ export default function FeedScreen() {
   
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editScripture, setEditScripture] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const { user, profile, showToast, setHideTabBar, accent, supabase } = useApp();
   const router = useRouter();
@@ -106,6 +111,8 @@ export default function FeedScreen() {
       // In a real DB, you store author_id for RLS but hide it on the UI.
       const newPost = {
         author_id: user.id,
+        title: newTitle.trim() || null,
+        scripture: newScripture.trim() || null,
         content: newContent.trim(),
         category: selectedCategory,
         created_at: new Date().toISOString()
@@ -116,6 +123,8 @@ export default function FeedScreen() {
         showToast(error.message, 'error');
       } else {
         showToast('Reflection published successfully!');
+        setNewTitle('');
+        setNewScripture('');
         setNewContent('');
         setIsAnonymous(false);
         closeModal();
@@ -130,33 +139,31 @@ export default function FeedScreen() {
   };
 
   const handleDeletePost = (postId: string) => {
-    Alert.alert(
-      "Delete Diary",
-      "Are you sure you want to delete this diary entry?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const { error } = await supabase.from('diaries').delete().eq('id', postId);
-              if (error) throw error;
-              showToast('Diary deleted successfully.');
-              fetchPosts();
-            } catch (err: any) {
-              showToast('Error deleting diary: ' + err.message, 'error');
-            }
-          }
-        }
-      ]
-    );
+    setDeleteConfirmId(postId);
+  };
+
+  const executeDeletePost = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      const { error } = await supabase.from('diaries').delete().eq('id', deleteConfirmId);
+      if (error) throw error;
+      showToast('Diary deleted successfully.');
+      setDeleteConfirmId(null);
+      fetchPosts();
+    } catch (err: any) {
+      showToast('Error deleting diary: ' + err.message, 'error');
+      setDeleteConfirmId(null);
+    }
   };
 
   const handleEditPostSubmit = async () => {
     if (!editContent.trim() || !editingPostId) return;
     try {
-      const { error } = await supabase.from('diaries').update({ content: editContent.trim() }).eq('id', editingPostId);
+      const { error } = await supabase.from('diaries').update({ 
+        title: editTitle.trim() || null,
+        scripture: editScripture.trim() || null,
+        content: editContent.trim() 
+      }).eq('id', editingPostId);
       if (error) throw error;
       showToast('Diary updated successfully.');
       setIsEditingPost(false);
@@ -276,6 +283,12 @@ export default function FeedScreen() {
           onPress={() => router.push((`/post/${item.id}`) as any)}
           activeOpacity={0.7}
         >
+          {item.title ? <Text style={styles.postTitle}>{item.title}</Text> : null}
+          {item.scripture ? (
+            <View style={[styles.scriptureQuote, { borderLeftColor: accent, backgroundColor: `${accent}10` }]}>
+              <Text style={styles.scriptureText}>{item.scripture}</Text>
+            </View>
+          ) : null}
           <Text style={styles.postContent}>{item.content}</Text>
         </TouchableOpacity>
 
@@ -285,8 +298,8 @@ export default function FeedScreen() {
             style={styles.actionBtn}
             onPress={() => handleToggleLike(item)}
           >
-            <Heart size={18} color={isLiked ? '#EC4899' : '#475569'} fill={isLiked ? '#EC4899' : 'transparent'} />
-            <Text style={[styles.actionText, isLiked && { color: '#EC4899' }]}>
+            <Heart size={18} color={isLiked ? accent : '#475569'} fill={isLiked ? accent : 'transparent'} />
+            <Text style={[styles.actionText, isLiked && { color: accent }]}>
               {item.likes?.length || 0}
             </Text>
           </TouchableOpacity>
@@ -315,7 +328,7 @@ export default function FeedScreen() {
 
           {user?.id === item.author_id && (
             <>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditingPostId(item.id); setEditContent(item.content); setIsEditingPost(true); }}>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditingPostId(item.id); setEditTitle(item.title || ''); setEditScripture(item.scripture || ''); setEditContent(item.content); setIsEditingPost(true); }}>
                 <Edit2 size={18} color="#475569" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionBtn} onPress={() => handleDeletePost(item.id)}>
@@ -352,12 +365,9 @@ export default function FeedScreen() {
         }
       />
 
-      {/* Floating Add Post Button */}
-      <TouchableOpacity 
-        style={styles.fab}
-        onPress={openModal}
-      >
-        <Plus size={24} color="#FFFFFF" />
+      {/* Floating Action Button */}
+      <TouchableOpacity style={[styles.fab, { backgroundColor: accent }]} onPress={openModal}>
+        <Plus size={24} color="#FFF" />
       </TouchableOpacity>
 
       {/* Create Reflection Modal */}
@@ -407,6 +417,30 @@ export default function FeedScreen() {
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+              </View>
+
+              {/* Title Input */}
+              <View style={styles.modalSection}>
+                <Text style={styles.sectionLabel}>Title (Optional)</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Give your reflection a title..."
+                  placeholderTextColor="#94A3B8"
+                  value={newTitle}
+                  onChangeText={setNewTitle}
+                />
+              </View>
+
+              {/* Scripture Input */}
+              <View style={styles.modalSection}>
+                <Text style={styles.sectionLabel}>Scripture (Optional)</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="e.g. John 3:16"
+                  placeholderTextColor="#94A3B8"
+                  value={newScripture}
+                  onChangeText={setNewScripture}
+                />
               </View>
 
               {/* Text Input */}
@@ -468,6 +502,20 @@ export default function FeedScreen() {
               <Text style={{ fontSize: 16, color: accent, fontWeight: 'bold' }}>Save</Text>
             </TouchableOpacity>
           </View>
+          <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+            <TextInput
+              style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}
+              placeholder="Title (Optional)"
+              value={editTitle}
+              onChangeText={setEditTitle}
+            />
+            <TextInput
+              style={{ fontSize: 14, fontStyle: 'italic', color: '#64748B' }}
+              placeholder="Scripture (Optional)"
+              value={editScripture}
+              onChangeText={setEditScripture}
+            />
+          </View>
           <TextInput
             style={{ flex: 1, padding: 16, fontSize: 16, textAlignVertical: 'top' }}
             multiline
@@ -476,6 +524,32 @@ export default function FeedScreen() {
             autoFocus
           />
         </SafeAreaView>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal visible={!!deleteConfirmId} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: '#FFFFFF', borderRadius: 16, padding: 24, width: '100%', maxWidth: 400 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A', marginBottom: 12 }}>Delete Diary</Text>
+            <Text style={{ fontSize: 15, color: '#475569', marginBottom: 24, lineHeight: 22 }}>
+              Are you sure you want to delete this diary entry?
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+              <TouchableOpacity 
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }}
+                onPress={() => setDeleteConfirmId(null)}
+              >
+                <Text style={{ color: '#475569', fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: accent }}
+                onPress={executeDeletePost}
+              >
+                <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
 
     </View>
@@ -548,10 +622,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#475569',
   },
-  postContent: {
-    fontSize: 14,
+  postTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  scriptureQuote: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#64748B',
+    paddingLeft: 10,
+    marginVertical: 8,
+    backgroundColor: '#F1F5F9',
+    padding: 10,
+    borderRadius: 4,
+  },
+  scriptureText: {
+    fontStyle: 'italic',
     color: '#334155',
+    fontSize: 14,
     lineHeight: 20,
+  },
+  postContent: {
+    fontSize: 15,
+    color: '#334155',
+    lineHeight: 22,
     marginBottom: 16,
   },
   actionsBar: {
@@ -589,7 +685,6 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#EC4899',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#0F172A',
@@ -679,6 +774,15 @@ const styles = StyleSheet.create({
   },
   catSelectTextActive: {
     color: '#64748B',
+  },
+  textInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: 'rgba(15, 23, 42, 0.08)',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 14,
+    color: '#0F172A',
   },
   textArea: {
     backgroundColor: '#F8FAFC',

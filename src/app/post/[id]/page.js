@@ -47,10 +47,12 @@ export default function PostPage({ params }) {
   const [selectedProfile, setSelectedProfile] = useState(null);
 
   // Custom themed confirm modal state
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, commentId: null, message: '' });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, targetId: null, type: '', message: '' });
 
   // Post Edit State
   const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editScripture, setEditScripture] = useState('');
   const [editContent, setEditContent] = useState('');
 
   const fetchPostDetails = async () => {
@@ -67,6 +69,8 @@ export default function PostPage({ params }) {
         showToast(error.message, 'error');
       } else {
         setPost(data);
+        setEditTitle(data.title || '');
+        setEditScripture(data.scripture || '');
         setEditContent(data.content);
       }
     } catch (err) {
@@ -76,8 +80,16 @@ export default function PostPage({ params }) {
     }
   };
 
-  const handleDeletePost = async () => {
-    if (!window.confirm("Are you sure you want to delete this diary entry?")) return;
+  const handleDeletePost = () => {
+    setConfirmModal({
+      isOpen: true,
+      targetId: postId,
+      type: 'post',
+      message: 'Are you sure you want to delete this diary entry? This action cannot be undone.'
+    });
+  };
+
+  const executeDeletePost = async () => {
     try {
       const { error } = await supabase.from('diaries').delete().eq('id', postId);
       if (error) throw error;
@@ -91,7 +103,11 @@ export default function PostPage({ params }) {
   const handleEditPostSubmit = async () => {
     if (!editContent.trim()) return;
     try {
-      const { error } = await supabase.from('diaries').update({ content: editContent.trim() }).eq('id', postId);
+      const { error } = await supabase.from('diaries').update({ 
+        title: editTitle.trim() || null,
+        scripture: editScripture.trim() || null,
+        content: editContent.trim() 
+      }).eq('id', postId);
       if (error) throw error;
       showToast('Diary updated successfully.');
       setIsEditingPost(false);
@@ -289,7 +305,8 @@ export default function PostPage({ params }) {
   const handleDeleteComment = (commentId) => {
     setConfirmModal({
       isOpen: true,
-      commentId,
+      targetId: commentId,
+      type: 'comment',
       message: 'Are you sure you want to delete this comment? This action cannot be undone.'
     });
   };
@@ -427,7 +444,22 @@ export default function PostPage({ params }) {
 
         {/* Content */}
         {isEditingPost ? (
-          <div className="diary-card-content" style={{ marginBottom: '2rem' }}>
+          <div className="diary-card-content" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="modern-input"
+              placeholder="Title (Optional)"
+            />
+            <input
+              type="text"
+              value={editScripture}
+              onChange={(e) => setEditScripture(e.target.value)}
+              className="modern-input"
+              placeholder="Scripture (Optional)"
+              style={{ fontStyle: 'italic' }}
+            />
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
@@ -441,6 +473,16 @@ export default function PostPage({ params }) {
           </div>
         ) : (
           <div className="diary-card-content" style={{ fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+            {post.title && (
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--text-color)' }}>
+                {post.title}
+              </h2>
+            )}
+            {post.scripture && (
+              <blockquote style={{ borderLeft: '4px solid var(--primary-color)', paddingLeft: '1.5rem', fontStyle: 'italic', color: 'var(--text-light)', margin: '0 0 1.5rem 0', background: 'rgba(0,0,0,0.02)', padding: '1rem', borderRadius: '4px', fontSize: '1.1rem' }}>
+                {post.scripture}
+              </blockquote>
+            )}
             {post.content}
           </div>
         )}
@@ -742,8 +784,9 @@ export default function PostPage({ params }) {
       )}
 
       {/* Custom Themed Confirm Delete Modal */}
+      {/* Custom Themed Confirm Delete Modal */}
       {confirmModal.isOpen && (
-        <div className="modal-overlay" onClick={() => setConfirmModal({ isOpen: false, commentId: null, message: '' })}>
+        <div className="modal-overlay" onClick={() => setConfirmModal({ isOpen: false, targetId: null, type: '', message: '' })}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '450px', textAlign: 'center' }}>
             <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
               Confirm Deletion
@@ -754,7 +797,7 @@ export default function PostPage({ params }) {
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button 
                 className="btn-secondary" 
-                onClick={() => setConfirmModal({ isOpen: false, commentId: null, message: '' })}
+                onClick={() => setConfirmModal({ isOpen: false, targetId: null, type: '', message: '' })}
                 style={{ padding: '8px 16px', fontSize: '0.85rem' }}
               >
                 Cancel
@@ -762,13 +805,17 @@ export default function PostPage({ params }) {
               <button 
                 className="btn-primary" 
                 onClick={async () => {
-                  const id = confirmModal.commentId;
-                  setConfirmModal({ isOpen: false, commentId: null, message: '' });
-                  if (id) {
-                    await executeDeleteComment(id);
+                  const { targetId, type } = confirmModal;
+                  setConfirmModal({ isOpen: false, targetId: null, type: '', message: '' });
+                  if (targetId) {
+                    if (type === 'comment') {
+                      await executeDeleteComment(targetId);
+                    } else if (type === 'post') {
+                      await executeDeletePost();
+                    }
                   }
                 }}
-                style={{ padding: '8px 16px', fontSize: '0.85rem', backgroundColor: '#EF4444', borderColor: '#EF4444', color: '#fff' }}
+                style={{ padding: '8px 16px', fontSize: '0.85rem', backgroundColor: 'var(--primary-color)' }}
               >
                 Delete
               </button>
