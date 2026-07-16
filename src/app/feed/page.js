@@ -25,6 +25,74 @@ import Avatar from '../../components/Avatar';
 
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
+const BIBLE_BOOKS = [
+  "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", 
+  "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", 
+  "Nehemiah", "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", 
+  "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", 
+  "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi",
+  "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", 
+  "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", 
+  "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", 
+  "1 John", "2 John", "3 John", "Jude", "Revelation"
+];
+
+// Map of common abbreviations to full book names
+const BOOK_ABBREVIATIONS = {
+  'gen': 'Genesis', 'ex': 'Exodus', 'exo': 'Exodus', 'lev': 'Leviticus', 'num': 'Numbers',
+  'deut': 'Deuteronomy', 'dt': 'Deuteronomy', 'josh': 'Joshua', 'judg': 'Judges', 'jdg': 'Judges',
+  'ruth': 'Ruth', '1sam': '1 Samuel', '2sam': '2 Samuel', '1sa': '1 Samuel', '2sa': '2 Samuel',
+  '1kgs': '1 Kings', '2kgs': '2 Kings', '1ki': '1 Kings', '2ki': '2 Kings',
+  '1chr': '1 Chronicles', '2chr': '2 Chronicles', '1ch': '1 Chronicles', '2ch': '2 Chronicles',
+  'ezr': 'Ezra', 'neh': 'Nehemiah', 'est': 'Esther', 'esth': 'Esther',
+  'ps': 'Psalms', 'psa': 'Psalms', 'psalm': 'Psalms', 'prov': 'Proverbs', 'pro': 'Proverbs',
+  'eccl': 'Ecclesiastes', 'ecc': 'Ecclesiastes', 'sos': 'Song of Solomon', 'song': 'Song of Solomon',
+  'isa': 'Isaiah', 'is': 'Isaiah', 'jer': 'Jeremiah', 'lam': 'Lamentations',
+  'ezek': 'Ezekiel', 'eze': 'Ezekiel', 'dan': 'Daniel', 'hos': 'Hosea',
+  'joe': 'Joel', 'am': 'Amos', 'amo': 'Amos', 'obad': 'Obadiah', 'ob': 'Obadiah',
+  'jon': 'Jonah', 'mic': 'Micah', 'nah': 'Nahum', 'hab': 'Habakkuk',
+  'zeph': 'Zephaniah', 'zep': 'Zephaniah', 'hag': 'Haggai', 'zech': 'Zechariah', 'zec': 'Zechariah',
+  'mal': 'Malachi',
+  'matt': 'Matthew', 'mat': 'Matthew', 'mt': 'Matthew', 'mk': 'Mark', 'mar': 'Mark',
+  'lk': 'Luke', 'luk': 'Luke', 'jn': 'John', 'joh': 'John',
+  'act': 'Acts', 'ac': 'Acts', 'rom': 'Romans', 'ro': 'Romans',
+  '1cor': '1 Corinthians', '2cor': '2 Corinthians', '1co': '1 Corinthians', '2co': '2 Corinthians',
+  'gal': 'Galatians', 'eph': 'Ephesians', 'phil': 'Philippians', 'php': 'Philippians',
+  'col': 'Colossians', '1thess': '1 Thessalonians', '2thess': '2 Thessalonians',
+  '1th': '1 Thessalonians', '2th': '2 Thessalonians',
+  '1tim': '1 Timothy', '2tim': '2 Timothy', '1ti': '1 Timothy', '2ti': '2 Timothy',
+  'tit': 'Titus', 'phm': 'Philemon', 'phlm': 'Philemon',
+  'heb': 'Hebrews', 'jas': 'James', 'jam': 'James',
+  '1pet': '1 Peter', '2pet': '2 Peter', '1pe': '1 Peter', '2pe': '2 Peter',
+  '1jn': '1 John', '2jn': '2 John', '3jn': '3 John', '1jo': '1 John', '2jo': '2 John', '3jo': '3 John',
+  'jud': 'Jude', 'rev': 'Revelation', 'ap': 'Revelation'
+};
+
+// Normalize user input like "jn 3 v 3" or "gen 1 1" into "John 3:3" or "Genesis 1:1"
+function normalizeVerseRef(input) {
+  let s = input.trim();
+  // Extract the "book" portion (letters + optional leading digit) and the numbers
+  const match = s.match(/^(\d?\s?[A-Za-z]+(?:\s+of\s+[A-Za-z]+)?)\s+(\d+)(?:\s*:\s*|\s+v(?:erse)?\s+|\s+)(\d+(?:-\d+)?)$/i);
+  if (!match) return null;
+
+  let bookRaw = match[1].trim();
+  const chapter = match[2];
+  const verse = match[3];
+
+  // Try abbreviation lookup (case-insensitive, no spaces)
+  const abbrevKey = bookRaw.toLowerCase().replace(/\s+/g, '');
+  if (BOOK_ABBREVIATIONS[abbrevKey]) {
+    bookRaw = BOOK_ABBREVIATIONS[abbrevKey];
+  } else {
+    // Try partial match against full book names
+    const lowerBook = bookRaw.toLowerCase();
+    const found = BIBLE_BOOKS.find(b => b.toLowerCase() === lowerBook || b.toLowerCase().startsWith(lowerBook));
+    if (found) bookRaw = found;
+  }
+
+  return { book: bookRaw, chapter, verse, formatted: `${bookRaw} ${chapter}:${verse}` };
+}
+
 export default function Feed() {
   const { user, profile, showToast } = useApp();
   const router = useRouter();
@@ -39,6 +107,13 @@ export default function Feed() {
   const [submitting, setSubmitting] = useState(false);
   const [modStatus, setModStatus] = useState(null); // 'checking', 'flagged', 'clean'
   const [modReason, setModReason] = useState('');
+
+  // Scripture Autocomplete State
+  const [bookSuggestions, setBookSuggestions] = useState([]);
+  const [versePreview, setVersePreview] = useState(null);
+  const [verseLoading, setVerseLoading] = useState(false);
+  const [translation, setTranslation] = useState('kjv');
+  const autocompleteTimeoutRef = useRef(null);
 
   // Filtering State
   const [activeCategory, setActiveCategory] = useState('All');
@@ -63,18 +138,99 @@ export default function Feed() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*)), favorites(*)')
+        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
         .order('created_at', { ascending: false });
-
-      if (error) {
-        showToast(error.message, 'error');
-      } else {
-        setPosts(data || []);
-      }
+      
+      if (error) throw error;
+      setPosts(data || []);
     } catch (err) {
-      console.error(err);
+      showToast('Error loading feed: ' + err.message, 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Autocomplete & Verse Fetching Logic
+  useEffect(() => {
+    if (autocompleteTimeoutRef.current) clearTimeout(autocompleteTimeoutRef.current);
+
+    const val = newScripture;
+    if (!val || val.trim() === '') {
+      setBookSuggestions([]);
+      setVersePreview(null);
+      return;
+    }
+
+    // Try to normalize the input into a proper verse reference
+    const normalized = normalizeVerseRef(val);
+    if (normalized) {
+      setBookSuggestions([]);
+      
+      // Debounce the API call
+      autocompleteTimeoutRef.current = setTimeout(async () => {
+        setVerseLoading(true);
+        try {
+          const res = await fetch(`https://bible-api.com/${encodeURIComponent(normalized.formatted)}?translation=${translation}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.text) {
+              setVersePreview({
+                reference: data.reference || normalized.formatted,
+                text: data.text.trim(),
+                translation: data.translation_id || translation
+              });
+            } else {
+              setVersePreview(null);
+            }
+          } else {
+            setVersePreview(null);
+          }
+        } catch (err) {
+          console.error("Bible API error", err);
+          setVersePreview(null);
+        } finally {
+          setVerseLoading(false);
+        }
+      }, 600);
+      return;
+    }
+
+    // Book autocomplete (when no verse numbers detected yet)
+    const parts = val.trim().split(/\s+/);
+    // If last token is a number (chapter), strip it for the book search
+    const lastIsNum = parts.length > 1 && !isNaN(parts[parts.length - 1]);
+    const bookTokens = lastIsNum ? parts.slice(0, -1) : parts;
+    const possibleBookName = bookTokens.join(' ').toLowerCase().replace(/\s+/g, '');
+
+    if (possibleBookName.length > 0) {
+      // Check abbreviation
+      if (BOOK_ABBREVIATIONS[possibleBookName]) {
+        const fullName = BOOK_ABBREVIATIONS[possibleBookName];
+        setBookSuggestions([fullName]);
+      } else {
+        // Partial match on full book names
+        const searchLower = bookTokens.join(' ').toLowerCase();
+        const matches = BIBLE_BOOKS.filter(b => b.toLowerCase().startsWith(searchLower));
+        if (matches.length > 0 && !(matches.length === 1 && matches[0].toLowerCase() === val.trim().toLowerCase())) {
+          setBookSuggestions(matches.slice(0, 6));
+        } else {
+          setBookSuggestions([]);
+        }
+      }
+    } else {
+      setBookSuggestions([]);
+    }
+    setVersePreview(null);
+  }, [newScripture, translation]);
+
+  const insertVersePreview = () => {
+    if (versePreview) {
+      setNewContent(prev => {
+        const spacer = prev && !prev.endsWith('\n\n') ? '\n\n' : '';
+        return prev + spacer + `"${versePreview.text}" - ${versePreview.reference} (${versePreview.translation.toUpperCase()})\n\n`;
+      });
+      showToast('Verse inserted!');
+      setVersePreview(null);
     }
   };
 
@@ -401,15 +557,53 @@ export default function Feed() {
                   disabled={submitting}
                 />
                 
-                <input
-                  type="text"
-                  placeholder="Scripture reference (e.g. John 3:16) (Optional)"
-                  className="post-creator-textarea"
-                  style={{ minHeight: 'auto', padding: '0.75rem 1rem', fontStyle: 'italic' }}
-                  value={newScripture}
-                  onChange={(e) => setNewScripture(e.target.value)}
-                  disabled={submitting}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    placeholder="Scripture reference (e.g. John 3:16) (Optional)"
+                    className="post-creator-textarea"
+                    style={{ minHeight: 'auto', padding: '0.75rem 1rem', fontStyle: 'italic', width: '100%' }}
+                    value={newScripture}
+                    onChange={(e) => setNewScripture(e.target.value)}
+                    disabled={submitting}
+                  />
+                  {bookSuggestions.length > 0 && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', zIndex: 10, marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                      {bookSuggestions.map((book, idx) => (
+                        <div 
+                          key={idx} 
+                          style={{ padding: '0.5rem 1rem', cursor: 'pointer', borderBottom: idx < bookSuggestions.length - 1 ? '1px solid var(--border-color)' : 'none' }}
+                          onClick={() => {
+                            setNewScripture(book + ' ');
+                            setBookSuggestions([]);
+                          }}
+                        >
+                          <span style={{ fontWeight: 600 }}>{book}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {verseLoading && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    <Loader size={12} className="spinner" /> Fetching verse...
+                  </div>
+                )}
+                
+                {versePreview && (
+                  <div style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--gold-accent)', borderRadius: 'var(--radius-sm)', padding: '0.75rem 1rem', marginTop: '0.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <strong style={{ fontSize: '0.85rem', color: 'var(--gold-accent)' }}>{versePreview.reference} ({versePreview.translation.toUpperCase()})</strong>
+                      <button type="button" onClick={insertVersePreview} className="btn-primary" style={{ fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px' }}>
+                        <Plus size={12} style={{ marginRight: 2 }} /> Insert into Reflection
+                      </button>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontStyle: 'italic', margin: 0, lineHeight: 1.5 }}>
+                      "{versePreview.text}"
+                    </p>
+                  </div>
+                )}
               </div>
               <textarea
                 placeholder="What has scripture spoken to you today? Share a testimony, meditation, or diary entry..."
