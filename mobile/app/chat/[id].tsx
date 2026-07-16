@@ -86,9 +86,10 @@ export default function ChatWindowScreen() {
         (payload: any) => {
           const msg = payload.new;
           // Only add messages that belong to THIS conversation
+          const chatId = String(id).toLowerCase();
           const isForUs =
-            (msg.sender_id.toLowerCase() === user.id.toLowerCase() && msg.receiver_id.toLowerCase() === id.toLowerCase()) ||
-            (msg.sender_id.toLowerCase() === id.toLowerCase() && msg.receiver_id.toLowerCase() === user.id.toLowerCase());
+            (msg.sender_id.toLowerCase() === user.id.toLowerCase() && msg.receiver_id.toLowerCase() === chatId) ||
+            (msg.sender_id.toLowerCase() === chatId && msg.receiver_id.toLowerCase() === user.id.toLowerCase());
           if (isForUs) {
             setMessages((prev) => {
               // Avoid duplicates (in case optimistic update already added it)
