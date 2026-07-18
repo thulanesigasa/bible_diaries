@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Compressor from 'compressorjs';
 import { useApp } from '../AppWrapper';
 import { Loader, Camera, Save, Send, User, BookOpen, Sliders, Shield, Users, Bell, Bookmark, Heart, MessageSquare, HelpCircle, FileText, Lock, Trash2, Mail, Share2, Star, Database } from 'lucide-react';
 import Avatar from '../../components/Avatar';
@@ -111,39 +112,50 @@ export default function Settings() {
     }
   };
 
-  // File Upload base64 helper
+  // File Upload base64 helper with compression
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024 * 5) {
-      showToast('Image size should be less than 5MB', 'error');
-      return;
-    }
-
     if (!file.type.startsWith('image/')) {
-      showToast('Please select a valid image file (PNG, JPG, WebP).', 'error');
+      showToast('Please select a valid image file.', 'error');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const newAvatarUrl = reader.result;
-      setAvatarUrl(newAvatarUrl);
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ avatar_url: newAvatarUrl })
-        .eq('id', user.id);
-        
-      if (error) {
-        showToast('Failed to save photo: ' + error.message, 'error');
-      } else {
-        setProfile(prev => ({ ...prev, avatar_url: newAvatarUrl }));
-        showToast('Profile photo updated successfully!');
-      }
-    };
-    reader.readAsDataURL(file);
+    new Compressor(file, {
+      quality: 0.8,
+      maxWidth: 800,
+      maxHeight: 800,
+      mimeType: 'image/avif', // Will fallback to original or JPEG/WEBP if browser doesn't support AVIF canvas encoding
+      success(result) {
+        if (result.size > 1024 * 1024 * 5) {
+          showToast('Compressed image is still too large.', 'error');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const newAvatarUrl = reader.result;
+          setAvatarUrl(newAvatarUrl);
+          
+          const { error } = await supabase
+            .from('profiles')
+            .update({ avatar_url: newAvatarUrl })
+            .eq('id', user.id);
+            
+          if (error) {
+            showToast('Failed to save photo: ' + error.message, 'error');
+          } else {
+            setProfile(prev => ({ ...prev, avatar_url: newAvatarUrl }));
+            showToast('Profile photo updated successfully!');
+          }
+        };
+        reader.readAsDataURL(result);
+      },
+      error(err) {
+        showToast('Image compression failed: ' + err.message, 'error');
+      },
+    });
   };
 
   const handleSave = async (e) => {

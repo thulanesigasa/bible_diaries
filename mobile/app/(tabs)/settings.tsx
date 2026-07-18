@@ -17,6 +17,7 @@ import { useApp } from '../_layout';
 import { Camera, Save, LogOut, Bookmark, ChevronRight, User, Settings as SettingsIcon, Heart, MessageSquare, ArrowLeft, HelpCircle, Shield, FileText, Lock, Trash2, Mail, Share2, Star, Globe, Database } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 export default function SettingsTabScreen() {
   const { user, profile, setProfile, showToast, accent, supabase } = useApp();
@@ -98,26 +99,26 @@ export default function SettingsTabScreen() {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.7,
-        base64: true,
+        quality: 1, // Get the highest quality first, we compress later
+        base64: false, // Don't get base64 yet, we manipulate first
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         
-        if (asset.fileSize && asset.fileSize > 1024 * 1024 * 5) {
-          showToast('Image size should be less than 5MB', 'error');
+        if (asset.fileSize && asset.fileSize > 1024 * 1024 * 15) {
+          showToast('Image size should be less than 15MB', 'error');
           return;
         }
 
-        let newAvatarUrl = '';
-        if (asset.base64) {
-          const mimeType = asset.mimeType || 'image/jpeg';
-          newAvatarUrl = `data:${mimeType};base64,${asset.base64}`;
-        } else {
-          newAvatarUrl = asset.uri;
-        }
-        
+        // Compress and convert to WEBP
+        const manipResult = await ImageManipulator.manipulateAsync(
+          asset.uri,
+          [{ resize: { width: 800 } }], // Resize to max 800px width
+          { compress: 0.8, format: ImageManipulator.SaveFormat.WEBP, base64: true }
+        );
+
+        const newAvatarUrl = `data:image/webp;base64,${manipResult.base64}`;
         setAvatarUrl(newAvatarUrl);
         
         // Auto-save the new avatar
@@ -129,7 +130,7 @@ export default function SettingsTabScreen() {
         if (error) {
           showToast('Failed to save photo: ' + error.message, 'error');
         } else {
-          showToast('Profile photo updated successfully!');
+          showToast('Profile photo compressed and updated successfully!');
         }
       }
     } catch (e: any) {
