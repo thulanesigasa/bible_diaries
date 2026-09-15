@@ -1,64 +1,129 @@
-# bible_diaries Mobile App
+﻿# Bible Diaries Mobile App
 
-Welcome to the **bible_diaries** mobile application, built with **Expo** and **React Native** utilizing **Expo Router** for universal file-based navigation. 
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-0EA5E9?style=flat-square)
+![Framework](https://img.shields.io/badge/framework-Expo%20SDK%2057-000020?style=flat-square&logo=expo)
+![Language](https://img.shields.io/badge/language-TypeScript-3178C6?style=flat-square&logo=typescript)
+![CI](https://img.shields.io/github/actions/workflow/status/thulanesigasa/bible_diaries/ota-update.yml?branch=main&label=OTA%20Publish&style=flat-square)
+![Build](https://img.shields.io/github/actions/workflow/status/thulanesigasa/bible_diaries/build-apk.yml?label=APK%20Build&style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)
 
-This mobile client is designed to deliver a premium, responsive, light spiritual journaling experience directly to iOS and Android devices, fully integrated with your live Supabase backend.
-
----
-
-## What the App Is About
-
-The mobile application replicates and extends the web reflection journaling experience:
-- **Reflections Feed**: Scroll through categories (Hope, Faith, Love, Wisdom) and view shared journal entries written by members.
-- **Support & Interaction**: Bookmark your favorite entries and offer encouragement by liking reflections.
-- **Fellowship Directory (Connect)**: Browse the profiles of other believers in the community.
-- **Private Direct Messaging**: Send private real-time messages to connect deeply with other members.
-- **Account Profiles & Settings**: Manage your personal testimonies, favorite scriptures, profile information, and customize notifications/privacy preferences using Apple-style toggle switches.
-- **Dynamic Initials Avatars**: Automatically renders initials from the user's name if no profile picture is configured.
+A premium spiritual journaling mobile application built with **Expo** and **React Native**, using **Expo Router** for file-based navigation. The app integrates with a live Supabase backend and supports automatic **OTA (Over-The-Air) updates** so users never need to reinstall.
 
 ---
 
-## Configuration & Setup
+## Features
 
-Before running the application, you must configure your Supabase live connection credentials.
-
-1. **Create an Environment File**:
-   Create a `.env` or `.env.local` file in the root of the `mobile/` directory:
-   ```bash
-   touch .env
-   ```
-
-2. **Add Your Supabase Credentials**:
-   Add the following variables (prefixed with `EXPO_PUBLIC_` so they are accessible to Expo's client bundle during runtime):
-   ```env
-   EXPO_PUBLIC_SUPABASE_URL=https://your-supabase-project-id.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anonymous-api-key-string
-   ```
+- **Reflections Feed** — Browse journal entries by category (Hope, Faith, Love, Wisdom)
+- **Support & Interaction** — Bookmark entries and like reflections
+- **Fellowship Directory** — Browse community member profiles
+- **Private Direct Messaging** — Real-time encrypted messages between members
+- **Account Profiles & Settings** — Manage testimony, scripture, avatar, and privacy
+- **Dynamic Initials Avatars** — Auto-renders initials when no profile picture is set
+- **OTA Updates** — In-app popup when a new version is available; updates without reinstall
 
 ---
 
-## How to Run the App
+## Directory Structure
 
-Unlike the Next.js web application which uses `npm run dev`, the Expo mobile app uses **`npm run start`** or **`npm start`** to launch the Expo development bundle server.
+```
+mobile/
+├── app/                   # Expo Router file-based routes
+│   ├── (auth)/            # Authentication screens (login, register)
+│   ├── (tabs)/            # Main tab navigator
+│   ├── chat/              # Direct message thread screens
+│   ├── post/              # Individual reflection screens
+│   ├── profile/           # Member profile screens
+│   └── _layout.tsx        # Root layout — mounts UpdateModal & AppContext
+├── assets/                # Fonts, icons, splash images
+├── components/
+│   └── UpdateModal.tsx    # OTA update prompt modal
+├── constants/             # App-wide constants (colors, spacing)
+├── src/
+│   ├── hooks/
+│   │   └── useOTAUpdate.ts  # Hook that checks and applies OTA bundles
+│   └── lib/
+│       └── supabase.ts    # Supabase client singleton
+├── app.json               # Expo config (package name, OTA updates, runtimeVersion)
+├── eas.json               # EAS build profiles (development / preview / production)
+└── package.json
+```
 
-### 1. Install Dependencies
-Ensure you have installed the project packages inside the `mobile/` folder:
+---
+
+## CI/CD & OTA Updates
+
+### How it works
+
+| Trigger | Action | Result |
+|---|---|---|
+| Push to `main` (mobile/** files) | `ota-update.yml` runs | New JS bundle published to EAS production channel. Users get an in-app popup. |
+| Push a version tag (e.g. `v1.2.0`) | `build-apk.yml` runs | Full Android APK built via EAS Cloud, attached to GitHub Release. |
+
+### OTA Update Flow
+
+1. You push code changes to `main`
+2. GitHub Actions publishes a new bundle to Expo's CDN (takes ~2 min)
+3. When a user opens the app, `useOTAUpdate` checks for a new bundle
+4. The `<UpdateModal>` appears with a "Update Now" button
+5. User taps it — bundle downloads silently, app reloads
+6. User sees the latest version with zero reinstall friction
+
+> OTA updates only deliver JavaScript and asset changes. A full APK rebuild is only required when native modules change — which is rare.
+
+### Required GitHub Secret
+
+| Secret | Where to get it |
+|---|---|
+| `EXPO_TOKEN` | Run `eas token:create` in your terminal after `eas login` |
+
+---
+
+## Setup & Configuration
+
+### 1. Environment Variables
+
+Create a `.env` file in the `mobile/` directory:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 2. Install Dependencies
+
 ```bash
+cd mobile
 npm install
 ```
 
-### 2. Start the Development Server
-Run the startup command from the `mobile/` directory:
+### 3. Run Locally
+
 ```bash
-npm run start
+npm start         # Expo dev server (scan QR in Expo Go)
+npm run android   # Open on Android emulator/device
+npm run ios       # Open on iOS simulator (macOS only)
 ```
 
-This launches the **Expo Go Developer Console** inside your terminal and displays a QR code.
+### 4. One-time EAS Setup (for CI/CD)
 
-### 3. Open on Your Device
-- **iOS**: Scan the terminal's QR code using the iOS Camera app (requires the **Expo Go** app installed from the App Store).
-- **Android**: Scan the QR code using the **Expo Go** app (downloadable from the Google Play Store).
-- **Emulators**:
-  - Press `a` in the terminal to launch on a connected Android Emulator / Device.
-  - Press `i` in the terminal to launch on an iOS Simulator (macOS only).
-  - Press `w` in the terminal to launch on a local web view.
+```bash
+npm install --global eas-cli
+eas login
+eas build:configure
+```
+
+Then add your `EXPO_TOKEN` as a GitHub repository secret under **Settings → Secrets → Actions**.
+
+---
+
+## Releasing a New Native Build
+
+Push a version tag to trigger the APK build workflow:
+
+```bash
+# Bump version in package.json and app.json first, then:
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+The APK will be available under the **Releases** tab of the GitHub repository.

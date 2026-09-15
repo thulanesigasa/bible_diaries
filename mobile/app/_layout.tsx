@@ -5,6 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../src/lib/supabase';
+import UpdateModal from '../components/UpdateModal';
+import { useOTAUpdate } from '../src/hooks/useOTAUpdate';
 
 // Prevent splash screen auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -40,6 +42,9 @@ export default function RootLayout() {
   const [loading, setLoading] = useState(true);
   const [hideTabBar, setHideTabBar] = useState(false);
   const [toasts, setToasts] = useState<{ id: string; message: string; type?: 'success' | 'error' }[]>([]);
+
+  // OTA update state — drives the <UpdateModal> overlay
+  const { isUpdateAvailable, isDownloading, applyUpdate, dismissUpdate } = useOTAUpdate();
 
   const router = useRouter();
   const segments = useSegments();
@@ -185,6 +190,15 @@ export default function RootLayout() {
             </View>
           ))}
         </View>
+
+        {/* OTA Update Modal — only visible in production when a new bundle is available */}
+        <UpdateModal
+          visible={isUpdateAvailable}
+          isDownloading={isDownloading}
+          onUpdate={applyUpdate}
+          onDismiss={dismissUpdate}
+          accent={accent}
+        />
       </View>
     </AppContext.Provider>
   );

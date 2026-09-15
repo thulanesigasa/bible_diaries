@@ -1,0 +1,108 @@
+﻿# ─────────────────────────────────────────────────────────────────────────────
+# Android APK Build Workflow
+#
+# Triggers when a version tag is pushed (e.g. v1.0.0, v2.1.3).
+# Builds a signed Android APK via EAS Cloud (preview profile) and uploads
+# it as a GitHub Release asset so it can be distributed for sideloading.
+#
+# For Play Store (AAB) builds, change --profile to "production".
+# ─────────────────────────────────────────────────────────────────────────────
+name: Build Android APK
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-android:
+    name: EAS Build — Android APK
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      # 1. Checkout source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      # 3. Install project dependencies
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      # 4. Install EAS CLI globally
+      - name: Install EAS CLI
+        run: npm install --global eas-cli
+
+      # 5. Authenticate with Expo
+      - name: Authenticate with Expo
+        run: eas whoami
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # 6. Kick off the EAS cloud build
+      #    --non-interactive: no prompts in CI
+      #    --wait:            block until the remote build completes (returns artifact URL)
+      #    --output:          write build artifact metadata to build-output.json
+      - name: Build Android APK (EAS Cloud)
+        id: eas_build
+        run: |
+          eas build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --wait \
+            --json \
+            > ../build-output.json
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # 7. Extract APK download URL from EAS build output
+      - name: Extract APK URL
+        id: apk_url
+        run: |
+          APK_URL=$(node -e "const b=require('../build-output.json'); console.log(b[0].artifacts.buildUrl || b[0].artifactUrl || '')")
+          echo "apk_url=$APK_URL" >> $GITHUB_OUTPUT
+
+      # 8. Download the APK from EAS CDN to the runner
+      - name: Download APK artifact
+        if: steps.apk_url.outputs.apk_url != ''
+        run: |
+          curl -L "${{ steps.apk_url.outputs.apk_url }}" \
+            -o "../bible-diaries-${{ github.ref_name }}.apk"
+
+      # 9. Create a GitHub Release and attach the APK
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Bible Diaries ${{ github.ref_name }}"
+          body: |
+            ## Bible Diaries ${{ github.ref_name }}
+
+            ### What changed
+            See the commit history for a full list of changes in this release.
+
+            ### Installation
+            1. Download the `.apk` file below.
+            2. On your Android device, enable **Install from unknown sources** in Settings.
+            3. Open the downloaded APK and tap Install.
+
+            After installing this release, all future JS updates will be delivered
+            automatically via OTA — no reinstall needed.
+          draft: false
+          prerelease: false
+          files: |
+            bible-diaries-${{ github.ref_name }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
