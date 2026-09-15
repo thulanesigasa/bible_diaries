@@ -1,0 +1,63 @@
+﻿# ─────────────────────────────────────────────────────────────────────────────
+# OTA Publish Workflow
+#
+# Triggers on every push to main that touches files inside mobile/**
+# Publishes a new JS bundle to the "production" EAS update channel so that
+# users of the already-installed app receive an in-app prompt to update
+# without needing to reinstall.
+# ─────────────────────────────────────────────────────────────────────────────
+name: OTA Update — Publish Bundle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "mobile/**"
+
+jobs:
+  publish-ota:
+    name: Publish OTA Update
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      # 1. Checkout source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js — use the same major version as in package.json engines
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      # 3. Install project dependencies
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      # 4. Install EAS CLI globally
+      - name: Install EAS CLI
+        run: npm install --global eas-cli
+
+      # 5. Authenticate with Expo
+      - name: Authenticate with Expo
+        run: eas whoami
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # 6. Publish OTA update to the production channel
+      #    The commit SHA is used as the update message for traceability.
+      - name: Publish OTA bundle
+        run: |
+          eas update \
+            --branch production \
+            --message "OTA: ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
+            --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
