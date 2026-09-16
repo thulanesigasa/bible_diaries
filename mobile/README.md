@@ -146,15 +146,3 @@ Once the build completes on EAS, the APK is automatically uploaded and attached 
 - **Automatic**: Every commit pushed to `main` modifying `mobile/**` automatically publishes an OTA update.
 - **Manual**: Go to **Actions → OTA Update — Publish Bundle → Run workflow** to publish on-demand.
 
----
-
-## Bundling & CI/CD Guidelines & Error Prevention
-
-To ensure ongoing development remains smooth and build pipelines do not fail, adhere to the established rules in [`mobile/AGENTS.md`](./AGENTS.md) and [`.agents/rules/mobile_bundling_ci_rules.md`](../.agents/rules/mobile_bundling_ci_rules.md):
-
-1. **No Fatal Module-Level Throws**: Never write unhandled `throw new Error(...)` for environment variables at the module root, which breaks static export in `expo export` / `eas update`.
-2. **Strict EAS UUIDs**: `extra.eas.projectId` and `updates.url` must contain authentic 36-character UUIDs; never use human-readable placeholders.
-3. **Account Ownership**: `owner` in `app.json` must match the Expo account (`thulanesigasa0`).
-4. **No `npm audit fix --force`**: Avoid breaking Expo SDK 57 by never running `--force` on npm audit.
-5. **OTA vs Native**: Know when to publish OTA (JS/CSS/asset updates) versus rebuilding the APK (native library or SDK upgrades).
-
