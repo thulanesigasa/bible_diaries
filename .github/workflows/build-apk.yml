@@ -24,6 +24,8 @@ jobs:
   build-android:
     name: EAS Build — Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     defaults:
       run:
