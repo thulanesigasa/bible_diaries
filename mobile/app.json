@@ -7,18 +7,15 @@
     "icon": "./assets/images/icon.png",
     "scheme": "bible-diaries",
     "userInterfaceStyle": "automatic",
-
     "runtimeVersion": {
       "policy": "appVersion"
     },
-
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/bible-diaries"
+      "url": "https://u.expo.dev/fe39d2bf-81e4-4901-8583-caadeb91cc1c"
     },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.thulanesigasa.biblediaries"
@@ -56,9 +53,11 @@
       "typedRoutes": true
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "bible-diaries"
+        "projectId": "fe39d2bf-81e4-4901-8583-caadeb91cc1c"
       }
-    }
+    },
+    "owner": "pharez101"
   }
 }
