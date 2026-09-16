@@ -136,8 +136,9 @@ export default function AppWrapper({ children }) {
       <div className={!isAuthPage && user ? "app-layout-wrapper" : ""}>
         {!isAuthPage && user && (
           <header className="app-header">
-          <Link href="/feed" className="app-logo">
-            bible_<span>diaries</span>
+          <Link href="/feed" className="app-logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem' }}>
+            <img src="/logo.png" alt="Bible Diaries" style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'contain' }} />
+            <span>bible_<span>diaries</span></span>
           </Link>
           
           <nav className="app-nav">

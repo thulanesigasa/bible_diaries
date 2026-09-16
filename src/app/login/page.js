@@ -54,8 +54,9 @@ export default function Login() {
       <div className="diary-card auth-container" style={{ width: '100%', maxWidth: '440px', backgroundColor: 'var(--bg-primary)' }}>
         
         <div className="auth-header">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
-            bible_diaries
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', color: 'var(--gold-accent)', marginBottom: '1rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
+            <img src="/logo.png" alt="Bible Diaries" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'contain' }} />
+            <span>bible_diaries</span>
           </div>
           <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Welcome Back</h2>
           <p className="auth-subtitle">Login to access your reflections & feed</p>

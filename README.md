@@ -1,4 +1,4 @@
-﻿# Bible Diaries Web Application
+# Bible Diaries Web Application
 
 ![Platform](https://img.shields.io/badge/platform-Web-0EA5E9?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-Next.js%2016-000000?style=flat-square&logo=nextdotjs)
@@ -34,7 +34,12 @@ Content integrity and an uplifting environment are maintained through automated 
    - View members' profiles, testimony journeys, and favorite bible verses.
    - Direct real-time encrypted messaging between registered members.
 
-5. **Settings Configuration**:
+5. **Brand Identity & Cross-Platform Icons**:
+   - High-fidelity Bible Diaries custom brand icon across web and mobile.
+   - Android adaptive launcher icon (transparent foreground safe-zone centered, crisp white background, and monochrome silhouette).
+   - Multi-resolution web favicons (`favicon.ico`, `favicon.png`, `apple-touch-icon`).
+
+6. **Settings Configuration**:
    - Customizable profile details, spiritual goals, and account privacy preferences.
 
 ---

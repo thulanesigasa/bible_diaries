@@ -8,7 +8,8 @@ import {
   ScrollView, 
   KeyboardAvoidingView, 
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useApp } from '../_layout';
@@ -67,8 +68,12 @@ export default function LoginScreen() {
         <View style={styles.card}>
           <View style={styles.header}>
             <View style={styles.logoRow}>
-              <BookOpen size={24} color="#0EA5E9" style={{ marginRight: 8 }} />
-              <Text style={styles.logoText}>bible_diaries</Text>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }} 
+                resizeMode="contain" 
+              />
+              <Text style={styles.logoText}>Bible Diaries</Text>
             </View>
             <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>Login to access your reflections & feed</Text>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { TouchableOpacity, View, Text, Platform, useWindowDimensions } from 'react-native';
+import { TouchableOpacity, View, Text, Platform, useWindowDimensions, Image } from 'react-native';
 import { BookOpen, Filter, Users, MessageSquare, Settings } from 'lucide-react-native';
 import { useApp } from '../_layout';
 
@@ -76,7 +76,18 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <BookOpen size={16} color={color} />
           ),
-          headerTitle: 'bible_diaries',
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={{ width: 24, height: 24, marginRight: 8, borderRadius: 5 }} 
+                resizeMode="contain" 
+              />
+              <Text style={{ fontWeight: 'bold', color: '#0F172A', fontSize: 18, fontFamily: 'SpaceMono' }}>
+                bible_diaries
+              </Text>
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
