@@ -80,7 +80,7 @@ export default function TabLayout() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image 
                 source={require('../../assets/images/icon.png')} 
-                style={{ width: 20, height: 20, marginRight: 8, borderRadius: 4 }} 
+                style={{ width: 24, height: 24, marginRight: 8, borderRadius: 5 }} 
                 resizeMode="contain" 
               />
               <Text style={{ fontWeight: 'bold', color: '#0F172A', fontSize: 18, fontFamily: 'SpaceMono' }}>
