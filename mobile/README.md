@@ -64,7 +64,7 @@ mobile/
 
 1. You push code changes to `main`
 2. GitHub Actions publishes a new bundle to Expo's CDN (takes ~2 min)
-3. When a user opens the app, `useOTAUpdate` checks for a new bundle
+3. When a user opens the app or returns to the foreground, `useOTAUpdate` checks for a new bundle
 4. The `<UpdateModal>` appears with a "Update Now" button
 5. User taps it — bundle downloads silently, app reloads
 6. User sees the latest version with zero reinstall friction
