@@ -194,4 +194,19 @@ The default `GITHUB_TOKEN` injected into GitHub Actions runners operates with re
 1. **Explicit `contents: write` Declaration**: Any workflow that creates GitHub Releases, pushes tags, or attaches release assets must explicitly declare `permissions: contents: write` at the job or root workflow level in its YAML file.
 2. **Never Rely on Implicit Permissions**: Always define explicit permission blocks in all CI/CD release workflows to prevent runner credential restrictions.
 
+---
+
+## 10. In-App OTA Update Continuity & Runtime Version Pinning
+
+### User Requirement:
+The user specifically mandates seamless in-app Over-The-Air (OTA) updates: upon opening or refocusing the installed mobile application, users must receive the in-app `<UpdateModal>` popup ("Update Available"), tap **"Update Now"**, and have all new features, components, screens, and styles applied instantly in-place without manually downloading or reinstalling an APK.
+
+### Root Cause of Missing OTA Popups:
+When `runtimeVersion` is configured as `{ "policy": "appVersion" }` in `app.json`, Expo strictly bins updates by the exact version string. If `version` is bumped from `1.0.1` to `1.0.2` or any higher number, client devices on `1.0.1` query Expo for `runtimeVersion: 1.0.1` and will be told no updates exist.
+
+### Mandatory Rules:
+1. **Pin Version to `1.0.1` for Ongoing Development**: Do NOT increment the `version` field in `mobile/app.json` or `mobile/package.json` for regular UI, styling, screens, assets, or feature enhancements.
+2. **Foreground Re-check Guard**: `useOTAUpdate` must check for updates both on initial component mount and on `AppState` transitions to `active`, so returning to the app immediately displays the popup without requiring a force-restart.
+3. **Continuous OTA Distribution**: All pushes to `main` touching `mobile/**` will publish to the production EAS channel with `Runtime version: 1.0.1`, guaranteeing all installed `v1.0.1` clients automatically receive the update prompt.
+
 
