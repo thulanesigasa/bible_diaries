@@ -206,7 +206,7 @@ The user specifically mandates seamless in-app Over-The-Air (OTA) updates: upon 
 2. **Channel Mismatch**: Sideloaded APKs built with `--profile preview` listen on the `preview` update channel. When CI/CD publishes only to `--branch production`, devices on the `preview` channel never see the update.
 
 ### Mandatory Rules:
-1. **Pin Version to `1.0.0` for Installed Client Compatibility**: Keep `version: "1.0.0"` in `mobile/app.json` and `mobile/package.json` to match the installed client base's runtime version (`1.0.0`).
+1. **Pin Version to `1.0.1` for Installed Client Compatibility**: The user has installed the `v1.0.1` APK on their device. Keep `version: "1.0.1"` in `mobile/app.json` and `mobile/package.json` to match the installed client base's runtime version (`1.0.1`).
 2. **Publish to Both Channels (`production` & `preview`)**: In `.github/workflows/ota-update.yml`, execute `eas update --channel production` AND `eas update --channel preview`. This ensures that every installed binary, regardless of whether it listens to `preview` or `production`, receives the update.
 3. **Foreground Re-check Guard**: `useOTAUpdate` must check for updates both on initial component mount and on `AppState` transitions to `active`, so returning to the app immediately displays the popup without requiring a force-restart.
 
