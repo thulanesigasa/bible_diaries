@@ -34,7 +34,7 @@ export default function ChatScreen() {
 
       // Group by partner ID to find unique conversation partners
       const partnerMap = new Map<string, any>();
-      (chats || []).forEach(chat => {
+      (chats || []).forEach((chat: any) => {
         const partnerId = chat.sender_id === user.id ? chat.receiver_id : chat.sender_id;
         if (!partnerMap.has(partnerId)) {
           partnerMap.set(partnerId, {
@@ -59,7 +59,7 @@ export default function ChatScreen() {
 
       if (profilesError) throw profilesError;
 
-      const results = profiles.map(profile => {
+      const results = (profiles || []).map((profile: any) => {
         const entry = partnerMap.get(profile.id);
         return {
           ...entry,

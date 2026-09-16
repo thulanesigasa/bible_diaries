@@ -173,7 +173,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   backdropTouchArea: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   sheet: {
     backgroundColor: '#FFFFFF', // 30% surface — pure white as requested
@@ -183,16 +187,18 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 44 : 28,
     alignItems: 'center',
+    width: '100%',
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
-    elevation: 12,
+    elevation: 20,
   },
   handleContainer: {
     width: '100%',
+    height: 28,
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
   },
   handleIndicator: {
     width: 44,
@@ -201,16 +207,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E1', // Subtle grey drag pill
   },
   logoContainer: {
-    width: 68,
-    height: 68,
-    borderRadius: 18,
+    width: 58,
+    height: 58,
+    borderRadius: 16,
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    marginTop: 4,
+    marginBottom: 14,
+    marginTop: 2,
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -218,9 +224,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   logoImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 10,
   },
   title: {
     fontSize: 22,

@@ -226,221 +226,234 @@ export default function SettingsTabScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Card Header in Body */}
-        <View style={styles.profileCard}>
-          <TouchableOpacity 
-            style={styles.avatarWrap} 
-            onPress={handleImageUpload}
-            activeOpacity={0.8}
-          >
-            <Avatar 
-              src={avatarUrl} 
-              fullName={`${firstName} ${surname}`} 
-              email={user?.email} 
-              size={80} 
-            />
-            <View style={[styles.cameraBadge, { backgroundColor: accent }]}>
-              <Camera size={13} color="#FFFFFF" />
-            </View>
-          </TouchableOpacity>
-          <Text style={styles.profileName}>{`${firstName} ${surname}`.trim() || 'Believer'}</Text>
-          <Text style={styles.profileEmail}>{user?.email}</Text>
-          <Text style={styles.changePhotoHint}>Tap photo to change avatar</Text>
-        </View>
-
-        {/* Section 1: Personal Details */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <User size={18} color={accent} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Personal Details</Text>
+        {/* Single Unified Body Container */}
+        <View style={styles.unifiedBody}>
+          {/* 1. Profile Header */}
+          <View style={styles.profileSection}>
+            <TouchableOpacity 
+              style={styles.avatarWrap} 
+              onPress={handleImageUpload}
+              activeOpacity={0.8}
+            >
+              <Avatar 
+                src={avatarUrl} 
+                fullName={`${firstName} ${surname}`} 
+                email={user?.email} 
+                size={80} 
+              />
+              <View style={[styles.cameraBadge, { backgroundColor: accent }]}>
+                <Camera size={13} color="#FFFFFF" />
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.profileName}>{`${firstName} ${surname}`.trim() || 'Believer'}</Text>
+            <Text style={styles.profileEmail}>{user?.email}</Text>
+            <Text style={styles.changePhotoHint}>Tap photo to change avatar</Text>
           </View>
 
-          <View style={styles.inputRow}>
-            <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>First Name</Text>
+          <View style={styles.sectionDivider} />
+
+          {/* 2. Personal Details */}
+          <View style={styles.sectionBlock}>
+            <View style={styles.sectionHeader}>
+              <User size={18} color={accent} style={{ marginRight: 8 }} />
+              <Text style={styles.sectionTitle}>Personal Details</Text>
+            </View>
+
+            <View style={styles.inputRow}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>First Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  placeholder="First Name"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>Surname</Text>
+                <TextInput
+                  style={styles.input}
+                  value={surname}
+                  onChangeText={setSurname}
+                  placeholder="Surname"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+            </View>
+
+            {/* Two-Part Phone Number with All 54 African Countries Dropdown */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Phone Number</Text>
+              <PhoneInput
+                countryCode={countryCode}
+                phoneNumber={phoneNumber}
+                onCountryCodeChange={setCountryCode}
+                onPhoneNumberChange={setPhoneNumber}
+                accent={accent}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Physical Address</Text>
               <TextInput
                 style={styles.input}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="First Name"
+                value={address}
+                onChangeText={setAddress}
+                placeholder="e.g. 77 Scripture Lane, Glory Town"
                 placeholderTextColor="#94A3B8"
               />
             </View>
-            <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>Surname</Text>
+          </View>
+
+          <View style={styles.sectionDivider} />
+
+          {/* 3. Spiritual Journey */}
+          <View style={styles.sectionBlock}>
+            <View style={styles.sectionHeader}>
+              <BookOpen size={18} color={accent} style={{ marginRight: 8 }} />
+              <Text style={styles.sectionTitle}>Spiritual Journey</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Biography</Text>
               <TextInput
                 style={styles.input}
-                value={surname}
-                onChangeText={setSurname}
-                placeholder="Surname"
+                value={bio}
+                onChangeText={setBio}
+                placeholder="e.g. Walking in faith and grace daily."
                 placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Favorite Scripture Verse</Text>
+              <TextInput
+                style={styles.input}
+                value={favoriteVerse}
+                onChangeText={setFavoriteVerse}
+                placeholder="e.g. Philippians 4:13"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Testimony & Journey</Text>
+              <TextInput
+                style={[styles.input, styles.multilineInput]}
+                value={spiritualJourney}
+                onChangeText={setSpiritualJourney}
+                placeholder="Share how God has worked in your life..."
+                placeholderTextColor="#94A3B8"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
               />
             </View>
           </View>
 
-          {/* Two-Part Phone Number with Country Code Dropdown */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone Number</Text>
-            <PhoneInput
-              countryCode={countryCode}
-              phoneNumber={phoneNumber}
-              onCountryCodeChange={setCountryCode}
-              onPhoneNumberChange={setPhoneNumber}
-              accent={accent}
-            />
-          </View>
+          <View style={styles.sectionDivider} />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Physical Address</Text>
-            <TextInput
-              style={styles.input}
-              value={address}
-              onChangeText={setAddress}
-              placeholder="e.g. 77 Scripture Lane, Glory Town"
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-        </View>
-
-        {/* Section 2: Spiritual Journey */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <BookOpen size={18} color={accent} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Spiritual Journey</Text>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Biography</Text>
-            <TextInput
-              style={styles.input}
-              value={bio}
-              onChangeText={setBio}
-              placeholder="e.g. Walking in faith and grace daily."
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Favorite Scripture Verse</Text>
-            <TextInput
-              style={styles.input}
-              value={favoriteVerse}
-              onChangeText={setFavoriteVerse}
-              placeholder="e.g. Philippians 4:13"
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Testimony & Journey</Text>
-            <TextInput
-              style={[styles.input, styles.multilineInput]}
-              value={spiritualJourney}
-              onChangeText={setSpiritualJourney}
-              placeholder="Share how God has worked in your life..."
-              placeholderTextColor="#94A3B8"
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
-          </View>
-        </View>
-
-        {/* Section 3: Account & Privacy Preferences */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Sliders size={18} color={accent} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Preferences & Privacy</Text>
-          </View>
-
-          <View style={styles.toggleRow}>
-            <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={styles.toggleTitle}>Private Profile</Text>
-              <Text style={styles.toggleSubtitle}>Only approved followers can view your reflections</Text>
+          {/* 4. Preferences & Privacy */}
+          <View style={styles.sectionBlock}>
+            <View style={styles.sectionHeader}>
+              <Sliders size={18} color={accent} style={{ marginRight: 8 }} />
+              <Text style={styles.sectionTitle}>Preferences & Privacy</Text>
             </View>
-            <Switch
-              value={isPrivateMode}
-              onValueChange={setIsPrivateMode}
-              trackColor={{ false: '#E2E8F0', true: trackOn }}
-              thumbColor={isPrivateMode ? accent : '#F8FAFC'}
-            />
-          </View>
 
-          <View style={styles.divider} />
-
-          <View style={styles.toggleRow}>
-            <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={styles.toggleTitle}>Allow Direct Messages</Text>
-              <Text style={styles.toggleSubtitle}>Allow other fellowship members to send direct messages</Text>
+            <View style={styles.toggleRow}>
+              <View style={{ flex: 1, paddingRight: 12 }}>
+                <Text style={styles.toggleTitle}>Private Profile</Text>
+                <Text style={styles.toggleSubtitle}>Only approved followers can view your reflections</Text>
+              </View>
+              <Switch
+                value={isPrivateMode}
+                onValueChange={setIsPrivateMode}
+                trackColor={{ false: '#E2E8F0', true: trackOn }}
+                thumbColor={isPrivateMode ? accent : '#F8FAFC'}
+              />
             </View>
-            <Switch
-              value={allowDms}
-              onValueChange={setAllowDms}
-              trackColor={{ false: '#E2E8F0', true: trackOn }}
-              thumbColor={allowDms ? accent : '#F8FAFC'}
-            />
-          </View>
 
-          <View style={styles.divider} />
+            <View style={styles.innerDivider} />
 
-          <View style={styles.toggleRow}>
-            <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={styles.toggleTitle}>Interaction Notifications</Text>
-              <Text style={styles.toggleSubtitle}>Receive updates when members like or comment on your diaries</Text>
+            <View style={styles.toggleRow}>
+              <View style={{ flex: 1, paddingRight: 12 }}>
+                <Text style={styles.toggleTitle}>Allow Direct Messages</Text>
+                <Text style={styles.toggleSubtitle}>Allow other fellowship members to send direct messages</Text>
+              </View>
+              <Switch
+                value={allowDms}
+                onValueChange={setAllowDms}
+                trackColor={{ false: '#E2E8F0', true: trackOn }}
+                thumbColor={allowDms ? accent : '#F8FAFC'}
+              />
             </View>
-            <Switch
-              value={emailLikes}
-              onValueChange={setEmailLikes}
-              trackColor={{ false: '#E2E8F0', true: trackOn }}
-              thumbColor={emailLikes ? accent : '#F8FAFC'}
-            />
-          </View>
-        </View>
 
-        {/* Section 4: Bookmarks Quick Card */}
-        <TouchableOpacity 
-          style={styles.bookmarksCard}
-          onPress={() => router.push('/(tabs)')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.bookmarksLeft}>
-            <View style={[styles.bookmarkIconWrap, { backgroundColor: `${accent}15` }]}>
-              <Bookmark size={20} color={accent} />
-            </View>
-            <View>
-              <Text style={styles.bookmarksTitle}>Saved Bookmarks</Text>
-              <Text style={styles.bookmarksSubtitle}>{bookmarkCount} reflections saved</Text>
+            <View style={styles.innerDivider} />
+
+            <View style={styles.toggleRow}>
+              <View style={{ flex: 1, paddingRight: 12 }}>
+                <Text style={styles.toggleTitle}>Interaction Notifications</Text>
+                <Text style={styles.toggleSubtitle}>Receive updates when members like or comment on your diaries</Text>
+              </View>
+              <Switch
+                value={emailLikes}
+                onValueChange={setEmailLikes}
+                trackColor={{ false: '#E2E8F0', true: trackOn }}
+                thumbColor={emailLikes ? accent : '#F8FAFC'}
+              />
             </View>
           </View>
-          <ChevronRight size={20} color="#94A3B8" />
-        </TouchableOpacity>
 
-        {/* Action Buttons */}
-        <View style={styles.actionContainer}>
+          <View style={styles.sectionDivider} />
+
+          {/* 5. Saved Bookmarks Quick Row */}
           <TouchableOpacity 
-            style={[styles.saveBtn, { backgroundColor: accent }, saving && styles.btnDisabled]}
-            onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.85}
-          >
-            {saving ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
-            ) : (
-              <>
-                <Save size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.saveBtnText}>Save Changes</Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.signOutBtn}
-            onPress={handleSignOut}
+            style={styles.bookmarksRow}
+            onPress={() => router.push('/(tabs)')}
             activeOpacity={0.7}
           >
-            <LogOut size={18} color="#EF4444" style={{ marginRight: 8 }} />
-            <Text style={styles.signOutText}>Sign Out</Text>
+            <View style={styles.bookmarksLeft}>
+              <View style={[styles.bookmarkIconWrap, { backgroundColor: `${accent}15` }]}>
+                <Bookmark size={20} color={accent} />
+              </View>
+              <View>
+                <Text style={styles.bookmarksTitle}>Saved Bookmarks</Text>
+                <Text style={styles.bookmarksSubtitle}>{bookmarkCount} reflections saved</Text>
+              </View>
+            </View>
+            <ChevronRight size={20} color="#94A3B8" />
           </TouchableOpacity>
+
+          <View style={styles.sectionDivider} />
+
+          {/* 6. Action Buttons */}
+          <View style={styles.actionContainer}>
+            <TouchableOpacity 
+              style={[styles.saveBtn, { backgroundColor: accent }, saving && styles.btnDisabled]}
+              onPress={handleSave}
+              disabled={saving}
+              activeOpacity={0.85}
+            >
+              {saving ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <Save size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.saveBtnText}>Save Changes</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.signOutBtn}
+              onPress={handleSignOut}
+              activeOpacity={0.7}
+            >
+              <LogOut size={18} color="#EF4444" style={{ marginRight: 8 }} />
+              <Text style={styles.signOutText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -457,20 +470,24 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 48,
   },
-  profileCard: {
+  unifiedBody: {
     backgroundColor: '#FFFFFF', // 30% panel surface
-    borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    marginBottom: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    paddingHorizontal: 18,
+    paddingTop: 24,
+    paddingBottom: 24,
+    marginBottom: 24,
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 2,
+  },
+  profileSection: {
+    alignItems: 'center',
+    paddingBottom: 4,
   },
   avatarWrap: {
     position: 'relative',
@@ -503,18 +520,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94A3B8',
   },
-  sectionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 20,
+  },
+  innerDivider: {
+    height: 1,
+    backgroundColor: '#F8FAFC',
+    marginVertical: 4,
+  },
+  sectionBlock: {
+    paddingVertical: 2,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -570,21 +587,11 @@ const styles = StyleSheet.create({
     color: '#64748B',
     lineHeight: 17,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-    marginVertical: 4,
-  },
-  bookmarksCard: {
+  bookmarksRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    paddingVertical: 4,
   },
   bookmarksLeft: {
     flexDirection: 'row',

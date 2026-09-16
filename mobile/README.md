@@ -17,12 +17,12 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Support & Interaction** — Bookmark entries and like reflections
 - **Fellowship Directory** — Browse community member profiles
 - **Private Direct Messaging** — Real-time encrypted messages between members
-- **Unified Settings Experience** — Settings integrated directly in the body (Personal details, Spiritual journey, Preferences toggles, Bookmarks, and Account actions)
-- **Two-Part Phone Input with Country Code Picker** — Dedicated country code selector modal + input with automatic leading-0 stripping for database integrity
+- **Unified Single-Body Settings** — Completely seamless settings page with all profile, testimony, privacy, bookmarks, and account actions consolidated into one unified body (all separated card divs/views eliminated)
+- **All 54 African Countries Phone Selector** — Dedicated two-part phone input with full 54 African sovereign nation dial codes and flag indicators, plus automatic leading-0 stripping to protect database code integrity
 - **Dynamic Initials Avatars** — Auto-renders initials when no profile picture is set
-- **Calibrated Brand & Adaptive Icons** — Authentic custom Bible logo scaled down by 45% with generous circular safe zones to prevent launcher clipping
+- **Calibrated Launcher & Adaptive Icons** — Brand book icon centered with 65% safe padding matching Samsung One UI, Ride Go, and Android squircle guidelines to prevent clipping
 - **Multi-Step Auth Flow & Keyboard Navigation** — Multi-step registration (Account, Personal Details, Profile Setup) with Android soft keyboard `Next` / `Sign In` action labels, step auto-advance, and instant auto-focus on step transitions
-- **OTA Updates** — In-app popup when a new version is available; updates without reinstall
+- **Dual-Channel OTA Updates** — Instant in-app update prompt `<UpdateModal>` delivered via Over-The-Air bundles across `production` and `preview` channels
 
 ---
 
