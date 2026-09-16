@@ -89,6 +89,8 @@ EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
+*Note: Safe fallbacks are configured in `src/lib/supabase.js` and in the GitHub CI/CD workflows to prevent static export errors during remote builds.*
+
 ### 2. Install Dependencies
 
 ```bash
