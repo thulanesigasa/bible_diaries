@@ -177,3 +177,21 @@ In Expo SDK 57, Expo unified core package version numbers to the SDK major relea
 2. **Strict SDK 57 Version Alignment**: Keep `expo-updates` and related native modules aligned to the SDK 57 version matrix (`expo-updates: ~57.0.22`, `expo: ~57.0.23`, `react-native: 0.86.3`).
 3. **Use `npx expo install --fix`**: When any dependency divergence occurs, resolve it strictly via `npx expo install --fix` rather than ad-hoc version changes or `npm audit fix --force`.
 
+---
+
+## 9. GitHub Actions Workflow Permissions for GitHub Releases
+
+### Logged Error:
+```
+Resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
+EAS Build — Android APK: .github#33
+```
+
+### Root Cause:
+The default `GITHUB_TOKEN` injected into GitHub Actions runners operates with read-only repository access unless elevated permissions are explicitly defined. When release creation actions (such as `softprops/action-gh-release`) attempt to create a release tag or upload binary assets (`.apk`), the GitHub REST API rejects the request with HTTP 403 Forbidden.
+
+### Mandatory Rules:
+1. **Explicit `contents: write` Declaration**: Any workflow that creates GitHub Releases, pushes tags, or attaches release assets must explicitly declare `permissions: contents: write` at the job or root workflow level in its YAML file.
+2. **Never Rely on Implicit Permissions**: Always define explicit permission blocks in all CI/CD release workflows to prevent runner credential restrictions.
+
+
