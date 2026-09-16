@@ -226,10 +226,8 @@ export default function SettingsTabScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Single Unified Body Container */}
-        <View style={styles.unifiedBody}>
-          {/* 1. Profile Header */}
-          <View style={styles.profileSection}>
+        {/* 1. Profile Header directly on page body */}
+        <View style={styles.profileSection}>
             <TouchableOpacity 
               style={styles.avatarWrap} 
               onPress={handleImageUpload}
@@ -454,7 +452,6 @@ export default function SettingsTabScreen() {
               <Text style={styles.signOutText}>Sign Out</Text>
             </TouchableOpacity>
           </View>
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -463,27 +460,12 @@ export default function SettingsTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // 60% dominant background
+    backgroundColor: '#FFFFFF', // Clean flat background without card box
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 48,
-  },
-  unifiedBody: {
-    backgroundColor: '#FFFFFF', // 30% panel surface
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     paddingHorizontal: 18,
-    paddingTop: 24,
-    paddingBottom: 24,
-    marginBottom: 24,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    paddingTop: 16,
+    paddingBottom: 56,
   },
   profileSection: {
     alignItems: 'center',

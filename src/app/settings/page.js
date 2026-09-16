@@ -287,12 +287,9 @@ export default function Settings() {
         </p>
       </div>
 
-      <form onSubmit={handleSave}>
-        {/* One Single Unified Body Container */}
-        <div className="diary-card" style={{ padding: '2rem', backgroundColor: 'var(--bg-primary)', borderRadius: '18px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1.75rem', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
-          
-          {/* Profile Header in Unified Body */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* Profile Header directly on body */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ position: 'relative' }}>
               <Avatar 
                 src={avatarUrl} 
@@ -622,8 +619,6 @@ export default function Settings() {
               <span>Sign Out</span>
             </button>
           </div>
-
-        </div>
       </form>
     </div>
   );
