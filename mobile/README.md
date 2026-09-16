@@ -121,12 +121,25 @@ To enable GitHub Actions CI/CD to publish OTA updates and build APKs:
 
 ## Releasing a New Native Build
 
-Push a version tag to trigger the APK build workflow:
+You can trigger a fresh APK build in two ways:
 
+### Option A: Via GitHub Actions Tab (Manual Trigger)
+1. Go to the **Actions** tab in the GitHub repository.
+2. Select **Build Android APK** from the left sidebar.
+3. Click **Run workflow**, enter the version tag (e.g. `v1.0.0`), and click **Run workflow**.
+
+### Option B: Via Git Tag
 ```bash
-# Bump version in package.json and app.json first, then:
+# Bump version in package.json and app.json, then:
 git tag v1.0.1
 git push origin v1.0.1
 ```
 
-The APK will be available under the **Releases** tab of the GitHub repository.
+Once the build completes on EAS, the APK is automatically uploaded and attached to a new GitHub Release under the **Releases** tab.
+
+---
+
+## Publishing OTA Updates
+
+- **Automatic**: Every commit pushed to `main` modifying `mobile/**` automatically publishes an OTA update.
+- **Manual**: Go to **Actions → OTA Update — Publish Bundle → Run workflow** to publish on-demand.

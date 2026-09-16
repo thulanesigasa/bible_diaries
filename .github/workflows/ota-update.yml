@@ -1,4 +1,4 @@
-﻿# ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # OTA Publish Workflow
 #
 # Triggers on every push to main that touches files inside mobile/**
@@ -14,6 +14,7 @@ on:
       - main
     paths:
       - "mobile/**"
+  workflow_dispatch:
 
 jobs:
   publish-ota:
