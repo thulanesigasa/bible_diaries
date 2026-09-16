@@ -168,8 +168,9 @@ export default function Register() {
       {/* Left Panel: Canvas Graphic */}
       <div className="auth-split-canvas">
         <div style={{ maxWidth: '420px', zIndex: 2 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '2rem', fontSize: '2.25rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
-            bible_diaries
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--gold-accent)', marginBottom: '2rem', fontSize: '2.25rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>
+            <img src="/logo.png" alt="Bible Diaries" style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'contain' }} />
+            <span>bible_diaries</span>
           </div>
           <h1 style={{ fontSize: '2.5rem', lineHeight: '1.2', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
             Document Your Spiritual Walk
@@ -194,8 +195,9 @@ export default function Register() {
         <div style={{ width: '100%' }}>
           {/* Header */}
           <div className="auth-header" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'none', alignItems: 'center', gap: '0.5rem', color: 'var(--gold-accent)', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }} className="mobile-only-logo">
-              bible_diaries
+            <div style={{ display: 'none', alignItems: 'center', gap: '0.6rem', color: 'var(--gold-accent)', marginBottom: '0.5rem', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }} className="mobile-only-logo">
+              <img src="/logo.png" alt="Bible Diaries" style={{ width: '30px', height: '30px', borderRadius: '6px', objectFit: 'contain' }} />
+              <span>bible_diaries</span>
             </div>
             <h2 className="auth-title" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Create Your Account</h2>
             <p className="auth-subtitle">Join our community to share and browse diaries</p>
