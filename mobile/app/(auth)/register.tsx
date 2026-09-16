@@ -17,6 +17,7 @@ import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
 import { BookOpen, Check, Eye, EyeOff, Camera } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
+import PhoneInput from '../../components/PhoneInput';
 import * as ImagePicker from 'expo-image-picker';
 
 // Colour palettes
@@ -35,6 +36,7 @@ export default function RegisterScreen() {
   
   const [firstName, setFirstName] = useState('');
   const [surname, setSurname] = useState('');
+  const [countryCode, setCountryCode] = useState('+27');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -194,6 +196,9 @@ export default function RegisterScreen() {
       return;
     }
 
+    const cleanPhone = phoneNumber.replace(/^0+/, '');
+    const fullPhoneNumber = cleanPhone ? `${countryCode}${cleanPhone}` : '';
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
@@ -204,7 +209,7 @@ export default function RegisterScreen() {
             first_name: firstName,
             surname: surname,
             full_name: `${firstName} ${surname}`,
-            phone_number: phoneNumber,
+            phone_number: fullPhoneNumber,
             address: address,
             avatar_url: avatarUrl || null,
             gender: gender,
@@ -432,19 +437,18 @@ export default function RegisterScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Phone Number</Text>
-                <TextInput
-                  ref={phoneRef}
-                  style={styles.input}
-                  placeholder="e.g. +1 555-0199"
-                  placeholderTextColor="#94A3B8"
-                  value={phoneNumber}
-                  onChangeText={(text) => setPhoneNumber(text.replace(/[^0-9+\s\-()]/g, ''))}
-                  keyboardType="numbers-and-punctuation"
+                <PhoneInput
+                  countryCode={countryCode}
+                  phoneNumber={phoneNumber}
+                  onCountryCodeChange={setCountryCode}
+                  onPhoneNumberChange={setPhoneNumber}
+                  inputRef={phoneRef}
                   returnKeyType="next"
                   returnKeyLabel="Next"
                   blurOnSubmit={false}
                   onSubmitEditing={handleNext}
                   editable={!loading}
+                  accent={accent}
                 />
               </View>
 

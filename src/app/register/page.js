@@ -20,6 +20,7 @@ export default function Register() {
   
   const [firstName, setFirstName] = useState('');
   const [surname, setSurname] = useState('');
+  const [countryCode, setCountryCode] = useState('+27');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [gender, setGender] = useState('Male');
   
@@ -129,6 +130,9 @@ export default function Register() {
 
     setLoading(true);
 
+    const cleanPhone = phoneNumber.replace(/^0+/, '');
+    const fullPhoneNumber = cleanPhone ? `${countryCode}${cleanPhone}` : '';
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -138,7 +142,7 @@ export default function Register() {
             first_name: firstName,
             surname: surname,
             full_name: `${firstName} ${surname}`,
-            phone_number: phoneNumber,
+            phone_number: fullPhoneNumber,
             address: address,
             avatar_url: avatarUrl || null,
             gender: gender,
@@ -381,14 +385,54 @@ export default function Register() {
 
               <div className="settings-group">
                 <label className="settings-label" htmlFor="phoneNumber">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  placeholder="e.g. +1 555-0199"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  required
-                />
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <select
+                    id="countryCode"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    style={{
+                      width: '110px',
+                      padding: '10px 8px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.95rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <option value="+27">🇿🇦 +27</option>
+                    <option value="+234">🇳🇬 +234</option>
+                    <option value="+254">🇰🇪 +254</option>
+                    <option value="+233">🇬🇭 +233</option>
+                    <option value="+263">🇿🇼 +263</option>
+                    <option value="+267">🇧🇼 +267</option>
+                    <option value="+260">🇿🇲 +260</option>
+                    <option value="+268">🇸🇿 +268</option>
+                    <option value="+264">🇳🇦 +264</option>
+                    <option value="+266">🇱🇸 +266</option>
+                    <option value="+258">🇲🇿 +258</option>
+                    <option value="+265">🇲🇼 +265</option>
+                    <option value="+255">🇹🇿 +255</option>
+                    <option value="+256">🇺🇬 +256</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+61">🇦🇺 +61</option>
+                    <option value="+91">🇮🇳 +91</option>
+                  </select>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    placeholder="71 234 5678"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      const clean = e.target.value.replace(/\D/g, '').replace(/^0+/, '');
+                      setPhoneNumber(clean);
+                    }}
+                    style={{ flex: 1 }}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="settings-group">

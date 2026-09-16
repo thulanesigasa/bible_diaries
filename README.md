@@ -16,8 +16,9 @@ Content integrity and an uplifting environment are maintained through automated 
 
 ## Key Features
 
-1. **User Authentication & Profiles**:
+1. **User Authentication & Two-Part Phone Verification**:
    - Secure sign-up and authentication powered by Supabase Auth.
+   - Two-part phone input with country code dropdown picker (e.g. +27 South Africa default) and automatic leading zero stripping to prevent database duplicate codes.
    - Comprehensive profile management: testimony, favorite scripture verse, spiritual journey, avatar photo, and privacy toggles.
 
 2. **Global Reflections Feed**:
@@ -34,13 +35,13 @@ Content integrity and an uplifting environment are maintained through automated 
    - View members' profiles, testimony journeys, and favorite bible verses.
    - Direct real-time encrypted messaging between registered members.
 
-5. **Brand Identity & Cross-Platform Icons**:
-   - High-fidelity Bible Diaries custom brand icon across web and mobile.
+5. **Brand Identity & Calibrated Icons**:
+   - High-fidelity Bible Diaries custom brand icon scaled down by 45% with generous circular safe zones to prevent launcher clipping.
    - Android adaptive launcher icon (transparent foreground safe-zone centered, crisp white background, and monochrome silhouette).
    - Multi-resolution web favicons (`favicon.ico`, `favicon.png`, `apple-touch-icon`).
 
-6. **Settings Configuration**:
-   - Customizable profile details, spiritual goals, and account privacy preferences.
+6. **Unified Settings Experience**:
+   - Continuous body layout integrating personal details, two-part phone number, spiritual walk, privacy toggles, bookmarks quick access, and sign out without fragmented tab switching.
 
 ---
 

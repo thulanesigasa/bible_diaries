@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -10,12 +10,26 @@ import {
   Platform,
   ActivityIndicator,
   Switch,
-  FlatList
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../_layout';
-import { Camera, Save, LogOut, Bookmark, ChevronRight, User, Settings as SettingsIcon, Heart, MessageSquare, ArrowLeft, HelpCircle, Shield, FileText, Lock, Trash2, Mail, Share2, Star, Globe, Database } from 'lucide-react-native';
+import { 
+  Camera, 
+  Save, 
+  LogOut, 
+  Bookmark, 
+  User, 
+  Heart, 
+  MessageSquare, 
+  Shield, 
+  BookOpen, 
+  Bell,
+  Lock,
+  ChevronRight,
+  Sliders
+} from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
+import PhoneInput, { COUNTRIES } from '../../components/PhoneInput';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -23,11 +37,28 @@ export default function SettingsTabScreen() {
   const { user, profile, setProfile, showToast, accent, supabase } = useApp();
   const router = useRouter();
 
+  // Helper to split stored phone into countryCode and local number
+  const parsePhone = (raw: string) => {
+    if (!raw) return { code: '+27', num: '' };
+    for (const c of COUNTRIES) {
+      if (raw.startsWith(c.code)) {
+        return { code: c.code, num: raw.slice(c.code.length).replace(/^0+/, '') };
+      }
+    }
+    return { code: '+27', num: raw.replace(/^0+/, '') };
+  };
+
+  const initialPhone = parsePhone(profile?.phone_number || '');
+
+  // Personal fields
   const [firstName, setFirstName] = useState(profile?.first_name || profile?.full_name?.split(' ')[0] || '');
   const [surname, setSurname] = useState(profile?.surname || profile?.full_name?.split(' ').slice(1).join(' ') || '');
-  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '');
+  const [countryCode, setCountryCode] = useState(initialPhone.code);
+  const [phoneNumber, setPhoneNumber] = useState(initialPhone.num);
   const [address, setAddress] = useState(profile?.address || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
+
+  // Spiritual fields
   const [bio, setBio] = useState(profile?.bio || '');
   const [favoriteVerse, setFavoriteVerse] = useState(profile?.favorite_verse || '');
   const [spiritualJourney, setSpiritualJourney] = useState(profile?.spiritual_journey || '');
@@ -36,56 +67,50 @@ export default function SettingsTabScreen() {
   const [isPrivateMode, setIsPrivateMode] = useState(profile?.privacy_mode === 'private');
   const [allowDms, setAllowDms] = useState(profile?.allow_dms !== false);
   const [emailLikes, setEmailLikes] = useState(profile?.email_likes !== false);
-  const [emailComments, setEmailComments] = useState(profile?.email_comments !== false);
 
   const [saving, setSaving] = useState(false);
-  const [activeView, setActiveView] = useState<'menu' | 'personal' | 'preferences' | 'bookmarks'>('menu');
-  const [bookmarkedPosts, setBookmarkedPosts] = useState<any[]>([]);
-  const [loadingBookmarks, setLoadingBookmarks] = useState(false);
+  const [bookmarkCount, setBookmarkCount] = useState<number>(0);
 
-  // Derive track colour from accent (softened tint)
+  // Derive switch track color from accent
   const trackOn = accent === '#EC4899' ? '#fbcfe8' : '#bae6fd';
 
-  const fetchBookmarks = async () => {
-    setLoadingBookmarks(true);
-    try {
-      // Fetch user's favorite records
-      const { data: favData, error: favError } = await supabase
-        .from('favorites')
-        .select('post_id')
-        .eq('user_id', user.id);
+  // Sync state when profile updates
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || profile.full_name?.split(' ')[0] || '');
+      setSurname(profile.surname || profile.full_name?.split(' ').slice(1).join(' ') || '');
+      const parsed = parsePhone(profile.phone_number || '');
+      setCountryCode(parsed.code);
+      setPhoneNumber(parsed.num);
+      setAddress(profile.address || '');
+      setAvatarUrl(profile.avatar_url || '');
+      setBio(profile.bio || '');
+      setFavoriteVerse(profile.favorite_verse || '');
+      setSpiritualJourney(profile.spiritual_journey || '');
+      setIsPrivateMode(profile.privacy_mode === 'private');
+      setAllowDms(profile.allow_dms !== false);
+      setEmailLikes(profile.email_likes !== false);
+    }
+  }, [profile]);
 
-      if (favError) throw favError;
-
-      if (!favData || favData.length === 0) {
-        setBookmarkedPosts([]);
-        setLoadingBookmarks(false);
-        return;
+  // Fetch count of bookmarks
+  useEffect(() => {
+    if (!user) return;
+    const fetchBookmarkCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('favorites')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        if (!error && count !== null) {
+          setBookmarkCount(count);
+        }
+      } catch (e) {
+        // silent fallback
       }
-
-      const postIds = favData.map((f: any) => f.post_id);
-
-      // Fetch the actual diaries
-      const { data: postsData, error: postsError } = await supabase
-        .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
-        .in('id', postIds)
-        .order('created_at', { ascending: false });
-
-      if (postsError) throw postsError;
-      setBookmarkedPosts(postsData || []);
-    } catch (err: any) {
-      showToast('Error loading bookmarks: ' + err.message, 'error');
-    } finally {
-      setLoadingBookmarks(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (activeView === 'bookmarks') {
-      fetchBookmarks();
-    }
-  }, [activeView]);
+    };
+    fetchBookmarkCount();
+  }, [user]);
 
   const handleImageUpload = async () => {
     try {
@@ -99,38 +124,33 @@ export default function SettingsTabScreen() {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1, // Get the highest quality first, we compress later
-        base64: false, // Don't get base64 yet, we manipulate first
+        quality: 0.9,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-        
-        if (asset.fileSize && asset.fileSize > 1024 * 1024 * 15) {
-          showToast('Image size should be less than 15MB', 'error');
-          return;
-        }
 
         // Compress and convert to WEBP
         const manipResult = await ImageManipulator.manipulateAsync(
           asset.uri,
-          [{ resize: { width: 800 } }], // Resize to max 800px width
+          [{ resize: { width: 600 } }],
           { compress: 0.8, format: ImageManipulator.SaveFormat.WEBP, base64: true }
         );
 
         const newAvatarUrl = `data:image/webp;base64,${manipResult.base64}`;
         setAvatarUrl(newAvatarUrl);
-        
+
         // Auto-save the new avatar
         const { error } = await supabase
           .from('profiles')
           .update({ avatar_url: newAvatarUrl })
           .eq('id', user.id);
-          
+
         if (error) {
           showToast('Failed to save photo: ' + error.message, 'error');
         } else {
-          showToast('Profile photo compressed and updated successfully!');
+          setProfile({ ...profile, avatar_url: newAvatarUrl });
+          showToast('Profile photo updated successfully!');
         }
       }
     } catch (e: any) {
@@ -144,22 +164,25 @@ export default function SettingsTabScreen() {
       return;
     }
 
+    // Validation rule: Strip leading zero so DB duplicate zero is ignored
+    const cleanPhone = phoneNumber.replace(/^0+/, '');
+    const fullPhoneNumber = cleanPhone ? `${countryCode}${cleanPhone}` : '';
+
     setSaving(true);
     try {
       const updateData = {
-        first_name: firstName,
-        surname: surname,
-        full_name: `${firstName} ${surname}`,
-        phone_number: phoneNumber,
-        address: address,
+        first_name: firstName.trim(),
+        surname: surname.trim(),
+        full_name: `${firstName.trim()} ${surname.trim()}`,
+        phone_number: fullPhoneNumber,
+        address: address.trim(),
         avatar_url: avatarUrl,
-        bio,
-        favorite_verse: favoriteVerse,
-        spiritual_journey: spiritualJourney,
+        bio: bio.trim(),
+        favorite_verse: favoriteVerse.trim(),
+        spiritual_journey: spiritualJourney.trim(),
         privacy_mode: isPrivateMode ? 'private' : 'public',
         allow_dms: allowDms,
         email_likes: emailLikes,
-        email_comments: emailComments
       };
 
       const { error } = await supabase
@@ -193,377 +216,233 @@ export default function SettingsTabScreen() {
     }
   };
 
-  const renderMenu = () => (
-    <ScrollView contentContainerStyle={styles.menuContainer}>
-      
-      {/* Profile Header */}
-      <View style={styles.profileHeader}>
-        <TouchableOpacity style={{ position: 'relative', marginBottom: 12 }} onPress={handleImageUpload}>
-          <Avatar 
-            src={avatarUrl} 
-            fullName={`${firstName} ${surname}`} 
-            email={user?.email} 
-            size={76} 
-          />
-          <View style={[styles.cameraBadge, { backgroundColor: accent, width: 24, height: 24, borderRadius: 12 }]}>
-            <Camera size={12} color="#FFFFFF" />
-          </View>
-        </TouchableOpacity>
-        <Text style={styles.profileName}>{`${firstName} ${surname}`}</Text>
-        <Text style={styles.profileEmail}>{user?.email}</Text>
-      </View>
-
-      <Text style={styles.menuSectionTitle}>Account & Security</Text>
-      <TouchableOpacity style={styles.menuItem} onPress={() => setActiveView('personal')}>
-        <View style={styles.menuItemLeft}>
-          <User size={22} color={accent} />
-          <Text style={styles.menuItemText}>Personal Information</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.menuItem} onPress={() => setActiveView('preferences')}>
-        <View style={styles.menuItemLeft}>
-          <SettingsIcon size={22} color={accent} />
-          <Text style={styles.menuItemText}>Preferences</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => setActiveView('bookmarks')}>
-        <View style={styles.menuItemLeft}>
-          <Bookmark size={22} color={accent} />
-          <Text style={styles.menuItemText}>Bookmarks</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Lock size={22} color={accent} />
-          <Text style={styles.menuItemText}>Security & Password</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Database size={22} color={accent} />
-          <Text style={styles.menuItemText}>Data & Storage</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <Text style={styles.menuSectionTitle}>Community & Support</Text>
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Share2 size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>Invite Friends</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Star size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>Rate the App</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Mail size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>Contact Support</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <HelpCircle size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>FAQs & Help Center</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <Text style={styles.menuSectionTitle}>Legal</Text>
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <Shield size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>Privacy Policy</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuItem} onPress={() => showToast('Coming soon!')}>
-        <View style={styles.menuItemLeft}>
-          <FileText size={22} color="#64748B" />
-          <Text style={styles.menuItemText}>Terms of Service</Text>
-        </View>
-        <ChevronRight size={20} color="#94A3B8" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.menuItem, { marginTop: 12, borderBottomWidth: 0, justifyContent: 'center', backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]} onPress={handleSignOut}>
-        <View style={styles.menuItemLeft}>
-          <LogOut size={22} color="#EF4444" />
-          <Text style={[styles.menuItemText, { color: '#EF4444', marginLeft: 8 }]}>Sign Out</Text>
-        </View>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 16 }} onPress={() => showToast('Delete account requested')}>
-        <Text style={{ color: '#EF4444', fontSize: 13, fontWeight: '600' }}>Delete Account</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-
-  const renderBookmarkItem = ({ item }: { item: any }) => {
-    return (
-      <TouchableOpacity 
-        style={styles.postCard} 
-        onPress={() => router.push((`/post/${item.id}`) as any)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.postHeader}>
-          <View style={styles.authorRow}>
-            <Avatar 
-              src={item.profiles?.avatar_url} 
-              fullName={item.profiles?.full_name} 
-              size={34}
-              style={{ marginRight: 10 }}
-            />
-            <View>
-              <Text style={styles.authorName}>{item.profiles?.full_name}</Text>
-              <Text style={styles.postTime}>
-                {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.categoryBadge, { backgroundColor: `${accent}15` }]}>
-            <Text style={[styles.categoryText, { color: accent }]}>{item.category}</Text>
-          </View>
-        </View>
-
-        {item.title ? <Text style={styles.postTitle}>{item.title}</Text> : null}
-        {item.scripture ? (
-          <View style={[styles.scriptureQuote, { borderLeftColor: accent, backgroundColor: `${accent}10` }]}>
-            <Text style={styles.scriptureText}>{item.scripture}</Text>
-          </View>
-        ) : null}
-        <Text style={styles.postContent} numberOfLines={3}>{item.content}</Text>
-
-        <View style={styles.actionsBar}>
-          <TouchableOpacity 
-            style={styles.actionBtn}
-            onPress={() => handleToggleLike(item)}
-          >
-            <Heart size={18} color={item.likes?.some((l: any) => l.user_id === user?.id) ? accent : '#475569'} fill={item.likes?.some((l: any) => l.user_id === user?.id) ? accent : 'transparent'} />
-            <Text style={[styles.actionText, item.likes?.some((l: any) => l.user_id === user?.id) && { color: accent }]}>
-              {item.likes?.length || 0}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.actionBtn}
-            onPress={() => router.push((`/post/${item.id}`) as any)}
-          >
-            <MessageSquare size={18} color="#475569" />
-            <Text style={styles.actionText}>{item.comments?.length || 0}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.actionBtn}
-            onPress={() => handleToggleFavorite(item)}
-          >
-            <Bookmark size={18} color={accent} fill={accent} />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const handleToggleFavorite = async (post: any) => {
-    try {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('post_id', post.id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      showToast('Removed from bookmarks.');
-      
-      // Update local state to remove it instantly
-      setBookmarkedPosts(prev => prev.filter(p => p.id !== post.id));
-    } catch (e: any) {
-      showToast(e.message, 'error');
-    }
-  };
-
-  const handleToggleLike = async (post: any) => {
-    const isLiked = post.likes?.some((l: any) => l.user_id === user.id) || false;
-    try {
-      if (isLiked) {
-        await supabase.from('likes').delete().eq('post_id', post.id).eq('user_id', user.id);
-        setBookmarkedPosts(prev => prev.map(p => 
-          p.id === post.id 
-            ? { ...p, likes: p.likes.filter((l: any) => l.user_id !== user.id) } 
-            : p
-        ));
-      } else {
-        await supabase.from('likes').insert({ post_id: post.id, user_id: user.id });
-        setBookmarkedPosts(prev => prev.map(p => 
-          p.id === post.id 
-            ? { ...p, likes: [...(p.likes || []), { user_id: user.id }] } 
-            : p
-        ));
-      }
-    } catch (e: any) {
-      showToast(e.message, 'error');
-    }
-  };
-
   return (
     <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      {activeView === 'menu' ? (
-        renderMenu()
-      ) : (
-        <View style={{ flex: 1 }}>
-          <View style={styles.subHeader}>
-            <TouchableOpacity onPress={() => setActiveView('menu')} style={styles.backButton}>
-              <ArrowLeft size={24} color="#0F172A" />
-            </TouchableOpacity>
-            <Text style={styles.subHeaderTitle}>
-              {activeView === 'personal' ? 'Personal Information' : activeView === 'preferences' ? 'Preferences' : 'Bookmarks'}
-            </Text>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Card Header in Body */}
+        <View style={styles.profileCard}>
+          <TouchableOpacity 
+            style={styles.avatarWrap} 
+            onPress={handleImageUpload}
+            activeOpacity={0.8}
+          >
+            <Avatar 
+              src={avatarUrl} 
+              fullName={`${firstName} ${surname}`} 
+              email={user?.email} 
+              size={80} 
+            />
+            <View style={[styles.cameraBadge, { backgroundColor: accent }]}>
+              <Camera size={13} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.profileName}>{`${firstName} ${surname}`.trim() || 'Believer'}</Text>
+          <Text style={styles.profileEmail}>{user?.email}</Text>
+          <Text style={styles.changePhotoHint}>Tap photo to change avatar</Text>
+        </View>
+
+        {/* Section 1: Personal Details */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <User size={18} color={accent} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Personal Details</Text>
           </View>
 
-          {activeView === 'bookmarks' ? (
-            loadingBookmarks ? (
-              <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color={accent} />
-              </View>
-            ) : bookmarkedPosts.length === 0 ? (
-              <View style={styles.centerContainer}>
-                <Text style={{ color: '#64748B' }}>No bookmarks yet.</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={bookmarkedPosts}
-                renderItem={renderBookmarkItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.scrollContainer}
+          <View style={styles.inputRow}>
+            <View style={[styles.inputGroup, { flex: 1 }]}>
+              <Text style={styles.label}>First Name</Text>
+              <TextInput
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+                placeholder="First Name"
+                placeholderTextColor="#94A3B8"
               />
-            )
-          ) : (
-            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-              {activeView === 'personal' && (
-                <View style={styles.section}>
-                  {/* Avatar picker */}
-                  <View style={styles.avatarContainer}>
-                    <View style={{ position: 'relative' }}>
-                      <Avatar src={avatarUrl} fullName={`${firstName} ${surname}`} email={user?.email} size={90} />
-                      <TouchableOpacity style={[styles.cameraBadge, { backgroundColor: accent }]} onPress={handleImageUpload}>
-                        <Camera size={14} color="#FFFFFF" />
-                      </TouchableOpacity>
-                    </View>
-                    <Text style={styles.avatarLabel}>Profile Photo (Max 5MB)</Text>
-                  </View>
+            </View>
+            <View style={[styles.inputGroup, { flex: 1 }]}>
+              <Text style={styles.label}>Surname</Text>
+              <TextInput
+                style={styles.input}
+                value={surname}
+                onChangeText={setSurname}
+                placeholder="Surname"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+          </View>
 
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>First Name</Text>
-                    <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="First Name" placeholderTextColor="#94A3B8" />
-                  </View>
+          {/* Two-Part Phone Number with Country Code Dropdown */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Phone Number</Text>
+            <PhoneInput
+              countryCode={countryCode}
+              phoneNumber={phoneNumber}
+              onCountryCodeChange={setCountryCode}
+              onPhoneNumberChange={setPhoneNumber}
+              accent={accent}
+            />
+          </View>
 
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Surname</Text>
-                    <TextInput style={styles.input} value={surname} onChangeText={setSurname} placeholder="Surname" placeholderTextColor="#94A3B8" />
-                  </View>
-
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Phone Number</Text>
-                    <TextInput style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} placeholder="Phone Number" placeholderTextColor="#94A3B8" keyboardType="phone-pad" />
-                  </View>
-
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Address</Text>
-                    <TextInput style={styles.input} value={address} onChangeText={setAddress} placeholder="Address" placeholderTextColor="#94A3B8" />
-                  </View>
-
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Biography</Text>
-                    <TextInput style={[styles.input, styles.textArea]} value={bio} onChangeText={setBio} placeholder="Share a short bio..." placeholderTextColor="#94A3B8" multiline numberOfLines={3} />
-                  </View>
-
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Favorite Verse</Text>
-                    <TextInput style={styles.input} value={favoriteVerse} onChangeText={setFavoriteVerse} placeholder="Favorite Scripture Verse" placeholderTextColor="#94A3B8" />
-                  </View>
-
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Testimony & Journey</Text>
-                    <TextInput style={[styles.input, styles.textArea]} value={spiritualJourney} onChangeText={setSpiritualJourney} placeholder="Share your spiritual journey..." placeholderTextColor="#94A3B8" multiline numberOfLines={4} />
-                  </View>
-                </View>
-              )}
-
-              {activeView === 'preferences' && (
-                <View style={styles.section}>
-                  <View style={styles.toggleRow}>
-                    <View style={styles.toggleInfo}>
-                      <Text style={styles.toggleTitle}>Private & Anonymous Mode</Text>
-                      <Text style={styles.toggleDesc}>Hide your details from other members in the fellowship directory.</Text>
-                    </View>
-                    <Switch value={isPrivateMode} onValueChange={setIsPrivateMode} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={isPrivateMode ? accent : '#94A3B8'} />
-                  </View>
-
-                  <View style={styles.toggleRow}>
-                    <View style={styles.toggleInfo}>
-                      <Text style={styles.toggleTitle}>Allow Direct Messaging</Text>
-                      <Text style={styles.toggleDesc}>Permit other believers to send you private messages from the Connect tab.</Text>
-                    </View>
-                    <Switch value={allowDms} onValueChange={setAllowDms} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={allowDms ? accent : '#94A3B8'} />
-                  </View>
-
-                  <View style={styles.toggleRow}>
-                    <View style={styles.toggleInfo}>
-                      <Text style={styles.toggleTitle}>Likes Alerts Notifications</Text>
-                      <Text style={styles.toggleDesc}>Receive email alerts when someone likes your reflections.</Text>
-                    </View>
-                    <Switch value={emailLikes} onValueChange={setEmailLikes} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={emailLikes ? accent : '#94A3B8'} />
-                  </View>
-
-                  <View style={styles.toggleRow}>
-                    <View style={styles.toggleInfo}>
-                      <Text style={styles.toggleTitle}>Comments Alerts Notifications</Text>
-                      <Text style={styles.toggleDesc}>Receive email alerts when a member comments on your reflections.</Text>
-                    </View>
-                    <Switch value={emailComments} onValueChange={setEmailComments} trackColor={{ false: '#cbd5e1', true: trackOn }} thumbColor={emailComments ? accent : '#94A3B8'} />
-                  </View>
-                </View>
-              )}
-
-              {/* Buttons */}
-              <View style={styles.btnArea}>
-                <TouchableOpacity 
-                  style={[styles.saveBtn, { backgroundColor: accent }, saving && styles.btnDisabled]} 
-                  onPress={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.saveBtnText}>Save Settings</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          )}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Physical Address</Text>
+            <TextInput
+              style={styles.input}
+              value={address}
+              onChangeText={setAddress}
+              placeholder="e.g. 77 Scripture Lane, Glory Town"
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
         </View>
-      )}
+
+        {/* Section 2: Spiritual Journey */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <BookOpen size={18} color={accent} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Spiritual Journey</Text>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Biography</Text>
+            <TextInput
+              style={styles.input}
+              value={bio}
+              onChangeText={setBio}
+              placeholder="e.g. Walking in faith and grace daily."
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Favorite Scripture Verse</Text>
+            <TextInput
+              style={styles.input}
+              value={favoriteVerse}
+              onChangeText={setFavoriteVerse}
+              placeholder="e.g. Philippians 4:13"
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Testimony & Journey</Text>
+            <TextInput
+              style={[styles.input, styles.multilineInput]}
+              value={spiritualJourney}
+              onChangeText={setSpiritualJourney}
+              placeholder="Share how God has worked in your life..."
+              placeholderTextColor="#94A3B8"
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+          </View>
+        </View>
+
+        {/* Section 3: Account & Privacy Preferences */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Sliders size={18} color={accent} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Preferences & Privacy</Text>
+          </View>
+
+          <View style={styles.toggleRow}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Text style={styles.toggleTitle}>Private Profile</Text>
+              <Text style={styles.toggleSubtitle}>Only approved followers can view your reflections</Text>
+            </View>
+            <Switch
+              value={isPrivateMode}
+              onValueChange={setIsPrivateMode}
+              trackColor={{ false: '#E2E8F0', true: trackOn }}
+              thumbColor={isPrivateMode ? accent : '#F8FAFC'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.toggleRow}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Text style={styles.toggleTitle}>Allow Direct Messages</Text>
+              <Text style={styles.toggleSubtitle}>Allow other fellowship members to send direct messages</Text>
+            </View>
+            <Switch
+              value={allowDms}
+              onValueChange={setAllowDms}
+              trackColor={{ false: '#E2E8F0', true: trackOn }}
+              thumbColor={allowDms ? accent : '#F8FAFC'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.toggleRow}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Text style={styles.toggleTitle}>Interaction Notifications</Text>
+              <Text style={styles.toggleSubtitle}>Receive updates when members like or comment on your diaries</Text>
+            </View>
+            <Switch
+              value={emailLikes}
+              onValueChange={setEmailLikes}
+              trackColor={{ false: '#E2E8F0', true: trackOn }}
+              thumbColor={emailLikes ? accent : '#F8FAFC'}
+            />
+          </View>
+        </View>
+
+        {/* Section 4: Bookmarks Quick Card */}
+        <TouchableOpacity 
+          style={styles.bookmarksCard}
+          onPress={() => router.push('/(tabs)')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.bookmarksLeft}>
+            <View style={[styles.bookmarkIconWrap, { backgroundColor: `${accent}15` }]}>
+              <Bookmark size={20} color={accent} />
+            </View>
+            <View>
+              <Text style={styles.bookmarksTitle}>Saved Bookmarks</Text>
+              <Text style={styles.bookmarksSubtitle}>{bookmarkCount} reflections saved</Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#94A3B8" />
+        </TouchableOpacity>
+
+        {/* Action Buttons */}
+        <View style={styles.actionContainer}>
+          <TouchableOpacity 
+            style={[styles.saveBtn, { backgroundColor: accent }, saving && styles.btnDisabled]}
+            onPress={handleSave}
+            disabled={saving}
+            activeOpacity={0.85}
+          >
+            {saving ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Save size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.saveBtnText}>Save Changes</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.signOutBtn}
+            onPress={handleSignOut}
+            activeOpacity={0.7}
+          >
+            <LogOut size={18} color="#EF4444" style={{ marginRight: 8 }} />
+            <Text style={styles.signOutText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -571,294 +450,199 @@ export default function SettingsTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F8FAFC', // 60% dominant background
   },
-  tabsRow: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(15, 23, 42, 0.08)',
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 48,
   },
-  tab: {
-    flex: 1,
-    paddingVertical: 14,
+  profileCard: {
+    backgroundColor: '#FFFFFF', // 30% panel surface
+    borderRadius: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  scrollContainer: {
-    padding: 20,
-    paddingBottom: 110,
-  },
-  section: {
-    gap: 16,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
+  avatarWrap: {
+    position: 'relative',
+    marginBottom: 12,
   },
   cameraBadge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 2,
     borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatarLabel: {
-    fontSize: 12,
+  profileName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  profileEmail: {
+    fontSize: 13.5,
     color: '#64748B',
-    marginTop: 8,
+    marginBottom: 6,
   },
-  formGroup: {
-    gap: 6,
+  changePhotoHint: {
+    fontSize: 12,
+    color: '#94A3B8',
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  inputGroup: {
+    marginBottom: 14,
   },
   label: {
     fontSize: 13,
     fontWeight: '600',
     color: '#475569',
+    marginBottom: 6,
   },
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 14,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    height: 48,
+    fontSize: 15,
     color: '#0F172A',
   },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
+  multilineInput: {
+    height: 84,
+    paddingTop: 12,
   },
   toggleRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.06)',
-    gap: 16,
-    marginBottom: 12,
-  },
-  toggleInfo: {
-    flex: 1,
-    gap: 4,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
   },
   toggleTitle: {
-    fontSize: 14,
+    fontSize: 14.5,
+    fontWeight: '600',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  toggleSubtitle: {
+    fontSize: 12.5,
+    color: '#64748B',
+    lineHeight: 17,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 4,
+  },
+  bookmarksCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  bookmarksLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bookmarkIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  bookmarksTitle: {
+    fontSize: 15,
     fontWeight: '600',
     color: '#0F172A',
   },
-  toggleDesc: {
-    fontSize: 11,
+  bookmarksSubtitle: {
+    fontSize: 12.5,
     color: '#64748B',
-    lineHeight: 15,
   },
-  btnArea: {
-    marginTop: 24,
+  actionContainer: {
     gap: 12,
   },
   saveBtn: {
-    borderRadius: 8,
-    height: 48,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  saveBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
+    height: 50,
+    borderRadius: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   btnDisabled: {
     opacity: 0.7,
   },
+  saveBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
   signOutBtn: {
     flexDirection: 'row',
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FEF2F2',
     alignItems: 'center',
     justifyContent: 'center',
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
   },
   signOutText: {
     color: '#EF4444',
     fontSize: 15,
     fontWeight: '600',
-  },
-  menuContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingTop: 10,
-  },
-  profileName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#64748B',
-  },
-  menuSectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#94A3B8',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 10,
-    marginTop: 10,
-    paddingLeft: 4,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 18,
-    borderRadius: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginLeft: 14,
-  },
-  subHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(15, 23, 42, 0.08)',
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  subHeaderTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0F172A',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  postCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  postHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  authorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
-  },
-  postTime: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 1,
-  },
-  categoryBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-  },
-  categoryText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  postTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 8,
-  },
-  scriptureQuote: {
-    borderLeftWidth: 3,
-    paddingLeft: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
-    borderRadius: 4,
-  },
-  scriptureText: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#475569',
-  },
-  postContent: {
-    fontSize: 14,
-    color: '#475569',
-    lineHeight: 22,
-  },
-  actionsBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 24,
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(15, 23, 42, 0.05)',
-    paddingTop: 16,
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionText: {
-    fontSize: 14,
-    color: '#64748B',
-    fontWeight: '500',
   },
 });
