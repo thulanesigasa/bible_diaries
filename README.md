@@ -36,12 +36,15 @@ Content integrity and an uplifting environment are maintained through automated 
    - Direct real-time encrypted messaging between registered members.
 
 5. **Brand Identity & Calibrated Icons**:
-   - High-fidelity Bible Diaries custom brand icon centered with 65% safe padding matching Samsung One UI, Ride Go, and Android squircle guidelines.
-   - Android adaptive launcher icon (transparent foreground safe-zone centered, crisp white background, and monochrome silhouette).
+   - High-fidelity Bible Diaries custom brand icon centered with 72% clean white breathing room on a 512x512 canvas matching Samsung One UI squircle guidelines to prevent clipping.
+   - Android adaptive launcher icon decoupled from full-sized 800px in-app brand icons.
    - Multi-resolution web favicons (`favicon.ico`, `favicon.png`, `apple-touch-icon`).
 
 6. **Unified Single-Body Settings**:
    - Seamless continuous body design eliminating fragmented card divs and boxes, integrating personal details, two-part phone number, spiritual walk, privacy toggles, bookmarks quick access, and sign out in one cohesive container.
+
+7. **Floating Pill Tab Navigation (`/tabs`)**:
+   - Standardized mobile tab layout featuring a floating pill / curved rectangular container (280px width, dynamically centered, 50px height, active indicator dot, and flat white header).
 
 ---
 

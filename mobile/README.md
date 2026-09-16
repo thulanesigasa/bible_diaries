@@ -20,7 +20,8 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Unified Single-Body Settings** — Completely seamless settings page with all profile, testimony, privacy, bookmarks, and account actions consolidated into one unified body (all separated card divs/views eliminated)
 - **All 54 African Countries Phone Selector** — Dedicated two-part phone input with full 54 African sovereign nation dial codes and flag indicators, plus automatic leading-0 stripping to protect database code integrity
 - **Dynamic Initials Avatars** — Auto-renders initials when no profile picture is set
-- **Calibrated Launcher & Adaptive Icons** — Brand book icon centered with 65% safe padding matching Samsung One UI, Ride Go, and Android squircle guidelines to prevent clipping
+- **Calibrated Launcher & Adaptive Icons** — Brand book icon centered with 72% clean white breathing room on 512x512 canvas matching Samsung One UI squircle guidelines to prevent clipping, decoupled from crisp 800px in-app brand icons
+- **Floating Pill Tab Navigation (`/tabs`)** — Bounded 280px curved pill bar with dynamic horizontal centering, compact 50px height, active indicator dot, 16px Lucide icons, and flat white header standard
 - **Multi-Step Auth Flow & Keyboard Navigation** — Multi-step registration (Account, Personal Details, Profile Setup) with Android soft keyboard `Next` / `Sign In` action labels, step auto-advance, and instant auto-focus on step transitions
 - **Dual-Channel OTA Updates** — Instant in-app update prompt `<UpdateModal>` delivered via Over-The-Air bundles across `production` and `preview` channels
 

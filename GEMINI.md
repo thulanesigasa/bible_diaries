@@ -210,4 +210,46 @@ The user specifically mandates seamless in-app Over-The-Air (OTA) updates: upon 
 2. **Publish to Both Channels (`production` & `preview`)**: In `.github/workflows/ota-update.yml`, execute `eas update --channel production` AND `eas update --channel preview`. This ensures that every installed binary, regardless of whether it listens to `preview` or `production`, receives the update.
 3. **Foreground Re-check Guard**: `useOTAUpdate` must check for updates both on initial component mount and on `AppState` transitions to `active`, so returning to the app immediately displays the popup without requiring a force-restart.
 
+---
+
+## 11. App Icon, Launcher & In-App Logo Calibration
+
+### Mandatory Rules:
+1. **Decouple Launcher Assets from In-App Assets**: Never shrink in-app component logos when adjusting the Android launcher icon.
+2. **Android Adaptive Launcher Icon Calibration**: `android-icon-foreground.png` must be centered on a `512x512` canvas with a target icon height of `96px` (bounding box ~`80x96px`), providing ~72% clean white breathing room / padding so Samsung One UI squircle masks and standard Android launcher cutouts never crop or zoom into the icon. Background must be solid (`#FFFFFF` or brand background).
+3. **In-App Brand Icon / App Store Icon**: `icon.png` must be `1024x1024` canvas with an `800px` prominent brand symbol so in-app usages remain sharp, bold, and readable.
+4. **Component In-App Logo Sizing**:
+   - Header brand logos: `24x24` (with border radius `5px`)
+   - Auth / Login / Register logos: `28x28`
+   - In-app update / modal logos: `50x50` inside a `68x68` rounded container (border radius `18px`, image border radius `12px`)
+
+---
+
+## 12. Mobile Tab Navigation Standard (`/tabs` Workflow)
+
+### Context & Workflow:
+Triggered via `/tabs` or when building or refactoring mobile bottom tab navigation in React Native / Expo Router.
+
+### Mandatory Rules:
+1. **Position & Floating Pill Geometry**:
+   - `position: 'absolute'`, `bottom: Platform.OS === 'ios' ? 28 : 24`
+   - Explicit bounded pill width: `width: 280`
+   - Dynamically centered using `useWindowDimensions()`: `marginHorizontal: (width - 280) / 2`
+   - Compact height: `height: 50`, `paddingTop: 4`, `paddingBottom: 4`, `borderRadius: 16`
+2. **Surface, Elevation & 60-30-10 Palette**:
+   - `backgroundColor: '#FFFFFF'` (30% panel surface)
+   - Hairline border: `borderWidth: 1, borderColor: 'rgba(15, 23, 42, 0.08)', borderTopWidth: 0`
+   - Soft drop shadow: `shadowColor: '#0F172A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 5`
+3. **Dynamic Context State**:
+   - Respects `hideTabBar` and dynamic `accent` from app context.
+   - `tabBarActiveTintColor: accent`, `tabBarInactiveTintColor: '#94A3B8'`
+4. **Custom Label with Focused Indicator Dot**:
+   - Centered column with `fontSize: 8.5`, `fontWeight: focused ? '700' : '500'`, `color: focused ? accent : '#64748B'`
+   - When `focused`, render a `4x4` rounded dot (`width: 4, height: 4, borderRadius: 2, backgroundColor: accent, marginTop: 2`)
+5. **Iconography & Header Standard**:
+   - Lucide icons sized strictly at `16px` (`<Icon size={16} color={color} />`)
+   - Clean flat white header (`backgroundColor: '#FFFFFF', shadowColor: 'transparent', elevation: 0, borderBottomWidth: 1, borderBottomColor: 'rgba(15, 23, 42, 0.08)'`), `fontFamily: 'SpaceMono', fontSize: 18`
+   - Primary tab includes the `24x24` brand logo next to the title.
+
+
 
