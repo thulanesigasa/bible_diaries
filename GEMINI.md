@@ -1,6 +1,6 @@
-﻿# Mobile App Bundling, CI/CD & EAS Update Rules
+﻿# Project Rules & Bundling Guidelines (Bible Diaries)
 
-This rule document captures critical errors logged during the Expo SDK 57 / EAS build and OTA update configuration for the Bible Diaries mobile application, along with mandatory preventative rules for all future developments.
+This document establishes the official project-specific development rules, detailing historical errors logged during mobile app bundling, Expo EAS setup, and CI/CD automation, along with strict architectural rules to ensure seamless development and error-free builds moving forward.
 
 ---
 
@@ -15,12 +15,12 @@ Error: update command failed.
 ```
 
 ### Root Cause:
-During `eas update` (or `expo export`), Expo statically evaluates and bundles the client application code. If a module executes a top-level `throw new Error(...)` when an environment variable is absent at build time, the static bundle export immediately crashes with exit code 1.
+During `eas update` (or `expo export`), Metro statically evaluates and exports all client application modules. When a module executes a top-level `throw new Error(...)` upon detecting missing environment variables at import time, the static build export immediately crashes with exit code 1.
 
 ### Mandatory Rules:
-1. **Never Throw Top-Level Fatal Errors for Env Vars**: In client modules (e.g. `src/lib/supabase.js`, API clients, analytics wrappers), never execute an unhandled `throw new Error(...)` during module evaluation.
-2. **Provide Safe Fallback Values & Warnings**: Use fallback configuration strings or log a non-blocking `console.warn(...)` during evaluation, checking validity only when an active network operation is performed.
-3. **Forward Public Envs in CI Workflows**: Any `EXPO_PUBLIC_*` variable required by the client bundle must be explicitly declared and forwarded in the GitHub Actions workflow steps (e.g. in `.github/workflows/ota-update.yml` and `.github/workflows/build-apk.yml`).
+1. **Never Throw Fatal Errors at the Module Root**: In client-side modules (such as `src/lib/supabase.js`, API clients, or third-party wrappers), never write unhandled top-level `throw new Error(...)` during module evaluation.
+2. **Provide Safe Fallback Values & Warnings**: Use fallback configuration strings or issue a soft `console.warn(...)` during initialization. Validate credentials only when an active network operation is performed at runtime.
+3. **Forward Public Envs in CI Workflows**: Any `EXPO_PUBLIC_*` variable required by the client bundle must be explicitly declared and forwarded in the GitHub Actions workflow steps (`.github/workflows/ota-update.yml` and `.github/workflows/build-apk.yml`).
 
 ---
 
@@ -34,12 +34,12 @@ Error: GraphQL request failed.
 ```
 
 ### Root Cause:
-Setting a string placeholder (e.g. `"bible-diaries"` or `"YOUR_EAS_PROJECT_ID"`) in `extra.eas.projectId` or `updates.url` in `app.json` causes EAS CLI GraphQL queries to fail because EAS strictly validates the UUID format (8-4-4-4-12 hexadecimal).
+Placing placeholder strings (such as `"bible-diaries"` or `"YOUR_EAS_PROJECT_ID"`) in `extra.eas.projectId` or `updates.url` in `app.json` causes EAS CLI GraphQL queries to fail because EAS strictly validates the UUID format (8-4-4-4-12 hexadecimal).
 
 ### Mandatory Rules:
-1. **Never Insert Placeholder Strings for Project IDs**: Never populate `extra.eas.projectId` or `updates.url` with human-readable slugs or arbitrary placeholder text.
-2. **Use Valid EAS Project UUIDs Only**: The project ID must be the official 36-character UUID assigned by Expo (e.g. `fe39d2bf-81e4-4901-8583-caadeb91cc1c`).
-3. **Automatic Project Initialization**: When linking a project for the first time, omit `extra.eas.projectId` and run `eas init --force --non-interactive` to let EAS link and write the authentic UUID directly into `app.json`.
+1. **Never Insert Placeholder Strings for Project IDs**: Never populate `extra.eas.projectId` or `updates.url` with human-readable slugs or arbitrary placeholder strings.
+2. **Use Valid EAS Project UUIDs Only**: The project ID must be the official 36-character UUID assigned by Expo (`fe39d2bf-81e4-4901-8583-caadeb91cc1c`).
+3. **Automatic Project Initialization**: When linking a project for the first time, omit `extra.eas.projectId` and run `eas init --force --non-interactive` to allow EAS to link and inject the authentic UUID directly into `app.json`.
 
 ---
 
@@ -52,11 +52,11 @@ Error: update command failed.
 ```
 
 ### Root Cause:
-Mismatch between the `owner` field specified in `app.json` and the actual account that owns the EAS project ID and created the CI `EXPO_TOKEN`.
+A mismatch between the `owner` field specified in `app.json` and the actual account owning the EAS project ID and generating the CI `EXPO_TOKEN`.
 
 ### Mandatory Rules:
-1. **Strict Owner Alignment**: The `owner` field in `mobile/app.json` must exactly match the Expo username of the account that owns the EAS project (`thulanesigasa0`).
-2. **Token Verification**: Verify that the GitHub repository secret `EXPO_TOKEN` was generated by the account matching the `owner` field (`thulanesigasa0`). You can verify at any time via `eas whoami`.
+1. **Strict Owner Alignment**: The `owner` field in `mobile/app.json` must strictly match the Expo username of the account owning the EAS project (`thulanesigasa0`).
+2. **Token Verification**: Verify that the GitHub repository secret `EXPO_TOKEN` was generated by the account matching the `owner` field (`thulanesigasa0`).
 
 ---
 
@@ -70,7 +70,7 @@ Error: build:configure command failed.
 ```
 
 ### Root Cause:
-Executing EAS/Expo commands before dependencies are installed locally, or assuming global CLI binaries exist without verifying installation.
+Executing EAS or Expo commands before dependencies are installed locally, or assuming global CLI binaries exist without verifying installation.
 
 ### Mandatory Rules:
 1. **Always Install Dependencies First**: Always ensure `npm install` has completed inside `mobile/` before running any Expo Router prebuild, config check, or EAS build commands.
