@@ -20,6 +20,7 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Account Profiles & Settings** — Manage testimony, scripture, avatar, and privacy
 - **Dynamic Initials Avatars** — Auto-renders initials when no profile picture is set
 - **Brand Identity & Adaptive Icons** — Authentic custom Bible logo, Android adaptive foreground/background launcher icon, and web favicons
+- **Fluid Keyboard Navigation** — Soft keyboard Next actions chained across multi-step registration and login for seamless field progression
 - **OTA Updates** — In-app popup when a new version is available; updates without reinstall
 
 ---
