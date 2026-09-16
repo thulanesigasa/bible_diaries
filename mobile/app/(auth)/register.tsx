@@ -252,7 +252,7 @@ export default function RegisterScreen() {
             <View style={styles.logoRow}>
               <Image 
                 source={require('../../assets/images/icon.png')} 
-                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }} 
+                style={{ width: 20, height: 20, marginRight: 8, borderRadius: 4 }} 
                 resizeMode="contain" 
               />
               <Text style={[styles.logoText, { color: accent }]}>Bible Diaries</Text>

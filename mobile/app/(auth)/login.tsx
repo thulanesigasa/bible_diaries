@@ -73,7 +73,7 @@ export default function LoginScreen() {
             <View style={styles.logoRow}>
               <Image 
                 source={require('../../assets/images/icon.png')} 
-                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }} 
+                style={{ width: 20, height: 20, marginRight: 8, borderRadius: 4 }} 
                 resizeMode="contain" 
               />
               <Text style={styles.logoText}>Bible Diaries</Text>

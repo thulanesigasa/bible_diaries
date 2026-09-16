@@ -207,15 +207,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBD5E1', // Subtle grey drag pill
   },
   logoContainer: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
     marginTop: 2,
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
@@ -224,9 +224,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   logoImage: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 6,
   },
   title: {
     fontSize: 22,
