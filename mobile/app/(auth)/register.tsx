@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -53,6 +53,21 @@ export default function RegisterScreen() {
 
   const { showToast } = useApp();
   const router = useRouter();
+
+  // Auto-focus the first input of a new step when step advances
+  useEffect(() => {
+    if (step === 2) {
+      const timer = setTimeout(() => {
+        firstNameRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    } else if (step === 3) {
+      const timer = setTimeout(() => {
+        addressRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   // Derive accent colour from gender — live update as user taps
   const accent = gender === 'Female' ? FEMALE_ACCENT : MALE_ACCENT;
@@ -121,22 +136,45 @@ export default function RegisterScreen() {
 
   const handleNext = () => {
     if (step === 1) {
-      if (!email || !password) {
-        showToast('Please fill in email and password.', 'error');
+      if (!email) {
+        showToast('Please enter your email address.', 'error');
+        emailRef.current?.focus();
+        return;
+      }
+      if (!password) {
+        showToast('Please enter a password.', 'error');
+        passwordRef.current?.focus();
         return;
       }
       if (password.length < 6) {
         showToast('Password must be at least 6 characters.', 'error');
+        passwordRef.current?.focus();
         return;
       }
       if (password !== confirmPassword) {
         showToast('Passwords do not match.', 'error');
+        confirmPasswordRef.current?.focus();
         return;
       }
       setStep(2);
     } else if (step === 2) {
-      if (!firstName || !surname || !phoneNumber || !gender) {
-        showToast('Please fill in your name, surname, phone number, and gender.', 'error');
+      if (!firstName) {
+        showToast('Please enter your first name.', 'error');
+        firstNameRef.current?.focus();
+        return;
+      }
+      if (!surname) {
+        showToast('Please enter your surname.', 'error');
+        surnameRef.current?.focus();
+        return;
+      }
+      if (!phoneNumber) {
+        showToast('Please enter your phone number.', 'error');
+        phoneRef.current?.focus();
+        return;
+      }
+      if (!gender) {
+        showToast('Please select your gender.', 'error');
         return;
       }
       setStep(3);
@@ -152,6 +190,7 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (!address) {
       showToast('Physical address is required.', 'error');
+      addressRef.current?.focus();
       return;
     }
 
@@ -180,6 +219,12 @@ export default function RegisterScreen() {
         showToast(error.message, 'error');
       } else {
         showToast('Registration successful! Welcome to bible_diaries.');
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) {
+          router.replace('/(tabs)');
+        } else {
+          router.replace('/(auth)/login');
+        }
       }
     } catch (err) {
       showToast('An error occurred during registration.', 'error');
@@ -253,6 +298,7 @@ export default function RegisterScreen() {
                   autoCapitalize="none"
                   keyboardType="email-address"
                   returnKeyType="next"
+                  returnKeyLabel="Next"
                   blurOnSubmit={false}
                   onSubmitEditing={() => passwordRef.current?.focus()}
                   editable={!loading}
@@ -272,6 +318,7 @@ export default function RegisterScreen() {
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
                     returnKeyType="next"
+                    returnKeyLabel="Next"
                     blurOnSubmit={false}
                     onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                     editable={!loading}
@@ -319,6 +366,8 @@ export default function RegisterScreen() {
                     secureTextEntry={!showConfirmPassword}
                     autoCapitalize="none"
                     returnKeyType="next"
+                    returnKeyLabel="Next"
+                    blurOnSubmit={false}
                     onSubmitEditing={handleNext}
                     editable={!loading}
                   />
@@ -357,6 +406,7 @@ export default function RegisterScreen() {
                   value={firstName}
                   onChangeText={setFirstName}
                   returnKeyType="next"
+                  returnKeyLabel="Next"
                   blurOnSubmit={false}
                   onSubmitEditing={() => surnameRef.current?.focus()}
                   editable={!loading}
@@ -373,6 +423,7 @@ export default function RegisterScreen() {
                   value={surname}
                   onChangeText={setSurname}
                   returnKeyType="next"
+                  returnKeyLabel="Next"
                   blurOnSubmit={false}
                   onSubmitEditing={() => phoneRef.current?.focus()}
                   editable={!loading}
@@ -387,16 +438,12 @@ export default function RegisterScreen() {
                   placeholder="e.g. +1 555-0199"
                   placeholderTextColor="#94A3B8"
                   value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
+                  onChangeText={(text) => setPhoneNumber(text.replace(/[^0-9+\s\-()]/g, ''))}
+                  keyboardType="numbers-and-punctuation"
                   returnKeyType="next"
-                  onSubmitEditing={() => {
-                    if (firstName && surname && phoneNumber && gender) {
-                      handleNext();
-                    } else {
-                      Keyboard.dismiss();
-                    }
-                  }}
+                  returnKeyLabel="Next"
+                  blurOnSubmit={false}
+                  onSubmitEditing={handleNext}
                   editable={!loading}
                 />
               </View>
@@ -486,6 +533,7 @@ export default function RegisterScreen() {
                   value={address}
                   onChangeText={setAddress}
                   returnKeyType="done"
+                  returnKeyLabel="Register"
                   onSubmitEditing={handleRegister}
                   editable={!loading}
                 />

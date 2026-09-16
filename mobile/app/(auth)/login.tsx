@@ -50,6 +50,7 @@ export default function LoginScreen() {
             ? 'Welcome back, sister!' 
             : 'Welcome back, brother/sister!';
         showToast(greeting);
+        router.replace('/(tabs)');
       }
     } catch (err) {
       showToast('An unexpected error occurred.', 'error');
@@ -94,6 +95,7 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 returnKeyType="next"
+                returnKeyLabel="Next"
                 blurOnSubmit={false}
                 onSubmitEditing={() => passwordRef.current?.focus()}
                 editable={!loading}
@@ -112,7 +114,8 @@ export default function LoginScreen() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
-                  returnKeyType="done"
+                  returnKeyType="go"
+                  returnKeyLabel="Sign In"
                   onSubmitEditing={handleLogin}
                   editable={!loading}
                 />
