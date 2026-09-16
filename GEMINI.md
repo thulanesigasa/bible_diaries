@@ -1,4 +1,4 @@
-﻿# Project Rules & Bundling Guidelines (Bible Diaries)
+# Project Rules & Bundling Guidelines (Bible Diaries)
 
 This document establishes the official project-specific development rules, detailing documentation standards, historical errors logged during mobile app bundling, Expo EAS setup, and CI/CD automation, along with strict architectural rules to ensure seamless development and error-free builds moving forward.
 
@@ -154,3 +154,26 @@ Stale or invalid `GITHUB_TOKEN` environment variables override valid keyring cre
 
 ### Mandatory Rule:
 Always prepend `Remove-Item Env:GITHUB_TOKEN -ErrorAction SilentlyContinue;` before any `gh` command (issues, PRs, workflow dispatch, runs).
+
+---
+
+## 8. Expo SDK 57 Dependency Alignment & Kotlin Compiler Daemon Crash
+
+### Logged Error:
+```
+Execution failed for task ':expo-updates-gradle-plugin:compileKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Internal compiler error. See log for more details
+e: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 2.2.0, expected version is 2.0.0.
+Could not receive a message from the daemon.
+Error: Gradle build failed with unknown error. See logs for the "Run gradlew" phase for more information.
+```
+
+### Root Cause:
+In Expo SDK 57, Expo unified core package version numbers to the SDK major release line (`~57.0.x`). When `expo-updates` was pinned to an older release (e.g. `0.28.18` from earlier SDKs), its bundled Kotlin Gradle plugin was incompatible with Gradle 9.3 and Kotlin 2.2 required by React Native 0.86. This crashed the Kotlin daemon during Gradle compilation on EAS Build.
+
+### Mandatory Rules:
+1. **Pre-Build Verification with `expo-doctor`**: Always execute `npx expo-doctor` in `mobile/` before committing or initiating EAS builds. All 21/21 checks must pass with zero major/minor dependency mismatches.
+2. **Strict SDK 57 Version Alignment**: Keep `expo-updates` and related native modules aligned to the SDK 57 version matrix (`expo-updates: ~57.0.22`, `expo: ~57.0.23`, `react-native: 0.86.3`).
+3. **Use `npx expo install --fix`**: When any dependency divergence occurs, resolve it strictly via `npx expo install --fix` rather than ad-hoc version changes or `npm audit fix --force`.
+
