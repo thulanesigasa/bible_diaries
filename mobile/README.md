@@ -1,4 +1,4 @@
-﻿# Bible Diaries Mobile App
+# Bible Diaries Mobile App
 
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-0EA5E9?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-Expo%20SDK%2057-000020?style=flat-square&logo=expo)
@@ -106,13 +106,16 @@ npm run ios       # Open on iOS simulator (macOS only)
 
 ### 4. One-time EAS Setup (for CI/CD)
 
-```bash
-npm install --global eas-cli
-eas login
-eas build:configure
-```
+The app is linked to the EAS project **`@pharez101/bible-diaries`** (Project ID: `fe39d2bf-81e4-4901-8583-caadeb91cc1c`).
 
-Then add your `EXPO_TOKEN` as a GitHub repository secret under **Settings → Secrets → Actions**.
+To enable GitHub Actions CI/CD to publish OTA updates and build APKs:
+1. Go to your Expo Access Tokens page: [expo.dev/accounts/pharez101/settings/access-tokens](https://expo.dev/accounts/pharez101/settings/access-tokens)
+2. Create a new Personal Access Token with read/write permissions.
+3. Add the token to GitHub repository secrets:
+   - Go to **GitHub Repository → Settings → Secrets and variables → Actions**
+   - Click **New repository secret**
+   - Secret Name: `EXPO_TOKEN`
+   - Secret Value: *(paste your Expo access token)*
 
 ---
 
