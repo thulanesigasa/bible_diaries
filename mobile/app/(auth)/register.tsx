@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView, 
   Platform,
   ActivityIndicator,
-  Image
+  Image,
+  Keyboard
 } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useApp } from '../_layout';
@@ -40,6 +41,15 @@ export default function RegisterScreen() {
   const [gender, setGender] = useState('Male');
   
   const [loading, setLoading] = useState(false);
+
+  // Input refs for smooth sequential keyboard navigation
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
+  const firstNameRef = useRef<TextInput>(null);
+  const surnameRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const addressRef = useRef<TextInput>(null);
 
   const { showToast } = useApp();
   const router = useRouter();
@@ -234,6 +244,7 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email Address</Text>
                 <TextInput
+                  ref={emailRef}
                   style={styles.input}
                   placeholder="e.g. grace@example.com"
                   placeholderTextColor="#94A3B8"
@@ -241,6 +252,9 @@ export default function RegisterScreen() {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => passwordRef.current?.focus()}
                   editable={!loading}
                 />
               </View>
@@ -249,6 +263,7 @@ export default function RegisterScreen() {
                 <Text style={styles.label}>Password</Text>
                 <View style={{ position: 'relative', justifyContent: 'center' }}>
                   <TextInput
+                    ref={passwordRef}
                     style={styles.input}
                     placeholder="Min. 6 characters"
                     placeholderTextColor="#94A3B8"
@@ -256,6 +271,9 @@ export default function RegisterScreen() {
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                     editable={!loading}
                   />
                   <TouchableOpacity 
@@ -292,6 +310,7 @@ export default function RegisterScreen() {
                 <Text style={styles.label}>Confirm Password</Text>
                 <View style={{ position: 'relative', justifyContent: 'center' }}>
                   <TextInput
+                    ref={confirmPasswordRef}
                     style={styles.input}
                     placeholder="Repeat your password"
                     placeholderTextColor="#94A3B8"
@@ -299,6 +318,8 @@ export default function RegisterScreen() {
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showConfirmPassword}
                     autoCapitalize="none"
+                    returnKeyType="next"
+                    onSubmitEditing={handleNext}
                     editable={!loading}
                   />
                   <TouchableOpacity 
@@ -329,34 +350,54 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
+                  ref={firstNameRef}
                   style={styles.input}
                   placeholder="e.g. Elijah"
                   placeholderTextColor="#94A3B8"
                   value={firstName}
                   onChangeText={setFirstName}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => surnameRef.current?.focus()}
+                  editable={!loading}
                 />
               </View>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Surname</Text>
                 <TextInput
+                  ref={surnameRef}
                   style={styles.input}
                   placeholder="e.g. Bennett"
                   placeholderTextColor="#94A3B8"
                   value={surname}
                   onChangeText={setSurname}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => phoneRef.current?.focus()}
+                  editable={!loading}
                 />
               </View>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Phone Number</Text>
                 <TextInput
+                  ref={phoneRef}
                   style={styles.input}
                   placeholder="e.g. +1 555-0199"
                   placeholderTextColor="#94A3B8"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
+                  returnKeyType="next"
+                  onSubmitEditing={() => {
+                    if (firstName && surname && phoneNumber && gender) {
+                      handleNext();
+                    } else {
+                      Keyboard.dismiss();
+                    }
+                  }}
+                  editable={!loading}
                 />
               </View>
 
@@ -438,11 +479,15 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Physical Address</Text>
                 <TextInput
+                  ref={addressRef}
                   style={styles.input}
                   placeholder="e.g. 77 Scripture Lane, Glory Town"
                   placeholderTextColor="#94A3B8"
                   value={address}
                   onChangeText={setAddress}
+                  returnKeyType="done"
+                  onSubmitEditing={handleRegister}
+                  editable={!loading}
                 />
               </View>
 

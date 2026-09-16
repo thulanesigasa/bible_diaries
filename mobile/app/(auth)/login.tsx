@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -22,6 +22,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
+  const passwordRef = useRef<TextInput>(null);
+
   const { showToast } = useApp();
   const router = useRouter();
 
@@ -91,6 +93,9 @@ export default function LoginScreen() {
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => passwordRef.current?.focus()}
                 editable={!loading}
               />
             </View>
@@ -99,6 +104,7 @@ export default function LoginScreen() {
               <Text style={styles.label}>Password</Text>
               <View style={{ position: 'relative', justifyContent: 'center' }}>
                 <TextInput
+                  ref={passwordRef}
                   style={styles.input}
                   placeholder="Enter password"
                   placeholderTextColor="#94A3B8"
@@ -106,6 +112,8 @@ export default function LoginScreen() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
+                  returnKeyType="done"
+                  onSubmitEditing={handleLogin}
                   editable={!loading}
                 />
                 <TouchableOpacity 
