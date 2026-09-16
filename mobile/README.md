@@ -108,10 +108,10 @@ npm run ios       # Open on iOS simulator (macOS only)
 
 ### 4. One-time EAS Setup (for CI/CD)
 
-The app is linked to the EAS project **`@pharez101/bible-diaries`** (Project ID: `fe39d2bf-81e4-4901-8583-caadeb91cc1c`).
+The app is linked to the EAS project **`@thulanesigasa0/bible-diaries`** (Project ID: `fe39d2bf-81e4-4901-8583-caadeb91cc1c`).
 
 To enable GitHub Actions CI/CD to publish OTA updates and build APKs:
-1. Go to your Expo Access Tokens page: [expo.dev/accounts/pharez101/settings/access-tokens](https://expo.dev/accounts/pharez101/settings/access-tokens)
+1. Go to your Expo Access Tokens page: [expo.dev/accounts/thulanesigasa0/settings/access-tokens](https://expo.dev/accounts/thulanesigasa0/settings/access-tokens)
 2. Create a new Personal Access Token with read/write permissions.
 3. Add the token to GitHub repository secrets:
    - Go to **GitHub Repository → Settings → Secrets and variables → Actions**
