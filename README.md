@@ -16,9 +16,9 @@ Content integrity and an uplifting environment are maintained through automated 
 
 ## Key Features
 
-1. **User Authentication & Two-Part Phone Verification**:
+1. **User Authentication & All 54 African Countries Phone Verification**:
    - Secure sign-up and authentication powered by Supabase Auth.
-   - Two-part phone input with country code dropdown picker (e.g. +27 South Africa default) and automatic leading zero stripping to prevent database duplicate codes.
+   - Two-part phone input supporting all 54 sovereign African continent countries and international diaspora options, with automatic leading zero stripping to prevent database duplicate dial codes.
    - Comprehensive profile management: testimony, favorite scripture verse, spiritual journey, avatar photo, and privacy toggles.
 
 2. **Global Reflections Feed**:
@@ -36,12 +36,12 @@ Content integrity and an uplifting environment are maintained through automated 
    - Direct real-time encrypted messaging between registered members.
 
 5. **Brand Identity & Calibrated Icons**:
-   - High-fidelity Bible Diaries custom brand icon scaled down by 45% with generous circular safe zones to prevent launcher clipping.
+   - High-fidelity Bible Diaries custom brand icon centered with 65% safe padding matching Samsung One UI, Ride Go, and Android squircle guidelines.
    - Android adaptive launcher icon (transparent foreground safe-zone centered, crisp white background, and monochrome silhouette).
    - Multi-resolution web favicons (`favicon.ico`, `favicon.png`, `apple-touch-icon`).
 
-6. **Unified Settings Experience**:
-   - Continuous body layout integrating personal details, two-part phone number, spiritual walk, privacy toggles, bookmarks quick access, and sign out without fragmented tab switching.
+6. **Unified Single-Body Settings**:
+   - Seamless continuous body design eliminating fragmented card divs and boxes, integrating personal details, two-part phone number, spiritual walk, privacy toggles, bookmarks quick access, and sign out in one cohesive container.
 
 ---
 
