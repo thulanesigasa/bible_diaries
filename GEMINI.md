@@ -196,17 +196,18 @@ The default `GITHUB_TOKEN` injected into GitHub Actions runners operates with re
 
 ---
 
-## 10. In-App OTA Update Continuity & Runtime Version Pinning
+## 10. In-App OTA Update Continuity, Dual Channels & Runtime Version Pinning
 
 ### User Requirement:
 The user specifically mandates seamless in-app Over-The-Air (OTA) updates: upon opening or refocusing the installed mobile application, users must receive the in-app `<UpdateModal>` popup ("Update Available"), tap **"Update Now"**, and have all new features, components, screens, and styles applied instantly in-place without manually downloading or reinstalling an APK.
 
-### Root Cause of Missing OTA Popups:
-When `runtimeVersion` is configured as `{ "policy": "appVersion" }` in `app.json`, Expo strictly bins updates by the exact version string. If `version` is bumped from `1.0.1` to `1.0.2` or any higher number, client devices on `1.0.1` query Expo for `runtimeVersion: 1.0.1` and will be told no updates exist.
+### Root Causes of Missing OTA Popups:
+1. **Runtime Version Mismatch**: When `runtimeVersion` is configured as `{ "policy": "appVersion" }` in `app.json`, Expo strictly bins updates by the exact version string. If `version` is bumped from `1.0.0` to `1.0.1`, client devices on `1.0.0` query Expo for `runtimeVersion: 1.0.0` and are told no updates exist.
+2. **Channel Mismatch**: Sideloaded APKs built with `--profile preview` listen on the `preview` update channel. When CI/CD publishes only to `--branch production`, devices on the `preview` channel never see the update.
 
 ### Mandatory Rules:
-1. **Pin Version to `1.0.1` for Ongoing Development**: Do NOT increment the `version` field in `mobile/app.json` or `mobile/package.json` for regular UI, styling, screens, assets, or feature enhancements.
-2. **Foreground Re-check Guard**: `useOTAUpdate` must check for updates both on initial component mount and on `AppState` transitions to `active`, so returning to the app immediately displays the popup without requiring a force-restart.
-3. **Continuous OTA Distribution**: All pushes to `main` touching `mobile/**` will publish to the production EAS channel with `Runtime version: 1.0.1`, guaranteeing all installed `v1.0.1` clients automatically receive the update prompt.
+1. **Pin Version to `1.0.0` for Installed Client Compatibility**: Keep `version: "1.0.0"` in `mobile/app.json` and `mobile/package.json` to match the installed client base's runtime version (`1.0.0`).
+2. **Publish to Both Channels (`production` & `preview`)**: In `.github/workflows/ota-update.yml`, execute `eas update --channel production` AND `eas update --channel preview`. This ensures that every installed binary, regardless of whether it listens to `preview` or `production`, receives the update.
+3. **Foreground Re-check Guard**: `useOTAUpdate` must check for updates both on initial component mount and on `AppState` transitions to `active`, so returning to the app immediately displays the popup without requiring a force-restart.
 
 
