@@ -1,8 +1,43 @@
 ﻿# Project Rules & Bundling Guidelines (Bible Diaries)
 
-This document establishes the official project-specific development rules, detailing historical errors logged during mobile app bundling, Expo EAS setup, and CI/CD automation, along with strict architectural rules to ensure seamless development and error-free builds moving forward.
+This document establishes the official project-specific development rules, detailing documentation standards, historical errors logged during mobile app bundling, Expo EAS setup, and CI/CD automation, along with strict architectural rules to ensure seamless development and error-free builds moving forward.
 
 ---
+
+# Part 1: README Standards & Project Documentation Rules
+
+### Rule 1: Application Name & Purpose Mandate
+- Every `README.md` must feature the official application name as the primary `<h1>` header at the very top.
+- Immediately below the title, provide a concise explanation of the application purpose, its core philosophy, target audience, and the problem it solves.
+
+### Rule 2: Strictly Prohibit Emojis — Use Badges Only
+- **Never use emojis in any `README.md` file** under any circumstances (no emojis in headings, lists, badges, or body text).
+- Use flat-square visual badges (e.g. from shields.io) to visually represent:
+  - Platforms (Web, Android, iOS)
+  - Frameworks (Next.js 16, Expo SDK 57, React 19)
+  - Languages (TypeScript, JavaScript)
+  - Backend & Databases (Supabase, PostgreSQL)
+  - CI/CD & Build Statuses (GitHub Actions workflows)
+  - Licenses (MIT)
+
+### Rule 3: Mandatory Architecture & Directory Structure
+- Every project and sub-project README must include a clean ASCII directory structure diagram.
+- The diagram must clearly display the core folders, routes, components, libraries, configuration files, and assets so that any engineer can orient themselves immediately.
+
+### Rule 4: Comprehensive Step-by-Step "How to Run" Guide
+- Every README must include a dedicated execution guide detailing:
+  1. Prerequisites (Node.js versions, database accounts, external API keys)
+  2. Dependency installation (`npm install`)
+  3. Environment variable setup (`.env.local` or `.env` examples)
+  4. Backend/Database initialization (SQL scripts, migrations)
+  5. Exact start command (`npm run dev` for web, `npm start` / `npm run android` for Expo mobile)
+
+### Rule 5: Continuous Maintenance
+- `README.md` must be updated whenever a new feature, component, API route, or directory is introduced. It must never become stale.
+
+---
+
+# Part 2: Mobile App Bundling, EAS & CI/CD Error Prevention Rules
 
 ## 1. Build-Time Environment Safety (No Fatal Module-Level Throws)
 
