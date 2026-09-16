@@ -79,7 +79,7 @@ jobs:
       - name: Extract APK URL and Release Tag
         id: meta
         run: |
-          APK_URL=$(node -e "const b=require('../build-output.json'); console.log(b[0].artifacts.buildUrl || b[0].artifactUrl || '')")
+          APK_URL=$(node -e "const raw=require('../build-output.json'); const b=Array.isArray(raw)?raw[0]:raw; console.log((b.artifacts&&b.artifacts.buildUrl)||(b.artifacts&&b.artifacts.applicationArchiveUrl)||b.artifactUrl||'')")
           echo "apk_url=$APK_URL" >> $GITHUB_OUTPUT
           TAG="${{ github.event.inputs.version || github.ref_name }}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
