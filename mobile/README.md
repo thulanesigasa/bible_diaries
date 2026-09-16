@@ -17,9 +17,10 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Support & Interaction** — Bookmark entries and like reflections
 - **Fellowship Directory** — Browse community member profiles
 - **Private Direct Messaging** — Real-time encrypted messages between members
-- **Account Profiles & Settings** — Manage testimony, scripture, avatar, and privacy
+- **Unified Settings Experience** — Settings integrated directly in the body (Personal details, Spiritual journey, Preferences toggles, Bookmarks, and Account actions)
+- **Two-Part Phone Input with Country Code Picker** — Dedicated country code selector modal + input with automatic leading-0 stripping for database integrity
 - **Dynamic Initials Avatars** — Auto-renders initials when no profile picture is set
-- **Brand Identity & Adaptive Icons** — Authentic custom Bible logo, Android adaptive foreground/background launcher icon, and web favicons
+- **Calibrated Brand & Adaptive Icons** — Authentic custom Bible logo scaled down by 45% with generous circular safe zones to prevent launcher clipping
 - **Multi-Step Auth Flow & Keyboard Navigation** — Multi-step registration (Account, Personal Details, Profile Setup) with Android soft keyboard `Next` / `Sign In` action labels, step auto-advance, and instant auto-focus on step transitions
 - **OTA Updates** — In-app popup when a new version is available; updates without reinstall
 
@@ -31,13 +32,15 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 mobile/
 ├── app/                   # Expo Router file-based routes
 │   ├── (auth)/            # Authentication screens (login, register)
-│   ├── (tabs)/            # Main tab navigator
+│   ├── (tabs)/            # Main tab navigator (feed, connect, settings, etc.)
 │   ├── chat/              # Direct message thread screens
 │   ├── post/              # Individual reflection screens
 │   ├── profile/           # Member profile screens
 │   └── _layout.tsx        # Root layout — mounts UpdateModal & AppContext
 ├── assets/                # Fonts, icons, splash images
 ├── components/
+│   ├── Avatar.tsx         # Initials / picture avatar component
+│   ├── PhoneInput.tsx     # Country code selector & number input
 │   └── UpdateModal.tsx    # OTA update prompt modal
 ├── constants/             # App-wide constants (colors, spacing)
 ├── src/
