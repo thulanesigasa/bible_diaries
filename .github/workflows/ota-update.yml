@@ -52,12 +52,16 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # 6. Publish OTA update to the production channel
-      #    The commit SHA is used as the update message for traceability.
+      # 6. Publish OTA update to both production and preview channels
+      #    Ensures installed APKs listening to either channel receive the bundle.
       - name: Publish OTA bundle
         run: |
           eas update \
-            --branch production \
+            --channel production \
+            --message "OTA: ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
+            --non-interactive
+          eas update \
+            --channel preview \
             --message "OTA: ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
             --non-interactive
         env:
