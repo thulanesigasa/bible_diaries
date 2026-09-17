@@ -12,7 +12,7 @@ App icon emerges with soft celestial glow: "Where Believers Reflect & Connect." 
 ## Key moments (the middle)
 - **Authentic Scripture Reflection Card**: Proverbs 3:5-6 "Trust in the Lord with all your heart..." with author verification badge, category tag ("Wisdom"), and interactive likes/comments.
 - **Spiritual Categories**: Animated entrance of category chips — Hope, Faith, Love, Strength, Gratitude, and Wisdom.
-- **The Floating Pill Navigation Standard**: The signature 280px curved pill tab bar horizontally centered at the bottom with Lucide icons and active glowing indicator dot.
+- **The Floating Pill Navigation Standard**: The signature 280px curved pill tab bar horizontally centered at the bottom with plain-text tab labels and active indicator dot.
 
 ## Outro / punchline
 "Bible Diaries Mobile. Aligning hearts everywhere." Followed by "Available on Android & iOS".
@@ -31,9 +31,9 @@ App icon emerges with soft celestial glow: "Where Believers Reflect & Connect." 
 ## Duration: 18.0s
 
 ## Visual identity (from the project)
-- Background: #0F172A (Deep Slate Navy) / #F8FAFC (Clean Surface)
+- Background: #FFFFFF (Clean White) / #F8FAFC (Surface Cards)
 - Accent: #0EA5E9 (Sky Blue)
-- Text: #FFFFFF / #0F172A
+- Text: #0F172A (Deep Slate) / #64748B (Muted Slate)
 - Display font: SpaceMono
 - Body font: Inter, system-ui, sans-serif
 - Strongest visual element: 280px floating pill tab bar with active indicator dot and verified scripture card.

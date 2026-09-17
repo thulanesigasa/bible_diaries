@@ -38,9 +38,10 @@ Create a short, polished launch-style brag video for Bible Diaries Mobile.
   - Rainbow status colors
 
 ## Visual Identity
-- Background: #0F172A (Deep Slate Navy) with smooth radial gradient (#1E293B)
-- Surface: #FFFFFF (Clean White Cards)
-- Text Primary: #FFFFFF on dark, #0F172A on cards
+- Background: #FFFFFF (Clean White) with subtle soft vignette
+- Surface: #F8FAFC / #FFFFFF (Pure White Cards with soft hairline borders)
+- Text Primary: #0F172A (Deep Slate)
+- Icons/Graphics: None (Strictly Plain Text Typography, Zero SVGs, Zero Emojis)
 - Text Secondary: #94A3B8 / #64748B
 - Accent: #0EA5E9 (Sky Blue)
 - Display font: SpaceMono (assets/fonts/SpaceMono-Regular.ttf)
