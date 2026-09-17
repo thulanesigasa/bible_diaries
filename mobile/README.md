@@ -25,7 +25,7 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Floating Pill Tab Navigation (`/tabs`)** - Bounded 280px curved pill bar with dynamic horizontal centering, compact 50px height, active indicator dot, 16px Lucide icons, and flat white header standard
 - **Multi-Step Auth Flow & Keyboard Navigation** - Multi-step registration (Account, Personal Details, Profile Setup) with Android soft keyboard `Next` / `Sign In` action labels, step auto-advance, and instant auto-focus on step transitions
 - **Dual-Channel OTA Updates** - Instant in-app update prompt `<UpdateModal>` delivered via Over-The-Air bundles across `production` and `preview` channels
-- **Launch Video Showcase (`/brag`)** - Full 18-second 1080x1920 vertical launch video (`brag-output/brag.mp4`) with baked frame 0 poster, beat-synced soundtrack, verified WCAG AA contrast, and social copy
+- **Launch Video Showcase (`/brag`)** - Full 18-second 1080x1920 vertical launch video (`brag-output/brag.mp4`) with baked frame 0 poster, beat-synced soundtrack, clean white background, plain-text typography with zero SVGs or emojis, verified WCAG AA contrast, and social copy
 
 ---
 
