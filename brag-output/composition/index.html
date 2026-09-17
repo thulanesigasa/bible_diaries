@@ -1,0 +1,472 @@
+﻿<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Bible Diaries — Launch Showcase</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #FFFFFF;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #0F172A;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.05) 0%, rgba(255, 255, 255, 1) 70%);
+      }
+
+      /* Ambient Soft Vignette */
+      .ambient-glow {
+        position: absolute;
+        width: 1200px;
+        height: 800px;
+        left: 360px;
+        top: 140px;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      /* Scenes */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+        will-change: transform, opacity;
+      }
+
+      /* Scene 1: Hook */
+      #scene-1 {
+        z-index: 10;
+      }
+      .logo-box {
+        width: 150px;
+        height: 150px;
+        border-radius: 38px;
+        background: #FFFFFF;
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 40px;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+      }
+      .logo-img {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+      }
+      .hook-title {
+        font-size: 72px;
+        font-weight: 700;
+        color: #0F172A;
+        letter-spacing: -1.5px;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .hook-tagline {
+        font-size: 28px;
+        font-weight: 600;
+        color: #0369A1;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      .hook-sub {
+        font-size: 20px;
+        font-weight: 400;
+        color: #475569;
+        text-align: center;
+        max-width: 800px;
+        line-height: 1.6;
+      }
+
+      /* Scene 2: Feed & Card */
+      #scene-2 {
+        z-index: 20;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .scene-header-eyebrow {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0369A1;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        margin-bottom: 28px;
+        text-align: center;
+      }
+      .reflection-card {
+        width: 1200px;
+        background: #FFFFFF;
+        border-radius: 24px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.08);
+        padding: 48px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        padding-bottom: 20px;
+      }
+      .author-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .author-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0F172A;
+      }
+      .author-meta {
+        font-size: 16px;
+        color: #475569;
+      }
+      .category-label {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0369A1;
+      }
+      .scripture-body {
+        border-left: 4px solid #0369A1;
+        padding-left: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .scripture-ref {
+        font-size: 26px;
+        font-weight: 700;
+        color: #0F172A;
+      }
+      .scripture-text {
+        font-size: 23px;
+        font-weight: 400;
+        line-height: 1.6;
+        color: #334155;
+      }
+      .card-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 12px;
+      }
+      .action-pills {
+        display: flex;
+        gap: 16px;
+      }
+      .pill-text {
+        background: #F8FAFC;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        color: #0F172A;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 10px 22px;
+        border-radius: 12px;
+      }
+      .share-link {
+        font-size: 17px;
+        font-weight: 600;
+        color: #0369A1;
+      }
+
+      /* Scene 3: Categories & Fellowship */
+      #scene-3 {
+        z-index: 30;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .scene-3-title {
+        font-size: 44px;
+        font-weight: 700;
+        color: #0F172A;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .scene-3-sub {
+        font-size: 20px;
+        font-weight: 400;
+        color: #475569;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+      .categories-row {
+        display: flex;
+        gap: 18px;
+        margin-bottom: 48px;
+        justify-content: center;
+      }
+      .cat-pill {
+        padding: 14px 32px;
+        border-radius: 14px;
+        font-size: 18px;
+        font-weight: 600;
+        background: #FFFFFF;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        color: #334155;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+      }
+      .cat-pill.active {
+        background: #0369A1;
+        color: #FFFFFF;
+        border-color: #0369A1;
+        font-weight: 700;
+        box-shadow: 0 8px 24px rgba(3, 105, 161, 0.25);
+      }
+      .features-row {
+        display: flex;
+        gap: 32px;
+        width: 1280px;
+      }
+      .feature-card {
+        flex: 1;
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+        padding: 36px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .feature-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0F172A;
+      }
+      .feature-desc {
+        font-size: 18px;
+        font-weight: 400;
+        color: #475569;
+        line-height: 1.6;
+      }
+
+      /* Scene 4: Outro */
+      #scene-4 {
+        z-index: 40;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .outro-box {
+        width: 160px;
+        height: 160px;
+        border-radius: 40px;
+        background: #FFFFFF;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 36px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+      }
+      .outro-img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+      }
+      .outro-title {
+        font-size: 76px;
+        font-weight: 700;
+        color: #0F172A;
+        letter-spacing: -1.5px;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .outro-tagline {
+        font-size: 32px;
+        font-weight: 600;
+        color: #0369A1;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .outro-claim {
+        font-size: 24px;
+        font-weight: 400;
+        color: #475569;
+        margin-bottom: 36px;
+        text-align: center;
+      }
+      .outro-pillars {
+        font-size: 18px;
+        font-weight: 600;
+        color: #475569;
+        letter-spacing: 1.5px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="18"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="ambient-glow" id="glow"></div>
+
+      <!-- Audio Layer -->
+      <audio id="bgm" data-start="0" data-track-index="1" data-volume="0.8" src="assets/music/music.mp3"></audio>
+      <audio id="sfx-switch1" data-start="0.6" data-track-index="2" data-volume="0.5" src="assets/sfx/switch1.ogg"></audio>
+      <audio id="sfx-click1" data-start="3.55" data-track-index="3" data-volume="0.6" src="assets/sfx/click1.ogg"></audio>
+      <audio id="sfx-switch3" data-start="8.73" data-track-index="4" data-volume="0.5" src="assets/sfx/switch3.ogg"></audio>
+      <audio id="sfx-rollover1" data-start="14.20" data-track-index="5" data-volume="0.5" src="assets/sfx/rollover1.ogg"></audio>
+
+      <!-- Scene 1: Hook -->
+      <div class="scene" id="scene-1" data-layout-allow-overlap>
+        <div class="logo-box" id="s1-logo">
+          <img class="logo-img" src="assets/logo-hook.png" alt="Bible Diaries Hook Logo" />
+        </div>
+        <h1 class="hook-title" id="s1-title">Bible Diaries</h1>
+        <p class="hook-tagline" id="s1-tagline">Where Believers Reflect & Connect</p>
+        <p class="hook-sub" id="s1-sub">A sacred sanctuary for daily spiritual journaling, scripture reflections, and fellowship worldwide.</p>
+      </div>
+
+      <!-- Scene 2: Feed Reflection -->
+      <div class="scene" id="scene-2" data-layout-allow-overlap>
+        <div class="scene-header-eyebrow" id="s2-eyebrow">Daily Scripture Reflections</div>
+        <div class="reflection-card" id="s2-card">
+          <div class="card-top">
+            <div class="author-info">
+              <div class="author-name">Grace Mwangi</div>
+              <div class="author-meta">Reflected today</div>
+            </div>
+            <div class="category-label">Theme: Wisdom</div>
+          </div>
+          <div class="scripture-body">
+            <div class="scripture-ref">Proverbs 3:5-6</div>
+            <div class="scripture-text">"Trust in the Lord with all your heart, and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight."</div>
+          </div>
+          <div class="card-actions">
+            <div class="action-pills">
+              <span class="pill-text" id="s2-likes">42 Likes</span>
+              <span class="pill-text">8 Notes</span>
+              <span class="pill-text">Saved</span>
+            </div>
+            <div class="share-link">Share Reflection</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3: Categories & Fellowship -->
+      <div class="scene" id="scene-3" data-layout-allow-overlap>
+        <h2 class="scene-3-title" id="s3-title">Reflect by Spiritual Themes</h2>
+        <p class="scene-3-sub" id="s3-sub">Explore journal entries categorized to uplift your spiritual walk.</p>
+        <div class="categories-row">
+          <div class="cat-pill" id="cat-1">Hope</div>
+          <div class="cat-pill" id="cat-2">Faith</div>
+          <div class="cat-pill" id="cat-3">Love</div>
+          <div class="cat-pill" id="cat-4">Strength</div>
+          <div class="cat-pill" id="cat-5">Gratitude</div>
+          <div class="cat-pill active" id="cat-6">Wisdom</div>
+        </div>
+        <div class="features-row">
+          <div class="feature-card" id="feat-1">
+            <div class="feature-title">AI Sanctuary Moderation</div>
+            <div class="feature-desc">Every reflection is screened in real time via OpenAI Moderation API to ensure a holy, encouraging, and respectful environment for all believers.</div>
+          </div>
+          <div class="feature-card" id="feat-2">
+            <div class="feature-title">Global Fellowship & Direct Chat</div>
+            <div class="feature-desc">Connect privately and openly with believers across Africa and worldwide. Share prayer requests, testimonies, and scripture encouragement.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 4: Outro -->
+      <div class="scene" id="scene-4" data-layout-allow-overlap>
+        <div class="outro-box" id="s4-logo">
+          <img class="outro-img" src="assets/logo-outro.png" alt="Bible Diaries Outro Logo" />
+        </div>
+        <h2 class="outro-title" id="s4-title">Bible Diaries</h2>
+        <p class="outro-tagline" id="s4-tagline">Where Believers Reflect & Connect</p>
+        <p class="outro-claim" id="s4-claim">Aligning hearts everywhere.</p>
+        <div class="outro-pillars" id="s4-pillars">Scripture Journaling &bull; AI Sanctuary Moderation &bull; Global Fellowship</div>
+      </div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // Master timing: 18.0s total duration
+      // Scene 1: 0.0s - 3.5s
+      tl.fromTo("#s1-logo", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power2.out" }, 0.2);
+      tl.fromTo("#s1-title", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" }, 0.6);
+      tl.fromTo("#s1-tagline", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 1.2);
+      tl.fromTo("#s1-sub", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.8);
+      tl.to("#scene-1", { opacity: 0, scale: 0.96, duration: 0.45, ease: "power2.in" }, 3.1);
+
+      // Scene 2: 3.5s - 8.5s // beat-locked: 3.55s
+      tl.set("#scene-2", { opacity: 1, pointerEvents: "auto" }, 3.55);
+      tl.fromTo("#s2-eyebrow", { y: -16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 3.55);
+      tl.fromTo("#s2-card", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 3.75);
+      tl.fromTo("#s2-likes", { scale: 0.95 }, { scale: 1.08, duration: 0.25, yoyo: true, repeat: 1, ease: "power1.inOut" }, 5.5);
+      tl.to("#scene-2", { opacity: 0, y: -30, duration: 0.45, ease: "power2.in" }, 8.28);
+
+      // Scene 3: 8.5s - 14.0s // beat-locked: 8.73s
+      tl.set("#scene-3", { opacity: 1, pointerEvents: "auto" }, 8.73);
+      tl.fromTo("#s3-title", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 8.73);
+      tl.fromTo("#s3-sub", { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 9.0);
+      
+      // Category pills cascade // beat-grid
+      tl.fromTo("#cat-1", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 9.27);
+      tl.fromTo("#cat-2", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 9.54);
+      tl.fromTo("#cat-3", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 9.81);
+      tl.fromTo("#cat-4", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 10.08);
+      tl.fromTo("#cat-5", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 10.36);
+      tl.fromTo("#cat-6", { y: 16, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.4)" }, 10.63);
+
+      tl.fromTo("#feat-1", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 11.2);
+      tl.fromTo("#feat-2", { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 11.4);
+      tl.to("#scene-3", { opacity: 0, scale: 0.96, duration: 0.45, ease: "power2.in" }, 13.75);
+
+      // Scene 4: 14.0s - 18.0s // beat-locked: 14.20s
+      tl.set("#scene-4", { opacity: 1, pointerEvents: "auto" }, 14.20);
+      tl.fromTo("#s4-logo", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7, ease: "power3.out" }, 14.20);
+      tl.fromTo("#s4-title", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 14.6);
+      tl.fromTo("#s4-tagline", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 15.1);
+      tl.fromTo("#s4-claim", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 15.6);
+      tl.fromTo("#s4-pillars", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 16.2);
+
+      // Hyperframes Timeline Registry Contract
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+
+      // Hyperframes Seek API Contract
+      window.hyperframes = {
+        duration: 18.0,
+        fps: 30,
+        seek: (t) => {
+          tl.seek(t, false);
+        }
+      };
+    </script>
+  </body>
+</html>
