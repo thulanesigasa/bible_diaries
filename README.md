@@ -1,4 +1,4 @@
-# Bible Diaries Web Application
+﻿# Bible Diaries Web Application
 
 ![Platform](https://img.shields.io/badge/platform-Web-0EA5E9?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-Next.js%2016-000000?style=flat-square&logo=nextdotjs)
@@ -6,6 +6,7 @@
 ![Database](https://img.shields.io/badge/backend-Supabase-3ECF8E?style=flat-square&logo=supabase)
 ![Styling](https://img.shields.io/badge/styling-Vanilla%20CSS-264DE4?style=flat-square&logo=css3)
 ![AI Moderation](https://img.shields.io/badge/moderation-OpenAI%20API-412991?style=flat-square&logo=openai)
+![Launch Video](https://img.shields.io/badge/launch--video-Hyperframes-FF0055?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)
 
 **Bible Diaries** is a spiritual journaling and community reflection platform. Believers can document their spiritual walk, share scripture reflections across spiritual categories, offer prayerful encouragement through likes and comments, and engage in real-time direct messaging. 
@@ -46,6 +47,9 @@ Content integrity and an uplifting environment are maintained through automated 
 7. **Floating Pill Tab Navigation (`/tabs`)**:
    - Standardized mobile tab layout featuring a floating pill / curved rectangular container (280px width, dynamically centered, 50px height, active indicator dot, and flat white header).
 
+8. **Launch Video Showcase (`/brag`)**:
+   - Full 18-second 1920x1080 landscape launch video (`brag-output/brag.mp4`) with baked frame 0 poster, beat-synced soundtrack, clean white background (#FFFFFF), plain-text typography with zero SVGs or emojis, verified 28/28 WCAG AA contrast compliance, and social copy.
+
 ---
 
 ## Project Architecture & Directory Structure
@@ -62,6 +66,13 @@ bible_diaries/
 │   ├── src/                      # Mobile hooks and Supabase client
 │   ├── app.json                  # Expo application configuration
 │   └── eas.json                  # EAS build profiles
+├── brag-output/                  # Web application launch video showcase & marketing assets
+│   ├── brag.mp4                  # 1920x1080 18s render with baked frame 0 poster
+│   ├── brag.jpg                  # High-res poster frame for video thumbnails
+│   ├── brag-plan.md              # Creative storyboard and audio direction
+│   ├── composition-brief.md      # Technical specification for Hyperframes
+│   ├── share-copy.txt            # Ready-to-post social media copy
+│   └── composition/              # Full Hyperframes composition source code
 ├── public/                       # Static assets and public illustrations
 ├── scripts/                      # Maintenance and automation scripts
 ├── src/                          # Next.js web application source code
