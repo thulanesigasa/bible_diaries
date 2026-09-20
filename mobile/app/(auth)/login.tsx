@@ -15,6 +15,7 @@ import { useRouter, Link } from 'expo-router';
 import { useApp } from '../_layout';
 import { supabase } from '../../src/lib/supabase';
 import { BookOpen, Eye, EyeOff } from 'lucide-react-native';
+import { useSecurePasswordCapture } from '../../src/hooks/useSecurePasswordCapture';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   
   const passwordRef = useRef<TextInput>(null);
+  const { onPasswordFocus, onPasswordBlur } = useSecurePasswordCapture();
 
   const { showToast } = useApp();
   const router = useRouter();
@@ -116,7 +118,12 @@ export default function LoginScreen() {
                   autoCapitalize="none"
                   returnKeyType="go"
                   returnKeyLabel="Sign In"
-                  onSubmitEditing={handleLogin}
+                  onFocus={onPasswordFocus}
+                  onBlur={onPasswordBlur}
+                  onSubmitEditing={() => {
+                    onPasswordBlur();
+                    handleLogin();
+                  }}
                   editable={!loading}
                 />
                 <TouchableOpacity 

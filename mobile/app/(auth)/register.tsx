@@ -19,6 +19,7 @@ import { BookOpen, Check, Eye, EyeOff, Camera } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 import PhoneInput from '../../components/PhoneInput';
 import * as ImagePicker from 'expo-image-picker';
+import { useSecurePasswordCapture } from '../../src/hooks/useSecurePasswordCapture';
 
 // Colour palettes
 const MALE_ACCENT   = '#0EA5E9';  // blue
@@ -26,6 +27,7 @@ const FEMALE_ACCENT = '#EC4899';  // pink
 
 export default function RegisterScreen() {
   const [step, setStep] = useState(1);
+  const { onPasswordFocus, onPasswordBlur } = useSecurePasswordCapture();
   
   // Field states
   const [email, setEmail] = useState('');
@@ -158,6 +160,7 @@ export default function RegisterScreen() {
         confirmPasswordRef.current?.focus();
         return;
       }
+      onPasswordBlur();
       setStep(2);
     } else if (step === 2) {
       if (!firstName) {
@@ -325,6 +328,8 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     returnKeyLabel="Next"
                     blurOnSubmit={false}
+                    onFocus={onPasswordFocus}
+                    onBlur={onPasswordBlur}
                     onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                     editable={!loading}
                   />
@@ -373,7 +378,12 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     returnKeyLabel="Next"
                     blurOnSubmit={false}
-                    onSubmitEditing={handleNext}
+                    onFocus={onPasswordFocus}
+                    onBlur={onPasswordBlur}
+                    onSubmitEditing={() => {
+                      onPasswordBlur();
+                      handleNext();
+                    }}
                     editable={!loading}
                   />
                   <TouchableOpacity 

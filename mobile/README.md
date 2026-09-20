@@ -1,4 +1,4 @@
-﻿# Bible Diaries Mobile App
+# Bible Diaries Mobile App
 
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-0EA5E9?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-Expo%20SDK%2057-000020?style=flat-square&logo=expo)
@@ -24,6 +24,7 @@ A premium spiritual journaling mobile application built with **Expo** and **Reac
 - **Calibrated Launcher & Adaptive Icons** - Brand book icon centered with 72% clean white breathing room on 512x512 canvas matching Samsung One UI squircle guidelines to prevent clipping, decoupled from crisp 800px in-app brand icons
 - **Floating Pill Tab Navigation (`/tabs`)** - Bounded 280px curved pill bar with dynamic horizontal centering, compact 50px height, active indicator dot, 16px Lucide icons, and flat white header standard
 - **Multi-Step Auth Flow & Keyboard Navigation** - Multi-step registration (Account, Personal Details, Profile Setup) with Android soft keyboard `Next` / `Sign In` action labels, step auto-advance, and instant auto-focus on step transitions
+- **Password Screen-Recording Protection** - Dynamic hardware-level protection (`FLAG_SECURE` via `expo-screen-capture`). When the user focuses on password or confirm password fields, screen recorders and screen-sharing tools automatically capture a solid black/blank screen to safeguard credentials, while normal recording is preserved across the rest of the application
 - **Dual-Channel OTA Updates** - Instant in-app update prompt `<UpdateModal>` delivered via Over-The-Air bundles across `production` and `preview` channels
 - **Launch Video Showcase (`/brag`)** - Full 18-second 1080x1920 vertical launch video (`brag-output/brag.mp4`) with baked frame 0 poster, beat-synced soundtrack, clean white background, plain-text typography with zero SVGs or emojis, verified WCAG AA contrast, and social copy
 
@@ -55,7 +56,8 @@ mobile/
 ├── constants/               # App-wide constants (colors, spacing)
 ├── src/
 │   ├── hooks/
-│   │   └── useOTAUpdate.ts  # Hook that checks and applies OTA bundles
+│   │   ├── useOTAUpdate.ts             # Hook that checks and applies OTA bundles
+│   │   └── useSecurePasswordCapture.ts # Dynamic FLAG_SECURE screen-recording protection
 │   └── lib/
 │       └── supabase.ts      # Supabase client singleton
 ├── app.json                 # Expo config (package name, OTA updates, runtimeVersion)

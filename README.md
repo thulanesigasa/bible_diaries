@@ -1,4 +1,4 @@
-﻿# Bible Diaries Web Application
+# Bible Diaries Web Application
 
 ![Platform](https://img.shields.io/badge/platform-Web-0EA5E9?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-Next.js%2016-000000?style=flat-square&logo=nextdotjs)
@@ -49,6 +49,9 @@ Content integrity and an uplifting environment are maintained through automated 
 
 8. **Launch Video Showcase (`/brag`)**:
    - Full 18-second 1920x1080 landscape launch video (`brag-output/brag.mp4`) with baked frame 0 poster, beat-synced soundtrack, clean white background (#FFFFFF), plain-text typography with zero SVGs or emojis, verified 28/28 WCAG AA contrast compliance, and social copy.
+
+9. **Password Screen-Recording Protection**:
+   - Hardware-level screen capture prevention (`FLAG_SECURE` via `expo-screen-capture`). Dynamically blacks out screen recordings and screenshots when the user focuses on password and confirm password inputs, ensuring sensitive credentials are never leaked in video recordings while preserving normal recording for the rest of the application.
 
 ---
 
