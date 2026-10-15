@@ -21,6 +21,8 @@ This is a standalone Next.js marketing website in `web/`. The existing root web 
 | `src/components/LaptopMockup.js` | Responsive illustrative desktop app inside a laptop frame, shown on the homepage and PC guide |
 | `src/components/Decorations.js` | Non-interactive crosses, rings, diamonds, dot patterns, guide lines and brand watermarks |
 | `src/app/api/waitlist/route.js` | Server-side POST handler |
+| `src/app/admin/`, `src/components/AdminDashboard.js` | Protected aggregate waiting-list dashboard and sign-in page |
+| `src/app/api/admin/`, `src/lib/admin.mjs` | Server-validated administrator authorization, login, stats and logout |
 | `src/lib/waitlist.mjs` | Validation, trusted-origin checks, IP hashing and database RPC |
 | `src/app/waitlist-privacy/` | Dedicated waitlist notice and removal instructions |
 | `src/app/robots.js`, `sitemap.js`, `opengraph-image.js` | Search and social metadata |
@@ -28,6 +30,7 @@ This is a standalone Next.js marketing website in `web/`. The existing root web 
 | `public/logo.webp` | Compressed website logo (about 81% smaller) |
 | `public/llm.txt`, `public/llms.txt` | Public app summary and information-page index |
 | `database/waitlist.sql` | Isolated subscriber and abuse-prevention schema |
+| `database/admin.sql` | Service-only aggregate stats and durable administrator login limits |
 | `tests/` | API and real Postgres-compatible database tests |
 
 ## Run locally
@@ -64,7 +67,9 @@ Rate limits allow five validated submissions per hashed IP per 15-minute window,
 
 ## Subscriber management
 
-Use the Supabase dashboard with authorised access to view `public.bible_diaries_waitlist`. No subscriber list or service-role key is exposed to the website. Platform values are `android`, `huawei`, `ios` and `any`.
+The protected dashboard at **`/admin`** shows signup totals, daily growth and platform preferences. It requires an explicitly approved, email-verified Supabase Auth account. See [admin setup and security](./docs/ADMIN_DASHBOARD.md) for server variables, SQL setup, session behaviour and verification. It shows aggregates only; it does not list subscriber addresses.
+
+Use the Supabase dashboard with authorised access when individual records need to be viewed or corrected in `public.bible_diaries_waitlist`. No subscriber list or service-role key is exposed to the website. Platform values are `android`, `huawei`, `ios` and `any`.
 
 Removal and correction requests go to the support address already used in the app: `support@ts-industries.com`. Process requests from the registered address, remove the record in the dashboard and exclude it from future launch mailings. Review and remove unneeded records after launch communications. An email delivery provider and automated mailing campaign are not included; configure them separately before sending launch emails.
 
@@ -85,6 +90,6 @@ Configure your Node-capable host with project root **`web`**, install command `n
 
 Production pages use per-response CSP nonces and server rendering, with private/no-store HTML responses so a shared cache cannot reuse a nonce. Production browser source maps are disabled. A canonical HTTPS redirect handles ingress requests marked `x-forwarded-proto: http`; the host must overwrite that header and provide valid TLS. HSTS is configured without applying it to unrelated subdomains. Set `APP_WEB_URL` only to the official HTTPS browser companion after it is deployed; the marketing site does not invent a live PC app address.
 
-No analytics or advertising tools are installed. The privacy-preferences panel stores only the local preference version and time, not an auth token. It has no effect on the separate app’s authentication storage or the visitor’s launch-email consent.
+No analytics or advertising tools are installed. The privacy-preferences panel stores only the local preference version and time, not an auth token. Signed-in administrators separately use a necessary HttpOnly session cookie. The panel has no effect on admin sign-out, the separate app’s authentication storage or the visitor’s launch-email consent.
 
 The website source is submitted through GitHub. No Sites hosting project is created. Keep any existing root-app deployment pointed at its original root unless you intentionally want to replace it with this marketing website.

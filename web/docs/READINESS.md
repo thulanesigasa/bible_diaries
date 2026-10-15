@@ -35,12 +35,12 @@ White is the main background, blue is the primary accent and pink appears in the
 
 | # | Requirement | Status and evidence |
 | --- | --- | --- |
-| 1 | Protect admin routes | This marketing site has **no admin dashboard or admin API**. `/admin` returns 404 in production checks. Subscriber management is via authorised Supabase access. No admin authentication system has been implemented or certified. |
-| 2 | Server-side access | Privileged waitlist writes run only through the server route and a service-only database RPC. No client database key or subscriber-list endpoint. |
+| 1 | Protect admin routes | Protected `/admin` dashboard and `/api/admin/stats` API. Both revalidate the Supabase Auth user on the server and require a verified email plus a server-configured account UUID. Unauthenticated page requests redirect to sign-in; unauthorized API requests return 401. Access controls are tested with mocked Auth; live configuration is still required. |
+| 2 | Server-side access | Privileged waitlist writes run only through the server route and a service-only database RPC. No client database key or subscriber-list endpoint. Aggregate stats are fetched only after admin authorization. |
 | 3 | Row-level security | Enabled in the prepared SQL; anonymous and authenticated table/RPC access is revoked. Local database tests verify this. **Not applied or verified on the inactive live project.** |
-| 4 | Verify email | **Not implemented for waiting-list submissions.** Input format and explicit consent are checked, but ownership is not verified. No double-opt-in email or account-verification claim is made. App Auth email confirmation is a separate, unverified setting. |
-| 5 | Hash passwords | Not applicable to this website: it does not collect or store passwords. The separate app uses Supabase Auth; its password handling and live settings have not been certified here. |
-| 6 | No local auth tokens | True for the marketing site, which has no login. The saved local-storage record is a privacy preference, not a token. **The existing root/browser app does maintain local authentication sessions; it does not pass a blanket no-local-auth-token requirement.** |
+| 4 | Verify email | **Not implemented for waiting-list submissions.** Input format and explicit consent are checked, but ownership is not verified. No double-opt-in email or account-verification claim is made. Administrator access requires a verified email reported by Supabase Auth; this is separate from waiting-list ownership verification. Other app Auth settings remain unverified. |
+| 5 | Hash passwords | Administrator credentials are submitted only to the server and forwarded to Supabase Auth for password verification; the website does not store or hash passwords itself. Provider-side password storage is managed by Supabase Auth. Live Auth settings and the separate app still need review. |
+| 6 | No local auth tokens | Admin login uses a Secure, HttpOnly, SameSite=Strict cookie in production; no admin auth token or refresh token is written to local storage. The saved local-storage record is only a privacy preference. **The existing root/browser app does maintain local authentication sessions; it does not pass a blanket no-local-auth-token requirement.** |
 | 7 | Server-side secrets | Service-role key and rate-limit salt are read only in server-side signup code and are not `NEXT_PUBLIC_` values. |
 | 8 | Keep .env off GitHub | Local env files are ignored. The committed `.env.example` contains empty secret fields and a public project URL. No real credentials added. |
 | 9 | No secrets in logs | Marketing handlers do not log submission payloads, provider credentials, IPs or tokens. Hosting access logs, error integrations and the separate app need their own review. |
@@ -49,7 +49,7 @@ White is the main background, blue is the primary accent and pink appears in the
 | 12 | Block XSS | React text escaping plus escaped controlled JSON-LD; per-response nonce CSP, no production unsafe-eval/unsafe-inline scripts, self-only browser network access and framing restrictions. This is defence in depth, not a guarantee against all XSS. Style attributes are allowed for controlled preview sizes. |
 | 13 | Validate uploads | No upload endpoint or file form exists in this website. Separate app uploads are outside this review. |
 | 14 | Verify webhooks | No webhook receiver exists in this website. Add signature validation if a future integration introduces one. |
-| 15 | Rate-limit requests | Signup RPC allows five validated submissions per hashed IP per 15 minutes, shared across server instances. Local SQL tests verify limiting and window reset. Requires live schema activation. Additional host/WAF limits for other traffic remain a deployment concern. |
+| 15 | Rate-limit requests | Signup RPC allows five validated submissions per hashed IP per 15 minutes, shared across server instances. Local SQL tests verify limiting and window reset. Requires live schema activation. Admin sign-in allows five attempts per account hash and twenty per IP hash in fifteen minutes, enforced in SQL. Additional host/WAF limits for other traffic remain a deployment concern. |
 | 16 | Tighten CORS | Signup requires the exact configured Origin; no wildcard cross-origin access headers. The form is same-origin. Ingress must overwrite the trusted IP header; CORS alone is not bot protection. |
 | 17 | Production debug off | Production build/start scripts; browser source maps disabled; generic API errors and no debug response payloads. Live host mode still needs verification. |
 | 18 | Patch dependencies | Direct versions pinned and lockfile committed. `npm audit` reports **0 known vulnerabilities** for `web/` at review time. CI repeats audit at high severity threshold; this is not a permanent guarantee or a root/mobile dependency review. |
@@ -58,13 +58,15 @@ White is the main background, blue is the primary accent and pink appears in the
 ## Verification performed
 
 - Production Next.js build.
-- Ten automated API, security and local Postgres-compatible database tests.
+- Nineteen automated API, admin authorization, security and local Postgres-compatible database tests.
 - Production HTTP checks over all 14 public pages: metadata, canonical tags, indexability, JSON-LD, heading order, image alt attributes, internal routes and fragments, sitemap, robots and LLM files.
-- HTTP checks for fresh CSP nonces, matching script nonces, HSTS, HTTPS redirect, unknown admin path returning 404 and fail-closed unconfigured signup.
+- HTTP checks for fresh CSP nonces, matching script nonces, HSTS, HTTPS redirect, protected admin redirect/API rejection and fail-closed unconfigured signup. Separate production HTTP checks cover approved-account login, secure cookie flags, stats access, invalid tokens, origin rejection and logout using a mocked Auth backend.
 - `npm audit`: zero known vulnerabilities in marketing dependencies.
 
 Browser screenshots, Lighthouse/field Core Web Vitals, live database tests, actual email delivery/verification, independent penetration testing and legal review are not represented as completed. The public legal pages describe product boundaries and existing operator/contact details; they do not establish legal compliance by themselves.
 
 ## Activation before real signups
 
-Restore the Bible Diaries Supabase project, apply `database/waitlist.sql`, configure the server-only credentials and trusted ingress header, build with the real HTTPS `SITE_URL`, and verify on the production host. Configure the actual browser app address only when deployed. The full account/authentication, upload and messaging checklist requires a separate review of the root and mobile apps before release.
+Restore the Bible Diaries Supabase project, apply `database/waitlist.sql` and `database/admin.sql`, configure the server-only credentials and trusted ingress header, build with the real HTTPS `SITE_URL`, and verify on the production host. Configure the actual browser app address only when deployed. The full account/authentication, upload and messaging checklist requires a separate review of the root and mobile apps before release.
+
+Admin setup and account approval instructions are in [ADMIN_DASHBOARD.md](./ADMIN_DASHBOARD.md). Admin pages intentionally use noindex and are excluded from the public sitemap.

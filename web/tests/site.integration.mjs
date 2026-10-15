@@ -59,7 +59,11 @@ try {
   const robots = await (await fetch(origin + '/robots.txt')).text();
   assert.ok(robots.includes('Allow: /') && robots.includes('Disallow: /api/'));
   for (const path of ['/llm.txt','/llms.txt']) assert.equal((await fetch(origin + path)).status, 200);
-  assert.equal((await fetch(origin + '/admin')).status, 404);
+  const adminRedirect = await fetch(origin + '/admin', { redirect:'manual' });
+  assert.equal(adminRedirect.status, 307); assert.equal(adminRedirect.headers.get('location'), '/admin/login');
+  assert.equal((await fetch(origin + '/api/admin/stats')).status, 401);
+  const loginPage = await fetch(origin + '/admin/login');
+  assert.equal(loginPage.status,200); assert.ok((await loginPage.text()).includes('noindex, nofollow'));
   const redirect = await fetch(origin + '/features', { headers: { 'x-forwarded-proto': 'http' }, redirect: 'manual' });
   assert.equal(redirect.status, 308); assert.equal(redirect.headers.get('location'), canonical + '/features');
   const first = (await fetch(origin)).headers.get('content-security-policy');
@@ -67,7 +71,7 @@ try {
   assert.notEqual(first, second, 'Nonce must change per response.');
   const unavailable = await fetch(origin + '/api/waitlist', { method:'POST', headers:{'content-type':'application/json',origin:canonical}, body:JSON.stringify({email:'test@example.com',platform:'android',consent:true}) });
   assert.equal(unavailable.status, 503, 'Unconfigured deployment must not pretend to accept submissions.');
-  console.log(`PASS: ${documents.size} pages; titles/descriptions, canonical/social/schema metadata, heading order, image alt, all internal links/anchors, sitemap/robots/LLM files, nonce CSP, HSTS/HTTPS redirect, admin 404 and fail-closed API.`);
+  console.log(`PASS: ${documents.size} public pages; metadata, heading order, image alt, internal links/anchors, sitemap/robots/LLM files, nonce CSP, HSTS/HTTPS redirect, protected admin and fail-closed API.`);
 } finally {
   processUnderTest.kill('SIGTERM');
   await Promise.race([once(processUnderTest, 'exit'), new Promise(resolve => setTimeout(resolve, 3000))]);
