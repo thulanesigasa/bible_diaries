@@ -9,11 +9,11 @@ import './globals.css';
 const origin = siteOrigin();
 export const metadata = {
   ...(origin ? { metadataBase: new URL(origin), alternates: { canonical: '/' } } : {}),
-  title: { default: 'Bible Diaries — Your Faith. Your Story. Coming Soon.', template: '%s | Bible Diaries' },
+  title: { default: 'Bible Diaries — Your Faith. Your Story.', template: '%s | Bible Diaries' },
   description: 'Reflect on Scripture, share your journey and grow in faith together on mobile and PC. Join the Bible Diaries waiting list. Google Play and Huawei AppGallery first; Apple App Store later.',
   robots: { index: true, follow: true },
-  openGraph: { title: 'Bible Diaries — A new chapter is coming', description: 'Your faith. Your reflections. Our shared journey. Join the waiting list.', type: 'website', siteName: 'Bible Diaries', ...(origin ? { url: origin } : {}), images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Bible Diaries — Every walk has a story. Make room for yours.' }] },
-  twitter: { card: 'summary_large_image', title: 'Bible Diaries — Coming Soon', images: ['/opengraph-image'] },
+  openGraph: { title: 'Bible Diaries — Your Faith. Your Story.', description: 'Your faith. Your reflections. Our shared journey. Join the waiting list.', type: 'website', siteName: 'Bible Diaries', ...(origin ? { url: origin } : {}), images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Bible Diaries — Every walk has a story. Make room for yours.' }] },
+  twitter: { card: 'summary_large_image', title: 'Bible Diaries — Your Faith. Your Story.', images: ['/opengraph-image'] },
   icons: { icon: '/logo.webp', apple: '/logo.png' }
 };
 export default async function RootLayout({children}) {
