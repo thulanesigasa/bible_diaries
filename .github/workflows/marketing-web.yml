@@ -25,3 +25,6 @@ jobs:
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://bible-diaries.example
+      - run: npm run test:site
+      - run: npm audit --audit-level=high

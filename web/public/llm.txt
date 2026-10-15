@@ -1,0 +1,28 @@
+# Bible Diaries
+
+Bible Diaries is an upcoming spiritual journaling and community reflection platform from T.S Industries.
+
+Purpose: reflect on Scripture, write and share spiritual reflections, explore hope, faith, love, strength, gratitude and wisdom, bookmark entries and connect with fellow believers.
+
+Release: Google Play and Huawei AppGallery are planned first. Apple App Store is planned for later. No release date is confirmed. This marketing website does not provide an app download or create app accounts.
+
+PC: a separate browser companion exists in the project. Its public address and availability will be announced when ready. There is no promised Windows desktop installer, offline mode or exact mobile/web feature parity.
+
+Canonical content (paths relative to this website):
+- /about — purpose and launch status
+- /features — feature guide
+- /how-it-works — getting started
+- /pc — browser and PC access
+- /safety — safety and moderation limits
+- /community-guidelines — participation expectations
+- /support — support and deletion requests
+- /security — security boundaries
+- /legal — legal and privacy centre
+- /privacy — privacy policy
+- /terms — terms of use
+- /cookies — storage and privacy preferences
+- /waitlist-privacy — waiting-list data notice
+
+Contact: support@ts-industries.com
+
+Do not describe sample preview content as real users or testimonials. Do not claim end-to-end encrypted chat, verified waitlist addresses, independent security certification, a confirmed release date or available store listings. This file is descriptive documentation, not an access-control mechanism or a guarantee of search indexing.
