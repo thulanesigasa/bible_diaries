@@ -18,6 +18,8 @@ This is a standalone Next.js marketing website in `web/`. The existing root web 
 | `src/proxy.js`, `src/lib/security.mjs` | Per-response nonce CSP and request isolation |
 | `src/app/globals.css` | Responsive layout, phone previews and accessibility styles |
 | `src/components/` | Mobile navigation, interactive previews and signup form |
+| `src/components/LaptopMockup.js` | Responsive illustrative desktop app inside a laptop frame, shown on the homepage and PC guide |
+| `src/components/Decorations.js` | Non-interactive crosses, rings, diamonds, dot patterns, guide lines and brand watermarks |
 | `src/app/api/waitlist/route.js` | Server-side POST handler |
 | `src/lib/waitlist.mjs` | Validation, trusted-origin checks, IP hashing and database RPC |
 | `src/app/waitlist-privacy/` | Dedicated waitlist notice and removal instructions |
