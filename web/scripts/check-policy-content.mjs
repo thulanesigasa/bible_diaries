@@ -13,5 +13,5 @@ for(const slug of slugs){
   const words=[page.title,page.heading,page.intro,...page.sections.flat()].join(' ').split(/\s+/).filter(Boolean).length;
   total+=words;console.log(`${slug}: ${words.toLocaleString('en-ZA')} words, ${page.sections.length} sections`);
 }
-assert.ok(total>=20000 && total<=24000,`Expected approximately 20,000 words across the nine documents; received ${total}.`);
+assert.ok(total>=27000 && total<=30000,`Expected approximately 27,000 words across the nine documents; received ${total}.`);
 console.log(`TOTAL: ${total.toLocaleString('en-ZA')} words. Counts include titles, introductions and section text; navigation and references are excluded.`);

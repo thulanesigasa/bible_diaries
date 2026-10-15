@@ -1,3 +1,4 @@
+import { furtherGuidance } from './further-guidance.mjs';
 import { legalExpansion } from './legal-expansion.mjs';
 import { privacyExpansion } from './privacy-expansion.mjs';
 import { safetyExpansion } from './safety-expansion.mjs';
@@ -178,7 +179,7 @@ basePages['waitlist-privacy'] = {
 const expansions = { ...legalExpansion, ...privacyExpansion, ...safetyExpansion, ...supportExpansion };
 export const pages = Object.fromEntries(Object.entries(basePages).map(([slug,page]) => [slug, {
   ...page,
-  sections: slug === 'legal' ? legalExpansion.legal : [...page.sections, ...(expansions[slug] || [])],
+  sections: [...(slug === 'legal' ? legalExpansion.legal : [...page.sections, ...(expansions[slug] || [])]), ...(furtherGuidance[slug] || [])],
   ...(policyReferences[slug] ? { references: policyReferences[slug] } : {})
 }]));
 // The dedicated waitlist route is declared separately from the [slug] route.

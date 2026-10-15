@@ -1,18 +1,18 @@
 # Expanded legal, support and safety guidance
 
-The nine documents below contain **20,964 words** in total, counted across titles, introductions and section text. Navigation, source lists, repeated footers and related-page links are excluded. This is approximately 20,000 words across the collection, not a claim of 20,000 words on every page.
+The nine documents below contain **27,265 words** in total, counted across titles, introductions and section text. Navigation, source lists, repeated footers and related-page links are excluded. This is approximately 27,000 words across the collection, not a claim of 20,000 words on every page.
 
 | Page | Words | Sections |
 | --- | ---: | ---: |
-| Legal centre | 2,418 | 18 |
-| Terms of use | 2,918 | 28 |
-| Privacy policy | 3,116 | 28 |
-| Waiting-list privacy | 1,359 | 14 |
-| Cookies and preferences | 1,286 | 13 |
-| Community guidelines | 1,336 | 15 |
-| Safety | 2,822 | 26 |
-| Support | 4,227 | 36 |
-| Security | 1,482 | 15 |
+| Legal centre | 3,127 | 22 |
+| Terms of use | 3,619 | 32 |
+| Privacy policy | 3,839 | 32 |
+| Waiting-list privacy | 2,052 | 18 |
+| Cookies and preferences | 1,970 | 17 |
+| Community guidelines | 2,022 | 19 |
+| Safety | 3,533 | 30 |
+| Support | 4,922 | 40 |
+| Security | 2,181 | 19 |
 
 Run `npm run check:content` to reproduce the counts and check for duplicate headings, missing text and placeholder content.
 
@@ -21,6 +21,8 @@ Run `npm run check:content` to reproduce the counts and check for duplicate head
 The legal centre now contains substantive guidance rather than five short document summaries, with direct links to the full documents at the top. Terms cover the website/app distinction, consent, content ownership, publication permission, quotations, conduct, messages, images, removal, restrictions, availability, future transactions, feedback and mandatory rights. Privacy covers sensitive faith-related disclosures, purpose limits, requests, provider processing, sessions, retention and incidents. Cookie and waitlist documents explain the actual storage and consent boundaries.
 
 Support provides practical troubleshooting for forms, duplicate entries, email expectations, rate limits, PC/mobile access, accounts, recovery, missing content, profile settings, messages, privacy requests and the administrator dashboard. Safety expands protection of personal information, pressure, impersonation, money requests, links, unwanted contact, spiritual coercion, children, evidence, reports and shared devices. Community and security guidance address the related conduct and technical boundaries.
+
+The latest extension adds 36 sections and 6,301 words. It covers multi-service requests, participation pressure, accessible communication, group-account boundaries, corrections after publication, external events, shared and reassigned mailboxes, inference from small counts, address aliases, delivery expectations, browser storage contexts, third-party prayer requests, bystander conduct, accidental disclosure, accessibility troubleshooting, follow-ups and responsible security reporting. Each of the nine documents receives four additional sections. These are practical explanations, not new app functionality or claims about a live deployment.
 
 Paragraphs remain separate in the rendered page. Contents lists scroll within the viewport, with narrower layouts for mobile. Official background-reading links are provided on the relevant legal/privacy documents. The shared page renderer also renders the dedicated waitlist route, so the longer notice uses the same accessible structure and navigation.
 
