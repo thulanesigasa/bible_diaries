@@ -144,6 +144,8 @@ The independent [`web/`](./web/README.md) project introduces Bible Diaries and c
 
 Run it separately with `cd web`, `npm ci` and `npm run dev`. For deployment, set the host's root directory to `web`. Its server-only environment template, isolated database setup, tests and activation instructions are documented in [`web/README.md`](./web/README.md). The existing root application and mobile app keep their own setup and deployment workflows.
 
+The legal, privacy, support and safety pages include approximately 21,000 words of original guidance across nine documents. Their structure, exact counts and review boundaries are recorded in [`web/docs/CONTENT_REVIEW.md`](./web/docs/CONTENT_REVIEW.md).
+
 ## Companion Mobile Application
 
 The repository includes a companion cross-platform mobile application located in the [`mobile/`](./mobile) directory.

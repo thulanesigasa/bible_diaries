@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "dev": "next dev", "build": "next build --webpack", "start": "next start", "test": "node --test tests/*.test.mjs", "test:site": "node tests/site.integration.mjs && node tests/admin.integration.mjs" },
+  "scripts": { "dev": "next dev", "build": "next build --webpack", "start": "next start", "test": "node --test tests/*.test.mjs", "check:content": "node scripts/check-policy-content.mjs", "test:site": "node tests/site.integration.mjs && node tests/admin.integration.mjs" },
   "engines": { "node": ">=22.13.0" },
   "dependencies": { "next": "16.4.0", "react": "19.3.0", "react-dom": "19.3.0" },
   "devDependencies": { "@electric-sql/pglite": "0.3.14" }

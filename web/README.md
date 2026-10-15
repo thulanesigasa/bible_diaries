@@ -4,6 +4,8 @@ A coming soon website for Bible Diaries: a spiritual journaling and community re
 
 The layout follows the exégeomai coming soon website, adapted to Bible Diaries’ white, blue and pink branding. Initial releases are planned for Google Play and Huawei AppGallery; Apple App Store is planned for later. Dedicated information pages explain PC/browser access, features, safety, support, community guidelines, privacy, cookies, security and terms. No release date or download link is fabricated. See the [complete readiness checklist](./docs/READINESS.md) for all SEO and security checks and their limits.
 
+The legal, privacy, support and safety collection contains approximately 21,000 words across nine documents, with substantive sections, examples, navigation and official background-reading links. See the [content review](./docs/CONTENT_REVIEW.md) for the word-count breakdown, scope and accuracy boundaries.
+
 ## Architecture
 
 This is a standalone Next.js marketing website in `web/`. The existing root web application and `mobile/` app continue to have independent dependencies and deployment settings.
@@ -13,6 +15,8 @@ This is a standalone Next.js marketing website in `web/`. The existing root web 
 | `src/app/page.js` | Landing page, features, store plans, waiting list and FAQ |
 | `src/app/layout.js` | Shared navigation, footer and metadata |
 | `src/app/[slug]/page.js`, `src/content/pages.mjs` | Detailed app, PC, support, safety and policy pages |
+| `src/content/*-expansion.mjs` | Extended original legal, privacy, support, safety and security text |
+| `src/components/InformationPage.js` | Shared long-document renderer, paragraph spacing, contents and source links |
 | `src/components/CookiePreferences.js` | Persistent essential-only privacy choices and accessible native dialog |
 | `src/components/Schema.js`, `src/lib/seo.mjs` | Escaped JSON-LD, per-page metadata and validated canonical origins |
 | `src/proxy.js`, `src/lib/security.mjs` | Per-response nonce CSP and request isolation |
@@ -77,6 +81,7 @@ Removal and correction requests go to the support address already used in the ap
 
 ```bash
 npm test
+npm run check:content
 npm run build
 npm run test:site
 npm start
