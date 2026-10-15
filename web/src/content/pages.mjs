@@ -1,4 +1,21 @@
-export const pages = {
+import { legalExpansion } from './legal-expansion.mjs';
+import { privacyExpansion } from './privacy-expansion.mjs';
+import { safetyExpansion } from './safety-expansion.mjs';
+import { supportExpansion } from './support-expansion.mjs';
+const policyReferences = {
+  legal: [
+    ['Information Regulator: guidance notes', 'https://inforegulator.org.za/guidance-notes/'],
+    ['South African Government: Consumer Protection Act', 'https://www.gov.za/documents/consumer-protection-act'],
+    ['South African Government: Electronic Communications and Transactions Act', 'https://www.gov.za/documents/electronic-communications-and-transactions-act']
+  ],
+  privacy: [
+    ['Information Regulator: privacy complaints and request routes', 'https://inforegulator.org.za/complaints/'],
+    ['Information Regulator: guidance on personal information', 'https://inforegulator.org.za/guidance-notes/']
+  ],
+  terms: [['South African Government: Consumer Protection Act', 'https://www.gov.za/documents/consumer-protection-act']],
+  'waitlist-privacy': [['Information Regulator: direct-marketing and privacy guidance', 'https://inforegulator.org.za/guidance-notes/']]
+};
+const basePages = {
   about: {
     title: 'About Bible Diaries', description: 'Discover the purpose of Bible Diaries: Scripture reflection, spiritual journaling and fellowship for everyday faith.', eyebrow: 'OUR STORY', heading: 'Your faith has a story.', intro: 'Bible Diaries is a spiritual journaling and community reflection platform from T.S Industries. It gives believers a place to put their journey into words and find encouragement in the journeys of others.',
     sections: [
@@ -146,4 +163,23 @@ export const pages = {
     ], related: ['terms', 'privacy', 'waitlist-privacy', 'cookies', 'safety', 'community-guidelines', 'security', 'support']
   }
 };
-export const contentPaths = Object.keys(pages).map(slug => `/${slug}`);
+basePages['waitlist-privacy'] = {
+  title: 'Waitlist Privacy Notice', description: 'Understand Bible Diaries waiting-list information, launch-email consent, platform preferences, correction, removal and privacy requests.', eyebrow: 'WAITLIST PRIVACY', heading: 'Your launch request, explained.',
+  intro: 'This notice focuses on information supplied through the public Bible Diaries waiting list. It is separate from an app account, an administrator session and the privacy preference stored in your browser.',
+  sections: [
+    ['The information recorded', 'A completed request records a normalised email address, the selected platform, the time of consent and the notice version. It does not create an app account, reserve a username or collect a payment. The current flow records an address without verifying ownership of the mailbox.'],
+    ['The purpose of the record', 'The waiting list supports the launch updates you request about Bible Diaries. Google Play and Huawei AppGallery are planned first, with Apple App Store later. No release date is confirmed, and this record is not permission for unrelated marketing.'],
+    ['Withdrawing and requesting a correction', 'Email support@ts-industries.com from the registered address with a clear subject such as “Bible Diaries waitlist unsubscribe”. Explain if you want removal, a correction or information about the record. The team may need to verify authority before changing or disclosing protected information.'],
+    ['Access, providers and retention', 'The prepared database restricts visitor access. Approved administrators see aggregate figures rather than subscriber addresses. Hosting and database providers process information needed for the service and can have separate technical records. Waiting-list records should be reviewed when launch communications are complete and removed when no longer needed, subject to lawful retention.'],
+    ['Abuse prevention and network information', 'The signup service uses a keyed hash of a trusted network address for submission limits instead of storing the raw address in the waiting-list tables. Old rate-limit records are removed during later requests. Hosting infrastructure may separately handle network metadata to deliver and protect the service.'],
+    ['Your privacy choices and other accounts', 'Saving a browser preference does not join or unsubscribe you from launch emails. Removing a waiting-list record does not automatically delete a separate app account. You can request access, correction or deletion and raise a concern through support. Appropriate regulatory routes remain available under applicable law.']
+  ], related: ['privacy','cookies','support','legal']
+};
+const expansions = { ...legalExpansion, ...privacyExpansion, ...safetyExpansion, ...supportExpansion };
+export const pages = Object.fromEntries(Object.entries(basePages).map(([slug,page]) => [slug, {
+  ...page,
+  sections: slug === 'legal' ? legalExpansion.legal : [...page.sections, ...(expansions[slug] || [])],
+  ...(policyReferences[slug] ? { references: policyReferences[slug] } : {})
+}]));
+// The dedicated waitlist route is declared separately from the [slug] route.
+export const contentPaths = Object.keys(pages).filter(slug => slug !== 'waitlist-privacy').map(slug => `/${slug}`);
