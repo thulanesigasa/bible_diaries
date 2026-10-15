@@ -138,6 +138,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to access th
 
 ---
 
+## Coming Soon Marketing Website
+
+The independent [`web/`](./web/README.md) project introduces Bible Diaries and collects consented launch-notification requests. It follows the exégeomai coming soon layout with Bible Diaries branding, interactive illustrative app previews, a platform-aware waiting list and a privacy notice. Google Play and Huawei AppGallery are planned first, with Apple App Store later.
+
+Run it separately with `cd web`, `npm ci` and `npm run dev`. For deployment, set the host's root directory to `web`. Its server-only environment template, isolated database setup, tests and activation instructions are documented in [`web/README.md`](./web/README.md). The existing root application and mobile app keep their own setup and deployment workflows.
+
 ## Companion Mobile Application
 
 The repository includes a companion cross-platform mobile application located in the [`mobile/`](./mobile) directory.
