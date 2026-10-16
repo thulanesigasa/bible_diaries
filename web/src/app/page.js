@@ -22,7 +22,7 @@ export default function Home() {
     <section className="hero" id="home" aria-labelledby="hero-title">
       <Decorations variant="hero"/>
       <div className="guide-lines" aria-hidden="true"/><span className="orbit orbit-one" aria-hidden="true"/><span className="orbit orbit-two" aria-hidden="true"/><span className="hero-cross" aria-hidden="true">✝</span>
-      <div className="wrap hero-copy"><p className="eyebrow"><span className="status-dot"/>A NEW CHAPTER IS COMING</p>
+      <div className="wrap hero-copy">
         <h1 id="hero-title">Every walk has a story.<br/><span>Make room for yours.</span></h1>
         <p className="hero-description">Introducing <strong>Bible Diaries</strong> — a space to reflect on Scripture, share your journey and grow in faith with a community of believers.</p>
         <div className="actions"><a className="button" href="#waitlist">Join the waiting list <span aria-hidden="true">↗</span></a><a className="button outline" href="#sneak-peek">A look inside <span aria-hidden="true">↓</span></a></div>
