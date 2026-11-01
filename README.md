@@ -155,3 +155,7 @@ The repository includes a companion cross-platform mobile application located in
 ## Production release status
 
 The 1 November 2026 security review recommends holding public app release until the authentication, privacy and enforcement blockers are resolved. See [the evidence and release gates](docs/PRODUCTION_SECURITY_REVIEW_2026-11-01.md). Huawei developer-account approval and passing marketing-site checks do not establish app production readiness.
+
+## Security changes and Docker
+
+See [security protections, Docker commands and activation requirements](docs/SECURITY_AND_DOCKER.md). The registration flow/email-verification setting is unchanged by request. The secure backend requires a server-side moderation key; the mobile secure-storage change requires a new native build.

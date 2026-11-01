@@ -97,6 +97,9 @@ export default function FeedScreen() {
   const [newContent, setNewContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Hope');
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [privateEntry,setPrivateEntry]=useState(false);
+  const [commentsAllowed,setCommentsAllowed]=useState(true);
+  const [likesAllowed,setLikesAllowed]=useState(true);
   const [publishing, setPublishing] = useState(false);
   
   const [isEditingPost, setIsEditingPost] = useState(false);
@@ -130,7 +133,7 @@ export default function FeedScreen() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), comments(*, owned_by_me), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -139,7 +142,7 @@ export default function FeedScreen() {
         setPosts(data || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -191,7 +194,7 @@ export default function FeedScreen() {
             setVersePreview(null);
           }
         } catch (err) {
-          console.error("Bible API error", err);
+          console.error('Operation failed.');
           setVersePreview(null);
         } finally {
           setVerseLoading(false);
@@ -245,17 +248,13 @@ export default function FeedScreen() {
       return;
     }
 
-    if (isContentInappropriate(newContent)) {
-      showToast('Your reflection contains content that does not match our community guidelines.', 'error');
-      return;
-    }
-
     setPublishing(true);
     try {
       // If anonymous, we set author_id to a special anonymous flag or default mock account.
       // In a real DB, you store author_id for RLS but hide it on the UI.
       const newPost = {
         author_id: user.id,
+        is_anonymous:isAnonymous, visibility:privateEntry?'private':'public', allow_comments:commentsAllowed, allow_likes:likesAllowed,
         title: newTitle.trim() || null,
         scripture: newScripture.trim() || null,
         content: newContent.trim(),
@@ -276,7 +275,7 @@ export default function FeedScreen() {
         fetchPosts();
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
       showToast('Failed to publish post.', 'error');
     } finally {
       setPublishing(false);
@@ -471,7 +470,7 @@ export default function FeedScreen() {
             <Share2 size={18} color="#475569" />
           </TouchableOpacity>
 
-          {user?.id === item.author_id && (
+          {(item.owned_by_me || user?.id === item.author_id) && (
             <>
               <TouchableOpacity style={styles.actionBtn} onPress={() => { setEditingPostId(item.id); setEditTitle(item.title || ''); setEditScripture(item.scripture || ''); setEditContent(item.content); setIsEditingPost(true); }}>
                 <Edit2 size={18} color="#475569" />
@@ -655,6 +654,7 @@ export default function FeedScreen() {
                 />
               </View>
 
+              {[['Keep this entry private',privateEntry,setPrivateEntry],['Allow comments',commentsAllowed,setCommentsAllowed],['Allow likes',likesAllowed,setLikesAllowed]].map(([label,value,setter]:any)=><View key={label} style={styles.anonymousRow}><Text style={styles.anonymousTitle}>{label}</Text><Switch value={value} onValueChange={setter}/></View>)}
               <TouchableOpacity 
                 style={[styles.btnPublish, { backgroundColor: accent }, publishing && styles.btnDisabled]}
                 onPress={handleCreatePost}

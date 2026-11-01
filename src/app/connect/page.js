@@ -29,7 +29,7 @@ export default function Connect() {
           setProfiles(data || []);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Operation failed.');
       } finally {
         setLoading(false);
       }

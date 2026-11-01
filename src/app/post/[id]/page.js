@@ -61,7 +61,7 @@ export default function PostPage({ params }) {
       // Fetch post details with joined profiles, likes, comments (with author profiles and comment likes)
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*), comment_likes(*))')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), comments(*, owned_by_me, profiles!author_id(*), comment_likes(*))')
         .eq('id', postId)
         .single();
 
@@ -74,7 +74,7 @@ export default function PostPage({ params }) {
         setEditContent(data.content);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }
@@ -567,8 +567,8 @@ export default function PostPage({ params }) {
             ) : (
               rootComments.map((comment) => {
                 const commentLiked = comment.comment_likes?.some(l => l.user_id === user?.id);
-                const isCommentAuthor = user && user.id === comment.author_id;
-                const isPostAuthor = user && user.id === post.author_id;
+                const isCommentAuthor = user && (comment.owned_by_me || user.id === comment.author_id);
+                const isPostAuthor = user && (post.owned_by_me || user.id === post.author_id);
                 const canDelete = isCommentAuthor || isPostAuthor;
 
                 const replies = getReplies(comment.id);
@@ -630,7 +630,7 @@ export default function PostPage({ params }) {
                     {/* Nested Replies List */}
                     {replies.map((reply) => {
                       const replyLiked = reply.comment_likes?.some(l => l.user_id === user?.id);
-                      const isReplyAuthor = user && user.id === reply.author_id;
+                      const isReplyAuthor = user && (reply.owned_by_me || user.id === reply.author_id);
                       const canDeleteReply = isReplyAuthor || isPostAuthor;
 
                       return (

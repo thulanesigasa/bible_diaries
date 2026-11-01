@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import DeleteAccount from '../../components/DeleteAccount';
 import Compressor from 'compressorjs';
 import { useApp } from '../AppWrapper';
 import { 
@@ -233,8 +234,6 @@ export default function Settings() {
         first_name: firstName.trim(),
         surname: surname.trim(),
         full_name: `${firstName.trim()} ${surname.trim()}`,
-        phone_number: fullPhoneNumber,
-        address: address.trim(),
         avatar_url: avatarUrl,
         bio: bio.trim(),
         favorite_verse: favoriteVerse.trim(),
@@ -245,6 +244,8 @@ export default function Settings() {
         email_comments: emailComments
       };
 
+      const {error: contactError}=await supabase.from('profile_contacts').upsert({user_id:user.id,phone_number:fullPhoneNumber,address:address.trim()});
+      if(contactError)throw contactError;
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
@@ -253,7 +254,7 @@ export default function Settings() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        const updatedProfile = { ...profile, ...updateData };
+        const updatedProfile = { ...profile, ...updateData,phone_number:fullPhoneNumber,address:address.trim() };
         setProfile(updatedProfile);
         showToast('Settings saved successfully!');
       }
@@ -277,6 +278,7 @@ export default function Settings() {
   return (
     <div className="container" style={{ maxWidth: '820px', padding: '1.5rem 1rem 4rem' }}>
       
+      <DeleteAccount/>
       {/* Title & Introduction in Body */}
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>

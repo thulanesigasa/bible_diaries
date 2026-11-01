@@ -43,7 +43,7 @@ export default function Login() {
       }
     } catch (err) {
       showToast('An unexpected error occurred.', 'error');
-      console.error(err);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }
@@ -62,6 +62,7 @@ export default function Login() {
           <p className="auth-subtitle">Login to access your reflections & feed</p>
         </div>
 
+        <p><Link href="/reset-password">Forgot your password?</Link></p>
         <form onSubmit={handleLogin} className="auth-form">
           <div className="settings-group">
             <label className="settings-label" htmlFor="email-or-username">Email Address</label>

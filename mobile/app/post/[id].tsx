@@ -40,7 +40,7 @@ export default function PostDetailsScreen() {
       // Fetch post with author profile and reactions
       const { data: postData, error: postError } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), favorites(*)')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), favorites(*)')
         .eq('id', id)
         .single();
 
@@ -54,7 +54,7 @@ export default function PostDetailsScreen() {
       // Fetch comments with author profile
       const { data: commentsData, error: commentsError } = await supabase
         .from('comments')
-        .select('*, profiles!author_id(*)')
+        .select('*, owned_by_me, profiles!author_id(*)')
         .eq('post_id', id)
         .order('created_at', { ascending: true });
 
@@ -64,7 +64,7 @@ export default function PostDetailsScreen() {
         setComments(commentsData || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }
@@ -175,7 +175,7 @@ export default function PostDetailsScreen() {
     setSubmittingComment(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Mobile post detail handlePostComment - Client ID:', (supabase as any).instanceId, 'Session user:', sessionData.session?.user?.id, 'Token slice:', sessionData.session?.access_token?.slice(-15));
+
       
       const { error } = await supabase
         .from('comments')

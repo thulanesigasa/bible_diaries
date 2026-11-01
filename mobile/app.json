@@ -8,7 +8,7 @@
     "scheme": "bible-diaries",
     "userInterfaceStyle": "automatic",
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "updates": {
       "enabled": true,
@@ -47,7 +47,8 @@
         }
       ],
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

@@ -37,7 +37,7 @@ export default function ProfilePage({ params }) {
         setProfile(data);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }

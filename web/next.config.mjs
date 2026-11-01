@@ -3,6 +3,7 @@ import { siteOrigin } from './src/lib/seo.mjs';
 /** @type {import('next').NextConfig} */
 const config = {
   outputFileTracingRoot: fileURLToPath(new URL('.', import.meta.url)),
+  output:'standalone',
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   async redirects() {

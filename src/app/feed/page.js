@@ -138,7 +138,7 @@ export default function Feed() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), comments(*, owned_by_me), favorites(*)')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -186,7 +186,7 @@ export default function Feed() {
             setVersePreview(null);
           }
         } catch (err) {
-          console.error("Bible API error", err);
+          console.error('Operation failed.');
           setVersePreview(null);
         } finally {
           setVerseLoading(false);
@@ -236,6 +236,10 @@ export default function Feed() {
   }, []);
 
   // Post entry processing with AI Content Moderator
+  const [anonymousEntry,setAnonymousEntry]=useState(false);
+  const [privateEntry,setPrivateEntry]=useState(false);
+  const [commentsAllowed,setCommentsAllowed]=useState(true);
+  const [likesAllowed,setLikesAllowed]=useState(true);
   const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newContent.trim()) {
@@ -248,33 +252,13 @@ export default function Feed() {
     setModReason('');
 
     try {
-      // Call the API route for OpenAI moderation check
-      const res = await fetch('/api/moderate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent })
-      });
-
-      if (!res.ok) {
-        throw new Error('Moderation service error.');
-      }
-
-      const check = await res.json();
-
-      if (check.flagged) {
-        setModStatus('flagged');
-        setModReason(check.reason || 'Explicit content detected.');
-        showToast('Message blocked by AI Moderation.', 'error');
-        setSubmitting(false);
-        return;
-      }
-
-      // If clean, proceed to insert
+      // Moderation and publication run together in the trusted service.
       setModStatus('clean');
       const { data, error } = await supabase
         .from('diaries')
         .insert({
           author_id: user.id,
+          is_anonymous:anonymousEntry,visibility:privateEntry?'private':'public',allow_comments:commentsAllowed,allow_likes:likesAllowed,
           title: newTitle.trim() || null,
           scripture: newScripture.trim() || null,
           content: newContent,
@@ -472,7 +456,7 @@ export default function Feed() {
 
   // Sharing functionality (web share and clipboard)
   const handleShare = async (post) => {
-    const textToShare = `"${post.content}" - Written by ${post.profiles?.full_name} on bible_diaries #${post.category}`;
+    const textToShare = `"${post.content}" - Written by ${(post.is_anonymous ? 'Anonymous Believer' : post.profiles?.full_name)} on bible_diaries #${post.category}`;
     
     if (navigator.share) {
       try {
@@ -543,6 +527,7 @@ export default function Feed() {
             </h3>
             
             <form onSubmit={handleCreatePost}>
+              <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:16}}>{[['Post anonymously',anonymousEntry,setAnonymousEntry],['Private entry',privateEntry,setPrivateEntry],['Allow comments',commentsAllowed,setCommentsAllowed],['Allow likes',likesAllowed,setLikesAllowed]].map(([label,value,setter])=><label key={label}><input type="checkbox" checked={value} onChange={e=>setter(e.target.checked)}/> {label}</label>)}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <input
                   type="text"
@@ -690,14 +675,14 @@ export default function Feed() {
                         }}
                       >
                         <Avatar 
-                          src={post.profiles?.avatar_url} 
-                          fullName={post.profiles?.full_name} 
+                          src={(post.is_anonymous ? null : post.profiles?.avatar_url)}
+                          fullName={(post.is_anonymous ? 'Anonymous Believer' : post.profiles?.full_name)}
                           email={post.profiles?.email} 
                           size={40}
                           style={{ marginRight: '10px' }}
                         />
                         <div>
-                          <div className="diary-card-author-name">{post.profiles?.full_name}</div>
+                          <div className="diary-card-author-name">{(post.is_anonymous ? 'Anonymous Believer' : post.profiles?.full_name)}</div>
                           <div className="diary-card-time">{formatTime(post.created_at)}</div>
                         </div>
                       </div>
@@ -789,7 +774,7 @@ export default function Feed() {
                           <span>Save</span>
                         </button>
 
-                       {user?.id === post.author_id && (
+                       {(post.owned_by_me || user?.id === post.author_id) && (
                          <>
                            <button 
                              className="action-btn"

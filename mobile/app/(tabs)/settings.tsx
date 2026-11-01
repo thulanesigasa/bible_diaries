@@ -1,3 +1,4 @@
+import DeleteAccount from '../../components/DeleteAccount';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -174,8 +175,6 @@ export default function SettingsTabScreen() {
         first_name: firstName.trim(),
         surname: surname.trim(),
         full_name: `${firstName.trim()} ${surname.trim()}`,
-        phone_number: fullPhoneNumber,
-        address: address.trim(),
         avatar_url: avatarUrl,
         bio: bio.trim(),
         favorite_verse: favoriteVerse.trim(),
@@ -185,6 +184,8 @@ export default function SettingsTabScreen() {
         email_likes: emailLikes,
       };
 
+      const {error: contactError}=await supabase.from('profile_contacts').upsert({user_id:user.id,phone_number:fullPhoneNumber,address:address.trim()});
+      if(contactError)throw contactError;
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
@@ -193,7 +194,7 @@ export default function SettingsTabScreen() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        setProfile({ ...profile, ...updateData });
+        setProfile({ ...profile, ...updateData,phone_number:fullPhoneNumber,address:address.trim() });
         showToast('Settings saved successfully!');
       }
     } catch (err: any) {
@@ -425,6 +426,7 @@ export default function SettingsTabScreen() {
 
           <View style={styles.sectionDivider} />
 
+          <DeleteAccount/>
           {/* 6. Action Buttons */}
           <View style={styles.actionContainer}>
             <TouchableOpacity 
