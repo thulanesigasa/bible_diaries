@@ -44,7 +44,7 @@ export default function ChatWindowScreen() {
         setPartnerProfile(data);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     }
   };
 
@@ -62,7 +62,7 @@ export default function ChatWindowScreen() {
         setMessages(data || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }

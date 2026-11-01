@@ -56,7 +56,7 @@ export default function LoginScreen() {
       }
     } catch (err) {
       showToast('An unexpected error occurred.', 'error');
-      console.error(err);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }
@@ -156,6 +156,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Footer Link */}
+          <Link href="/(auth)/reset-password">Forgot your password?</Link>
           <View style={styles.footerLinkRow}>
             <Text style={styles.footerLinkText}>New to the diary? </Text>
             <Link href="/(auth)/register" asChild>

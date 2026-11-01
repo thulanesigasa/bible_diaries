@@ -1,5 +1,7 @@
 # Bible Diaries production security review — 1 November 2026
 
+**Follow-up implementation:** see [Security changes and Docker](SECURITY_AND_DOCKER.md). This audit records the original findings; the follow-up documents fixes, the registration exclusion and remaining activation/device checks.
+
 **Decision: HOLD public app release.** Huawei developer-account approval does not establish that this app is ready to publish. This review found concrete authentication, privacy and enforcement gaps. Passing marketing-site tests or receiving zero database advisor warnings must not be presented as certification of the mobile app.
 
 ## Scope and evidence

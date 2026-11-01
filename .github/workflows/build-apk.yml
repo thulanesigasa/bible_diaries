@@ -80,10 +80,13 @@ jobs:
       # 7. Extract APK download URL and resolve release tag
       - name: Extract APK URL and Release Tag
         id: meta
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.version || github.ref_name }}
         run: |
           APK_URL=$(node -e "const raw=require('../build-output.json'); const b=Array.isArray(raw)?raw[0]:raw; console.log((b.artifacts&&b.artifacts.buildUrl)||(b.artifacts&&b.artifacts.applicationArchiveUrl)||b.artifactUrl||'')")
           echo "apk_url=$APK_URL" >> $GITHUB_OUTPUT
-          TAG="${{ github.event.inputs.version || github.ref_name }}"
+          TAG="$RELEASE_TAG"
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]] || { echo "Use a valid version tag."; exit 1; }
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       # 8. Download the APK from EAS CDN to the runner
@@ -110,8 +113,8 @@ jobs:
             2. On your Android device, enable **Install from unknown sources** in Settings.
             3. Open the downloaded APK and tap Install.
 
-            After installing this release, all future JS updates will be delivered
-            automatically via OTA — no reinstall needed.
+            Future JS updates require a matching native runtime fingerprint.
+            Native dependency changes require a new app installation.
           draft: false
           prerelease: false
           files: |

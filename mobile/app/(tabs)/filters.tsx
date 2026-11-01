@@ -29,7 +29,7 @@ export default function FiltersScreen() {
     try {
       let query = supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*), favorites(*)')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), comments(*, owned_by_me), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (activeCategory !== 'All') {
@@ -44,7 +44,7 @@ export default function FiltersScreen() {
         setPosts(data || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
       setRefreshing(false);

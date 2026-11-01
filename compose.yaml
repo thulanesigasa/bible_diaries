@@ -1,0 +1,41 @@
+name: bible-diaries
+services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?Set the Supabase URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?Set the public Supabase key}
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+    ports: ["127.0.0.1:3000:3000"]
+    init: true
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  website:
+    build:
+      context: ./web
+      args:
+        SITE_URL: ${SITE_URL:-http://localhost:3001}
+    env_file:
+      - path: ./web/.env.local
+        required: false
+    environment:
+      SITE_URL: ${SITE_URL:-http://localhost:3001}
+    ports: ["127.0.0.1:3001:3000"]
+    init: true
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  mobile-check:
+    profiles: [tools]
+    build:
+      context: ./mobile
+    environment:
+      EXPO_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

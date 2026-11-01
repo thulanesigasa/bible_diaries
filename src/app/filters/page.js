@@ -41,7 +41,7 @@ export default function FiltersPage() {
     try {
       const { data, error } = await supabase
         .from('diaries')
-        .select('*, profiles!author_id(*), likes(*), comments(*, profiles!author_id(*)), favorites(*)')
+        .select('*, owned_by_me, profiles!author_id(*), likes(*), comments(*, owned_by_me, profiles!author_id(*)), favorites(*)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -50,7 +50,7 @@ export default function FiltersPage() {
         setPosts(data || []);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
     }

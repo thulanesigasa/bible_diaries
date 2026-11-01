@@ -1,10 +1,10 @@
 name: Bible Diaries marketing website
 on:
   pull_request:
-    paths: ['web/**', '.github/workflows/marketing-web.yml']
+    paths: ['web/**', 'supabase/**', 'shared/**', '.github/workflows/marketing-web.yml']
   push:
     branches: [main]
-    paths: ['web/**', '.github/workflows/marketing-web.yml']
+    paths: ['web/**', 'supabase/**', 'shared/**', '.github/workflows/marketing-web.yml']
 permissions:
   contents: read
 jobs:

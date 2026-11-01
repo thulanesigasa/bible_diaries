@@ -38,7 +38,7 @@ export default function ConnectScreen() {
         setProfiles(data || []);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
     } finally {
       setLoading(false);
       setRefreshing(false);

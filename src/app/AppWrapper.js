@@ -37,7 +37,8 @@ export default function AppWrapper({ children }) {
     let active = true;
 
     // Load auth session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setTimeout(async () => {
       if (!active) return;
       
       const currentUser = session?.user || null;
@@ -52,7 +53,8 @@ export default function AppWrapper({ children }) {
             .eq('id', currentUser.id);
 
           if (data && data[0]) {
-            setProfile(data[0]);
+            const {data:contacts}=await supabase.from('profile_contacts').select('address,phone_number').eq('user_id',currentUser.id).maybeSingle();
+            setProfile({...data[0],...contacts});
           } else {
             // Fallback profile if row doesn't exist yet
             setProfile({
@@ -65,13 +67,14 @@ export default function AppWrapper({ children }) {
             });
           }
         } catch (err) {
-          console.error('Error fetching profile:', err);
+          console.error('Operation failed.');
         }
       } else {
         setProfile(null);
       }
       
-      setLoading(false);
+      if(active)setLoading(false);
+      },0);
     });
 
     return () => {
@@ -84,11 +87,11 @@ export default function AppWrapper({ children }) {
   useEffect(() => {
     if (loading) return;
 
-    const isAuthPage = pathname === '/login' || pathname === '/register';
+    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/reset-password';
 
     if (!user && !isAuthPage) {
       router.push('/login');
-    } else if (user && isAuthPage) {
+    } else if (user && isAuthPage && pathname !== '/reset-password') {
       router.push('/feed');
     }
   }, [user, loading, pathname, router]);
@@ -120,7 +123,7 @@ export default function AppWrapper({ children }) {
     }
   };
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/reset-password';
 
   if (loading) {
     return (

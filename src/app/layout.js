@@ -2,6 +2,7 @@ import "./globals.css";
 import AppWrapper from "./AppWrapper";
 
 export const metadata = {
+  robots:{index:false,follow:false},
   title: "Bible Diaries - Sharing Reflections & Faith",
   description: "A premium spiritual space to share daily reflections, bible study diaries, and connect with other believers under categories of hope, faith, love, and wisdom.",
   icons: {

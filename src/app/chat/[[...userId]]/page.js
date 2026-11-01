@@ -86,7 +86,7 @@ export default function ChatPage({ params }) {
 
       setChatRooms(rooms);
     } catch (err) {
-      console.error(err);
+      console.error('Operation failed.');
       showToast('Error loading inbox.', 'error');
     } finally {
       setLoadingRooms(false);
@@ -128,7 +128,7 @@ export default function ChatPage({ params }) {
         setActivePartner(partData[0]);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Operation failed.');
       showToast('Error loading messages.', 'error');
     } finally {
       setLoadingChat(false);
@@ -161,7 +161,7 @@ export default function ChatPage({ params }) {
         schema: 'public',
         table: 'chats'
       }, (payload) => {
-        console.log('REALTIME EVENT RECEIVED:', payload);
+
         const msg = payload.new;
         
         // Check if the message involves the current user
@@ -190,7 +190,7 @@ export default function ChatPage({ params }) {
         }
       })
       .subscribe((status, err) => {
-        console.log('Realtime subscription status:', status, err);
+
       });
 
     return () => {

@@ -65,10 +65,11 @@ export default function RootLayout() {
         .eq('id', userId);
 
       if (error) {
-        console.error('Fetch profile error:', error.message);
+        console.error('Operation failed.');
         setLoading(false);
       } else if (data && data.length > 0) {
-        setProfile(data[0]);
+        const {data:contacts}=await supabase.from('profile_contacts').select('address,phone_number').eq('user_id',userId).maybeSingle();
+        setProfile({...data[0],...contacts});
         setLoading(false);
       } else {
         // Self-heal: profile row is missing in public.profiles table!
@@ -84,8 +85,6 @@ export default function RootLayout() {
             first_name: fName,
             surname: sName,
             full_name: meta.full_name || `${fName} ${sName}`.trim(),
-            address: meta.address || '',
-            phone_number: meta.phone_number || '',
             avatar_url: meta.avatar_url || null,
             gender: meta.gender || 'Male',
             bio: 'Walking in faith.',
@@ -98,7 +97,7 @@ export default function RootLayout() {
             .insert(newProfile);
 
           if (insertError) {
-            console.error('Self-healing profile insert failed:', insertError.message);
+            console.error('Operation failed.');
           } else {
             setProfile(newProfile);
           }
@@ -106,14 +105,14 @@ export default function RootLayout() {
         setLoading(false);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Operation failed.');
       setLoading(false);
     }
   };
 
   // Auth Listener
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }:any) => {
       setUser(user);
       if (user) {
         fetchProfile(user.id);
@@ -122,12 +121,12 @@ export default function RootLayout() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Layout client ID:', (supabase as any).instanceId, 'Auth event:', event, 'Has session:', !!session, 'Session user:', session?.user?.email);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event:string, session:any) => {
+
       const activeUser = session?.user ?? null;
       setUser(activeUser);
       if (activeUser) {
-        fetchProfile(activeUser.id);
+        setTimeout(()=>fetchProfile(activeUser.id),0);
       } else {
         setProfile(null);
         setLoading(false);
@@ -153,7 +152,7 @@ export default function RootLayout() {
     if (!user && !inAuthGroup) {
       // Redirect to login if user is not logged in and not in the auth directory
       router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
+    } else if (user && inAuthGroup && !segments.join('/').endsWith('reset-password')) {
       // Redirect to feed tab if logged in
       router.replace('/(tabs)');
     }
