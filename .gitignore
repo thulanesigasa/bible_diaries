@@ -49,3 +49,6 @@ next-env.d.ts
 
 # local agent customizations (kept in global IDE config)
 .agents/
+
+# Supabase CLI local state
+/supabase/.temp/

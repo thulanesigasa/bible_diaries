@@ -151,3 +151,7 @@ The legal, privacy, support and safety pages include approximately 27,000 words 
 The repository includes a companion cross-platform mobile application located in the [`mobile/`](./mobile) directory.
 - Features Expo SDK 57, Expo Router, and Over-The-Air (OTA) updates.
 - Refer to [`mobile/README.md`](./mobile/README.md) for mobile installation, emulator execution, and OTA update workflows.
+
+## Production release status
+
+The 1 November 2026 security review recommends holding public app release until the authentication, privacy and enforcement blockers are resolved. See [the evidence and release gates](docs/PRODUCTION_SECURITY_REVIEW_2026-11-01.md). Huawei developer-account approval and passing marketing-site checks do not establish app production readiness.

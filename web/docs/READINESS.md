@@ -1,5 +1,7 @@
 # Bible Diaries website checklist
 
+**1 November 2026 app release assessment: HOLD.** The live project is active, but the root/mobile audit found release blockers. See [the production security review](../../docs/PRODUCTION_SECURITY_REVIEW_2026-11-01.md). This historical website checklist is not an app security sign-off. Next.js is now patched to 16.4.3 and the marketing tests total twenty.
+
 Checked on 15 October 2026. Scope: the independent marketing website in `web/`, not a certification of the root web application, mobile application or live infrastructure. The PR is not a public deployment. The linked Supabase project was inactive when inspected; the prepared SQL has only been tested locally.
 
 ## Information and design
