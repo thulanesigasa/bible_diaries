@@ -1,5 +1,8 @@
 name: App security and Docker
 on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'shared/**', 'mobile/**', 'supabase/**', '.github/workflows/app-security.yml']
   pull_request:
     paths: ['src/**', 'shared/**', 'mobile/**', 'supabase/**', '*lock.json', 'package.json', '*Dockerfile*', '*dockerignore', 'compose.yaml', 'web/Dockerfile', '.github/workflows/app-security.yml']
 permissions:
@@ -21,6 +24,7 @@ jobs:
       - run: |
           curl --fail http://localhost:3000/api/health
           curl --fail http://localhost:3001/api/health
+          node scripts/check-csp.mjs http://localhost:3000
           test "$(docker compose exec -T app id -u)" != 0
           test "$(docker compose exec -T website id -u)" != 0
       - if: always()
@@ -38,6 +42,10 @@ jobs:
           cache: npm
           cache-dependency-path: mobile/package-lock.json
       - run: npm ci --ignore-scripts
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: web
+      - run: node --test web/tests/diary-settings.test.mjs web/tests/app-security.test.mjs web/tests/content-service.test.mjs
+        working-directory: .
       - run: npx tsc --noEmit
       - run: npx expo export --platform android
       - run: npm audit --omit=dev --audit-level=high

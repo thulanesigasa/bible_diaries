@@ -187,22 +187,16 @@ export default function FiltersPage() {
 
   // Sharing functionality
   const handleShare = async (post) => {
-    const textToShare = `"${post.content}" - Written by ${post.profiles?.full_name} on bible_diaries #${post.category}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'bible_diaries Reflection',
-          text: textToShare,
-          url: window.location.href,
-        });
-        showToast('Shared successfully!');
-      } catch (err) {
-        copyToClipboard(textToShare);
+    const text=`"${post.content}" — ${post.is_anonymous?'Anonymous Believer':post.profiles?.full_name||'A believer'} · Bible Diaries`;
+    try {
+      if(navigator.share) await navigator.share({title:'Bible Diaries reflection',text,url:window.location.origin+'/post/'+post.id});
+      else await navigator.clipboard.writeText(text);
+      if(post.visibility!=='private'){
+        const {error}=await supabase.from('reflection_shares').upsert({user_id:user.id,post_id:post.id},{onConflict:'user_id,post_id',ignoreDuplicates:true});
+        if(error){showToast('Shared, but the activity could not be recorded.','error');return;}
       }
-    } else {
-      copyToClipboard(textToShare);
-    }
+      showToast(navigator.share?'Share completed.':'Reflection copied.');
+    } catch(error) { if(error.name!=='AbortError')showToast('Could not share this reflection.','error'); }
   };
 
   const copyToClipboard = (text) => {
@@ -338,7 +332,7 @@ export default function FiltersPage() {
 
                     {/* Content Section */}
                     <div 
-                      className="diary-card-content"
+                      className="diary-card-content diary-reading"
                       onClick={() => router.push(`/post/${post.id}`)}
                       style={{ cursor: 'pointer' }}
                     >

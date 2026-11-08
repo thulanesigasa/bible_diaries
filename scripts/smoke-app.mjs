@@ -7,6 +7,10 @@ const app=spawn(process.execPath,['.next/standalone/server.js'],{env:{...process
 try{
  let ready=false;for(let n=0;n<120;n++){try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,log);
  const login=await fetch(origin+'/login');assert.equal(login.status,200);assert.ok(login.headers.get('content-security-policy')?.includes('nonce-'));
+ const nonce=login.headers.get('content-security-policy').match(/'nonce-([^']+)'/)[1];
+ const html=await login.text();const scripts=[...html.matchAll(/<script\b([^>]*)>/g)].map(m=>m[1]);
+ assert.ok(scripts.length>0,'Expected Next.js scripts');
+ assert.ok(scripts.every(tag=>tag.includes(`nonce="${nonce}"`)),'CSP nonce must be applied to every executable script; static rendering breaks hydration');
  assert.equal((await fetch(origin+'/api/session')).status,401);
  const bad=await fetch(origin+'/api/session',{method:'POST',headers:{origin:'https://attacker.invalid','content-type':'application/json'},body:'{}'});assert.equal(bad.status,403);
  const content=await fetch(origin+'/api/content',{method:'POST',headers:{origin,'content-type':'application/json'},body:'{}'});assert.equal(content.status,401);

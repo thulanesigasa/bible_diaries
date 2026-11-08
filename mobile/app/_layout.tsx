@@ -1,3 +1,4 @@
+import AppLockGate from '../components/AppLockGate';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -172,13 +173,17 @@ export default function RootLayout() {
 
   return (
     <AppContext.Provider value={{ user, profile, setProfile, showToast, loading, hideTabBar, setHideTabBar, accent, supabase }}>
-      <View style={{ flex: 1 }}>
+      <AppLockGate userId={user?.id}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="post/[id]" options={{ headerShown: true, title: 'Reflection', headerTintColor: accent }} />
           <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: accent }} />
           <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="achievements" options={{headerShown:true,title:"Achievements",headerTintColor:accent}}/>
+          <Stack.Screen name="activity" options={{headerShown:true,title:"Activity & Notifications",headerTintColor:accent}}/>
+          <Stack.Screen name="settings/[section]" options={{headerShown:true,title:"Settings",headerTintColor:accent}}/>
+          <Stack.Screen name="settings/account" options={{headerShown:true,title:"Personal details",headerTintColor:accent}}/>
         </Stack>
 
         {/* Floating Toast notification HUD overlay */}
@@ -198,7 +203,7 @@ export default function RootLayout() {
           onDismiss={dismissUpdate}
           accent={accent}
         />
-      </View>
+      </AppLockGate>
     </AppContext.Provider>
   );
 }

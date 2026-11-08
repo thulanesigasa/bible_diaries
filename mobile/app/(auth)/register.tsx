@@ -160,6 +160,7 @@ export default function RegisterScreen() {
         confirmPasswordRef.current?.focus();
         return;
       }
+      setShowPassword(false);
       onPasswordBlur();
       setStep(2);
     } else if (step === 2) {
@@ -329,7 +330,7 @@ export default function RegisterScreen() {
                     returnKeyLabel="Next"
                     blurOnSubmit={false}
                     onFocus={onPasswordFocus}
-                    onBlur={onPasswordBlur}
+                    onBlur={()=>{setShowPassword(false);onPasswordBlur();}}
                     onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                     editable={!loading}
                   />
@@ -379,9 +380,10 @@ export default function RegisterScreen() {
                     returnKeyLabel="Next"
                     blurOnSubmit={false}
                     onFocus={onPasswordFocus}
-                    onBlur={onPasswordBlur}
+                    onBlur={()=>{setShowConfirmPassword(false);onPasswordBlur();}}
                     onSubmitEditing={() => {
-                      onPasswordBlur();
+                      setShowPassword(false);
+      onPasswordBlur();
                       handleNext();
                     }}
                     editable={!loading}

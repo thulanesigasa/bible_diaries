@@ -1,3 +1,4 @@
+import {useReadingStyle} from '../../src/hooks/useReadingStyle';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -17,6 +18,7 @@ import Avatar from '../../components/Avatar';
 const CATEGORIES = ['All', 'Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
 export default function FiltersScreen() {
+  const readingStyle=useReadingStyle();
   const [posts, setPosts] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -106,11 +108,12 @@ export default function FiltersScreen() {
     }
   };
 
-  const handleShare = async (content: string, author: string) => {
+  const handleShare = async (content: string, author: string, postId: string) => {
     try {
-      await Share.share({
+      const result = await Share.share({
         message: `Reflection by ${author || 'a believer'} on bible_diaries:\n\n"${content}"`,
       });
+      if(result.action===Share.sharedAction){const {error}=await supabase.from('reflection_shares').upsert({user_id:user.id,post_id:postId},{onConflict:'user_id,post_id',ignoreDuplicates:true});if(error)showToast('Shared, but the activity could not be recorded.','error');}
     } catch (e: any) {
       showToast(e.message, 'error');
     }
@@ -164,7 +167,7 @@ export default function FiltersScreen() {
               <Text style={styles.scriptureText}>{item.scripture}</Text>
             </View>
           ) : null}
-          <Text style={styles.postContent}>{item.content}</Text>
+          <Text style={[styles.postContent,readingStyle]}>{item.content}</Text>
         </TouchableOpacity>
 
         <View style={styles.actionsBar}>
@@ -187,7 +190,7 @@ export default function FiltersScreen() {
             <Bookmark size={18} color={isFav ? accent : '#475569'} fill={isFav ? accent : 'transparent'} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(item.content, item.profiles?.full_name)}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(item.content,item.is_anonymous?'Anonymous Believer':item.profiles?.full_name,item.id)}>
             <Share2 size={18} color="#475569" />
           </TouchableOpacity>
         </View>

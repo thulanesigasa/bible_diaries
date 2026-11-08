@@ -1,3 +1,4 @@
+import ActivityShortcut from '../../components/ActivityShortcut';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -134,6 +135,7 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
+      <ActivityShortcut/>
       {loading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={accent} />

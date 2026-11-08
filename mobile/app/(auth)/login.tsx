@@ -1,3 +1,4 @@
+import {clearLock} from '../../src/lib/app-lock';
 import React, { useState, useRef } from 'react';
 import { 
   View, 
@@ -45,6 +46,8 @@ export default function LoginScreen() {
       if (error) {
         showToast(error.message, 'error');
       } else {
+        // A successful account-password sign-in also recovers a forgotten local PIN.
+        if(data.user?.id && Platform.OS!=='web')await clearLock(data.user.id);
         const userGender = data.user?.user_metadata?.gender;
         const greeting = userGender === 'Male' 
           ? 'Welcome back, brother!' 
@@ -119,8 +122,9 @@ export default function LoginScreen() {
                   returnKeyType="go"
                   returnKeyLabel="Sign In"
                   onFocus={onPasswordFocus}
-                  onBlur={onPasswordBlur}
+                  onBlur={()=>{setShowPassword(false);onPasswordBlur();}}
                   onSubmitEditing={() => {
+                    setShowPassword(false);
                     onPasswordBlur();
                     handleLogin();
                   }}

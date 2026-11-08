@@ -1,0 +1,12 @@
+.git
+**/node_modules
+**/.next
+**/.expo
+**/.env*
+**/*cache*
+web
+supabase/.temp
+**/*.pem
+**/*.key
+**/*.jks
+**/*.keystore

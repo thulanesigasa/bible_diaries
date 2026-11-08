@@ -17,6 +17,8 @@ export default function MemberProfileScreen() {
   const { id } = useLocalSearchParams();
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [following,setFollowing]=useState(false);
+  const [changing,setChanging]=useState(false);
 
   const { user, showToast, accent, supabase } = useApp();
   const router = useRouter();
@@ -44,6 +46,7 @@ export default function MemberProfileScreen() {
 
   useEffect(() => {
     fetchProfileDetails();
+    supabase.from('reflection_subscriptions').select('author_id').eq('user_id',user.id).eq('author_id',id).maybeSingle().then(({data}:any)=>setFollowing(!!data));
   }, [id]);
 
   if (loading) {
@@ -59,6 +62,7 @@ export default function MemberProfileScreen() {
   return (
     <ScrollView style={styles.container}>
 
+      {user?.id!==id&&<View style={{padding:20,gap:20}}><TouchableOpacity disabled={changing} onPress={async()=>{setChanging(true);const r=following?await supabase.from('reflection_subscriptions').delete().eq('user_id',user.id).eq('author_id',id):await supabase.from('reflection_subscriptions').insert({user_id:user.id,author_id:id});setChanging(false);if(r.error)showToast('Could not update post notifications.','error');else setFollowing(!following);}}><Text style={{color:accent,fontWeight:'600'}}>{following?'Stop new-post notifications':'Notify me about new posts'}</Text></TouchableOpacity><TouchableOpacity disabled={changing} onPress={async()=>{setChanging(true);const {error}=await supabase.from('blocked_accounts').insert({user_id:user.id,blocked_user_id:id});setChanging(false);if(error)showToast('Could not block account.','error');else{showToast('Account blocked.');router.back();}}}><Text style={{color:'#b91c1c'}}>Block this account</Text></TouchableOpacity></View>}
       {/* Main Card */}
       <View style={styles.profileCard}>
         <Avatar 

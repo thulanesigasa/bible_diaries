@@ -1,3 +1,4 @@
+import {useReadingStyle} from '../../src/hooks/useReadingStyle';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -20,6 +21,7 @@ import { Heart, MessageSquare, Bookmark, Send, ArrowLeft, Share2, Edit2, Trash2 
 import Avatar from '../../components/Avatar';
 
 export default function PostDetailsScreen() {
+  const readingStyle=useReadingStyle();
   const { id: rawId } = useLocalSearchParams();
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const [post, setPost] = useState<any>(null);
@@ -122,11 +124,12 @@ export default function PostDetailsScreen() {
     }
   };
 
-  const handleShare = async (content: string, author: string) => {
+  const handleShare = async (content: string, author: string, postId: string) => {
     try {
-      await Share.share({
+      const result = await Share.share({
         message: `Reflection by ${author || 'a believer'} on bible_diaries:\n\n"${content}"`,
       });
+      if(result.action===Share.sharedAction){const {error}=await supabase.from('reflection_shares').upsert({user_id:user.id,post_id:postId},{onConflict:'user_id,post_id',ignoreDuplicates:true});if(error)showToast('Shared, but the activity could not be recorded.','error');}
     } catch (e: any) {
       showToast(e.message, 'error');
     }
@@ -215,7 +218,7 @@ export default function PostDetailsScreen() {
               {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
             </Text>
           </View>
-          <Text style={styles.commentText}>{item.content}</Text>
+          <Text style={[styles.commentText,readingStyle]}>{item.content}</Text>
         </View>
       </View>
     );
@@ -273,7 +276,7 @@ export default function PostDetailsScreen() {
                 <Text style={styles.scriptureText}>{post?.scripture}</Text>
               </View>
             ) : null}
-            <Text style={styles.postContent}>{post?.content}</Text>
+            <Text style={[styles.postContent,readingStyle]}>{post?.content}</Text>
 
             <View style={styles.actionsBar}>
               <TouchableOpacity style={styles.actionBtn} onPress={handleToggleLike}>
@@ -292,7 +295,7 @@ export default function PostDetailsScreen() {
                 <Bookmark size={20} color={isFav ? accent : '#475569'} fill={isFav ? accent : 'transparent'} />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(post?.content, post?.profiles?.full_name)}>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => handleShare(post?.content,post?.is_anonymous?'Anonymous Believer':post?.profiles?.full_name,post.id)}>
                 <Share2 size={20} color="#475569" />
                 <Text style={styles.actionText}>Share</Text>
               </TouchableOpacity>

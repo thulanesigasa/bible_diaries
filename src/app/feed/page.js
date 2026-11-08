@@ -1,5 +1,6 @@
 'use client';
 
+import {useDiarySettings} from '../../lib/diary-settings';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -96,6 +97,7 @@ function normalizeVerseRef(input) {
 export default function Feed() {
   const { user, profile, showToast } = useApp();
   const router = useRouter();
+  const {settings:diarySettings,ready:settingsReady,error:settingsError}=useDiarySettings(user?.id);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -240,8 +242,10 @@ export default function Feed() {
   const [privateEntry,setPrivateEntry]=useState(false);
   const [commentsAllowed,setCommentsAllowed]=useState(true);
   const [likesAllowed,setLikesAllowed]=useState(true);
+  useEffect(()=>{if(settingsReady){setPrivateEntry(diarySettings.default_private);setAnonymousEntry(diarySettings.default_anonymous);setCommentsAllowed(diarySettings.default_comments);setLikesAllowed(diarySettings.default_likes);}},[settingsReady,diarySettings.default_private,diarySettings.default_anonymous,diarySettings.default_comments,diarySettings.default_likes]);
   const handleCreatePost = async (e) => {
     e.preventDefault();
+    if(!settingsReady){showToast(settingsError||'Sharing preferences are still loading. Please retry.','error');return;}
     if (!newContent.trim()) {
       showToast('Reflection content cannot be empty.', 'error');
       return;
@@ -456,23 +460,16 @@ export default function Feed() {
 
   // Sharing functionality (web share and clipboard)
   const handleShare = async (post) => {
-    const textToShare = `"${post.content}" - Written by ${(post.is_anonymous ? 'Anonymous Believer' : post.profiles?.full_name)} on bible_diaries #${post.category}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'bible_diaries Reflection',
-          text: textToShare,
-          url: window.location.href,
-        });
-        showToast('Shared successfully!');
-      } catch (err) {
-        // If they cancel share overlay, fallback to clipboard
-        copyToClipboard(textToShare);
+    const text=`"${post.content}" — ${post.is_anonymous?'Anonymous Believer':post.profiles?.full_name||'A believer'} · Bible Diaries`;
+    try {
+      if(navigator.share) await navigator.share({title:'Bible Diaries reflection',text,url:window.location.origin+'/post/'+post.id});
+      else await navigator.clipboard.writeText(text);
+      if(post.visibility!=='private'){
+        const {error}=await supabase.from('reflection_shares').upsert({user_id:user.id,post_id:post.id},{onConflict:'user_id,post_id',ignoreDuplicates:true});
+        if(error){showToast('Shared, but the activity could not be recorded.','error');return;}
       }
-    } else {
-      copyToClipboard(textToShare);
-    }
+      showToast(navigator.share?'Share completed.':'Reflection copied.');
+    } catch(error) { if(error.name!=='AbortError')showToast('Could not share this reflection.','error'); }
   };
 
   const copyToClipboard = (text) => {
@@ -635,7 +632,7 @@ export default function Feed() {
                 <button 
                   type="submit" 
                   className="btn-primary" 
-                  disabled={submitting || !newContent.trim() || modStatus === 'flagged'}
+                  disabled={!settingsReady || submitting || !newContent.trim() || modStatus === 'flagged'}
                 >
                   <Plus size={18} />
                   <span>Share Diary</span>
@@ -701,7 +698,7 @@ export default function Feed() {
 
                     {/* Content Section */}
                     {editingPostId === post.id ? (
-                      <div className="diary-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div className="diary-card-content diary-reading" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <input
                           type="text"
                           value={editingTitle}
@@ -730,7 +727,7 @@ export default function Feed() {
                       </div>
                     ) : (
                       <div 
-                         className="diary-card-content"
+                         className="diary-card-content diary-reading"
                          onClick={() => router.push(`/post/${post.id}`)}
                          style={{ cursor: 'pointer' }}
                        >

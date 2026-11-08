@@ -55,3 +55,6 @@ next-env.d.ts
 
 .env.docker
 mobile/dist/
+
+# Local dependency download cache
+**/.npm-cache/

@@ -48,7 +48,13 @@
       ],
       "expo-status-bar",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Bible Diaries to verify your identity when unlocking your private reflections."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

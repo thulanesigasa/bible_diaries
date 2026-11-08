@@ -1,3 +1,4 @@
+import FeedAchievementBell from '../../components/FeedAchievementBell';
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { TouchableOpacity, View, Text, Platform, useWindowDimensions, Image } from 'react-native';
@@ -73,6 +74,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Feed',
+          headerRight: () => <FeedAchievementBell/>,
           tabBarIcon: ({ color }) => (
             <BookOpen size={16} color={color} />
           ),

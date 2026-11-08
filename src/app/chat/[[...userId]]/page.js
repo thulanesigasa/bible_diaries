@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useApp } from '../../AppWrapper';
 import { Send, Loader, User, BookOpen } from 'lucide-react';
 import Avatar from '../../../components/Avatar';
+import {ActivityShortcut} from '../../../components/DiaryShortcuts';
 
 export default function ChatPage({ params }) {
   // Use React's use() to read params since in Next 15+ it is a Promise!
@@ -248,6 +249,8 @@ export default function ChatPage({ params }) {
   };
 
   return (
+    <>
+    <ActivityShortcut/>
     <div className="container" style={{ margin: '1rem auto' }}>
       <div className="glass-panel chat-layout">
         
@@ -397,5 +400,6 @@ export default function ChatPage({ params }) {
 
       </div>
     </div>
+    </>
   );
 }

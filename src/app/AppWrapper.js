@@ -1,5 +1,7 @@
 'use client';
 
+import {AchievementBell} from '../components/DiaryShortcuts';
+import {useDiarySettings} from '../lib/diary-settings';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -20,6 +22,8 @@ export const useApp = () => useContext(AppContext);
 export default function AppWrapper({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const {settings:readingSettings,reload:reloadReading}=useDiarySettings(user?.id);
+  useEffect(()=>{window.addEventListener('diary-settings-changed',reloadReading);return()=>window.removeEventListener('diary-settings-changed',reloadReading);},[reloadReading]);
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState([]);
   const router = useRouter();
@@ -136,7 +140,7 @@ export default function AppWrapper({ children }) {
 
   return (
     <AppContext.Provider value={{ user, profile, setProfile, showToast, loading }}>
-      <div className={!isAuthPage && user ? "app-layout-wrapper" : ""}>
+      <div className={!isAuthPage && user ? "app-layout-wrapper" : ""} style={{'--diary-font-size':`${readingSettings.font_size}px`,'--diary-line-spacing':readingSettings.line_spacing,'--diary-font-family':readingSettings.font_family==='serif'?'Georgia,serif':readingSettings.font_family==='mono'?'monospace':'Arial,sans-serif'}}>
         {!isAuthPage && user && (
           <header className="app-header">
           <Link href="/feed" className="app-logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -144,6 +148,7 @@ export default function AppWrapper({ children }) {
             <span>bible_<span>diaries</span></span>
           </Link>
           
+          {pathname==='/feed'&&<AchievementBell/>}
           <nav className="app-nav">
             <Link href="/feed" className={`nav-link ${pathname === '/feed' ? 'active' : ''}`}>
               <BookOpen size={18} />
@@ -161,7 +166,7 @@ export default function AppWrapper({ children }) {
               <MessageSquare size={18} />
               <span>Chat</span>
             </Link>
-            <Link href="/settings" className={`nav-link ${pathname === '/settings' ? 'active' : ''}`}>
+            <Link href="/settings" className={`nav-link ${pathname.startsWith('/settings') ? 'active' : ''}`}>
               <Settings size={18} />
               <span>Settings</span>
             </Link>

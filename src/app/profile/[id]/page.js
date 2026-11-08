@@ -1,4 +1,5 @@
 'use client';
+import MemberActions from '../../../components/MemberActions';
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -74,6 +75,7 @@ export default function ProfilePage({ params }) {
   return (
     <div className="container" style={{ maxWidth: '650px', padding: '2rem 1rem' }}>
       
+      <MemberActions targetId={profileId}/>
       {/* Back Button */}
       <div style={{ marginBottom: '1.5rem' }}>
         <button 

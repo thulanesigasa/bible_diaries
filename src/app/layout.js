@@ -1,3 +1,4 @@
+import {connection} from 'next/server';
 import "./globals.css";
 import AppWrapper from "./AppWrapper";
 
@@ -14,7 +15,9 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // A per-request CSP nonce cannot be attached to build-time static HTML.
+  await connection();
   return (
     <html lang="en">
       <body>

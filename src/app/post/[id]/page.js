@@ -328,23 +328,16 @@ export default function PostPage({ params }) {
 
   // Share post
   const handleShare = async () => {
-    if (!post) return;
-    const textToShare = `"${post.content}" - Written by ${post.profiles?.full_name} on bible_diaries #${post.category}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'bible_diaries Reflection',
-          text: textToShare,
-          url: window.location.href,
-        });
-        showToast('Shared successfully!');
-      } catch (err) {
-        copyToClipboard(textToShare);
+    const text=`"${post.content}" — ${post.is_anonymous?'Anonymous Believer':post.profiles?.full_name||'A believer'} · Bible Diaries`;
+    try {
+      if(navigator.share) await navigator.share({title:'Bible Diaries reflection',text,url:window.location.origin+'/post/'+post.id});
+      else await navigator.clipboard.writeText(text);
+      if(post.visibility!=='private'){
+        const {error}=await supabase.from('reflection_shares').upsert({user_id:user.id,post_id:post.id},{onConflict:'user_id,post_id',ignoreDuplicates:true});
+        if(error){showToast('Shared, but the activity could not be recorded.','error');return;}
       }
-    } else {
-      copyToClipboard(textToShare);
-    }
+      showToast(navigator.share?'Share completed.':'Reflection copied.');
+    } catch(error) { if(error.name!=='AbortError')showToast('Could not share this reflection.','error'); }
   };
 
   const copyToClipboard = (text) => {
@@ -444,7 +437,7 @@ export default function PostPage({ params }) {
 
         {/* Content */}
         {isEditingPost ? (
-          <div className="diary-card-content" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="diary-card-content diary-reading" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <input
               type="text"
               value={editTitle}
@@ -472,7 +465,7 @@ export default function PostPage({ params }) {
             </div>
           </div>
         ) : (
-          <div className="diary-card-content" style={{ fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+          <div className="diary-card-content diary-reading" style={{ fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
             {post.title && (
               <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--text-color)' }}>
                 {post.title}
@@ -590,7 +583,7 @@ export default function PostPage({ params }) {
                           <span>{comment.is_anonymous ? (isCommentAuthor ? 'You (Anonymous)' : 'Anonymous Believer') : comment.profiles?.full_name}</span>
                           <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 'normal' }}>• {formatTime(comment.created_at)}</span>
                         </div>
-                        <div className="comment-text" style={{ fontSize: '0.92rem', marginTop: '4px' }}>{comment.content}</div>
+                        <div className="comment-text diary-reading" style={{ fontSize: '0.92rem', marginTop: '4px' }}>{comment.content}</div>
                         
                         {/* Comment Action Links (Like, Reply, Delete) */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
@@ -649,7 +642,7 @@ export default function PostPage({ params }) {
                                 <span>{reply.is_anonymous ? (isReplyAuthor ? 'You (Anonymous)' : 'Anonymous Believer') : reply.profiles?.full_name}</span>
                                 <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 'normal' }}>• {formatTime(reply.created_at)}</span>
                               </div>
-                              <div className="comment-text" style={{ fontSize: '0.88rem', marginTop: '2px' }}>{reply.content}</div>
+                              <div className="comment-text diary-reading" style={{ fontSize: '0.88rem', marginTop: '2px' }}>{reply.content}</div>
                               
                               {/* Reply Action Links */}
                               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.4rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
