@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Android APK Build Workflow
 #
-# Triggers when a version tag is pushed (e.g. v1.0.0, v2.1.3).
+# Triggers on a version tag, an explicit release.json change on main, or manually.
 # Builds a signed Android APK via EAS Cloud (preview profile) and uploads
 # it as a GitHub Release asset so it can be distributed for sideloading.
 #
@@ -11,6 +11,8 @@ name: Build Android APK
 
 on:
   push:
+    branches: [main]
+    paths: [mobile/release.json]
     tags:
       - "v*.*.*"
   workflow_dispatch:
@@ -18,12 +20,17 @@ on:
       version:
         description: "Release version tag (e.g. v1.0.0)"
         required: false
-        default: "v1.0.0"
+        default: ""
+
+concurrency:
+  group: android-release-${{ github.event.inputs.version || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build-android:
     name: EAS Build — Android APK
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     permissions:
       contents: write
 
@@ -36,6 +43,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate release version
+        id: release
+        env:
+          REQUESTED_TAG: ${{ github.event.inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const app=JSON.parse(fs.readFileSync('app.json','utf8')).expo;
+          const release=JSON.parse(fs.readFileSync('release.json','utf8'));
+          const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+          const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          const tag=process.env.REQUESTED_TAG || (process.env.REF_TYPE==='tag' ? process.env.REF_NAME : `v${release.version}`);
+          if(!/^v\d+\.\d+\.\d+$/.test(tag) || tag!==`v${app.version}` || pkg.version!==app.version || lock.version!==app.version || lock.packages[''].version!==app.version || release.version!==app.version || app.android.versionCode!==release.androidVersionCode) throw Error('Release tag, app version and build metadata must agree.');
+          if(app.runtimeVersion.policy!=='fingerprint') throw Error('Preserve native fingerprint runtime isolation.');
+          if(!Number.isInteger(app.android.versionCode) || app.android.versionCode<1) throw Error('A positive Android build number is required.');
+          if(!fs.existsSync(`../docs/releases/${tag}.md`)) throw Error('Release notes are missing.');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`tag=${tag}\n`);
+          NODE
+
       # 2. Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -47,6 +75,9 @@ jobs:
       # 3. Install project dependencies
       - name: Install dependencies
         run: npm ci --prefer-offline
+
+      - name: Check native TypeScript
+        run: npx tsc --noEmit
 
       # 4. Install EAS CLI globally
       - name: Install EAS CLI
@@ -77,47 +108,43 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL || 'https://fspfwidfdnqvpgmipate.supabase.co' }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzcGZ3aWRmZG5xdnBnbWlwYXRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDYzOTYsImV4cCI6MjA5OTU4MjM5Nn0.tqA4ABfDhZP_PdH2Wv-FrQWzFGfG8vgaTnyZKwFMtHM' }}
 
-      # 7. Extract APK download URL and resolve release tag
-      - name: Extract APK URL and Release Tag
+      - name: Extract successful APK artifact
         id: meta
-        env:
-          RELEASE_TAG: ${{ github.event.inputs.version || github.ref_name }}
         run: |
-          APK_URL=$(node -e "const raw=require('../build-output.json'); const b=Array.isArray(raw)?raw[0]:raw; console.log((b.artifacts&&b.artifacts.buildUrl)||(b.artifacts&&b.artifacts.applicationArchiveUrl)||b.artifactUrl||'')")
-          echo "apk_url=$APK_URL" >> $GITHUB_OUTPUT
-          TAG="$RELEASE_TAG"
-          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]] || { echo "Use a valid version tag."; exit 1; }
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const raw=JSON.parse(fs.readFileSync('../build-output.json','utf8'));
+          const build=Array.isArray(raw)?raw[0]:raw;
+          const url=build.artifacts?.applicationArchiveUrl || build.artifacts?.buildUrl;
+          if(build.status!=='FINISHED' || !url || new URL(url).protocol!=='https:') throw Error('EAS did not return a completed HTTPS APK artifact.');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`apk_url=${url}\n`);
+          NODE
 
-      # 8. Download the APK from EAS CDN to the runner
-      - name: Download APK artifact
-        if: steps.meta.outputs.apk_url != ''
+      - name: Download and verify APK
+        env:
+          APK_URL: ${{ steps.meta.outputs.apk_url }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
-          curl -L "${{ steps.meta.outputs.apk_url }}" \
-            -o "../bible-diaries-${{ steps.meta.outputs.tag }}.apk"
+          APK="bible-diaries-${RELEASE_TAG}.apk"
+          curl --fail --location --retry 3 "$APK_URL" -o "../$APK"
+          unzip -t "../$APK" > /dev/null
+          unzip -Z1 "../$APK" | grep -Fx AndroidManifest.xml
+          cd ..
+          sha256sum "$APK" > "$APK.sha256"
 
       # 9. Create a GitHub Release and attach the APK
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          name: "Bible Diaries ${{ steps.meta.outputs.tag }}"
-          body: |
-            ## Bible Diaries ${{ steps.meta.outputs.tag }}
-
-            ### What changed
-            See the commit history for a full list of changes in this release.
-
-            ### Installation
-            1. Download the `.apk` file below.
-            2. On your Android device, enable **Install from unknown sources** in Settings.
-            3. Open the downloaded APK and tap Install.
-
-            Future JS updates require a matching native runtime fingerprint.
-            Native dependency changes require a new app installation.
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: "Bible Diaries ${{ steps.release.outputs.tag }}"
+          body_path: docs/releases/${{ steps.release.outputs.tag }}.md
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
           files: |
-            bible-diaries-${{ steps.meta.outputs.tag }}.apk
+            bible-diaries-${{ steps.release.outputs.tag }}.apk
+            bible-diaries-${{ steps.release.outputs.tag }}.apk.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

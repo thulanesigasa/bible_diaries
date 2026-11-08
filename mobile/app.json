@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bible Diaries",
     "slug": "bible-diaries",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "bible-diaries",
@@ -18,7 +18,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.thulanesigasa.biblediaries"
+      "bundleIdentifier": "com.thulanesigasa.biblediaries",
+      "buildNumber": "5"
     },
     "android": {
       "package": "com.thulanesigasa.biblediaries",
@@ -28,7 +29,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 5
     },
     "web": {
       "bundler": "metro",
