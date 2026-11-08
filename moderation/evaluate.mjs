@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
 import {readFile,writeFile} from 'node:fs/promises';
 import {CATEGORIES,decideModeration,childSafetyIntake,POLICY_VERSION} from '../supabase/functions/_shared/moderation-policy.mjs';
 export const split=id=>parseInt(createHash('sha256').update('bd-v2-split:'+id).digest('hex').slice(0,8),16)%5===0?'held_out':'development';
@@ -28,4 +30,4 @@ export async function evaluate({live=false}={}){
  }
  return {policy_version:POLICY_VERSION,model_versions:[...models],mode:live?'live_api':'synthetic_mock',notice:'Illustrative labels require human validation. Mock metrics test policy behavior and do not measure OpenAI or production accuracy. No score thresholds were fitted; numeric calibration requires actual model responses. The held-out split is for future validation; these supplied examples were visible during requirements review.',development:metrics(rows.filter(r=>r.split==='development')),held_out:metrics(rows.filter(r=>r.split==='held_out')),all:metrics(rows)};
 }
-if(process.argv[1]&&new URL(import.meta.url).pathname===process.argv[1]){const result=await evaluate({live:process.env.MODERATION_LIVE==='1'});const path=process.argv[2]||'moderation/evaluation-report.json';await writeFile(path,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({mode:result.mode,count:result.all.count,mismatches:result.all.mismatches.length,report:path}));}
+if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){const result=await evaluate({live:process.env.MODERATION_LIVE==='1'});const path=process.argv[2]||'moderation/evaluation-report.json';await writeFile(path,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({mode:result.mode,count:result.all.count,mismatches:result.all.mismatches.length,report:path}));}
