@@ -1,3 +1,4 @@
+import {CATEGORIES} from '../../supabase/functions/_shared/moderation-policy.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHandler,normalizeContent} from '../../supabase/functions/_shared/handler.mjs';
@@ -11,13 +12,13 @@ function backend({active=true,flagged=false,outage=false,limit=true}={}){const c
  if(url.endsWith('/auth/v1/user'))body={id:uid,email:'synthetic@example.invalid'};
  else if(url.endsWith('/rpc/session_is_active'))body=active;
  else if(url.endsWith('/rpc/consume_security_limit'))body=limit;
- else if(url.includes('api.openai.com')){body={results:[{flagged}]};if(outage)status=503;}
- else if(url.endsWith('/rpc/commit_content'))body={id:uid,author_id:null};
+ else if(url.includes('api.openai.com')){body={results:[{flagged,categories:Object.fromEntries(CATEGORIES.map(k=>[k,flagged&&k==='harassment/threatening'])),category_scores:Object.fromEntries(CATEGORIES.map(k=>[k,0])),category_applied_input_types:Object.fromEntries(CATEGORIES.map(k=>[k,['text']]))}]};if(outage)status=503;}
+ else if(url.endsWith('/rpc/moderated_submit'))body={id:uid,decision:flagged?'REJECT':'ALLOW',reason:flagged?'severe_safety':'allow',data:{id:uid,author_id:null}};
  else throw new Error('Unexpected outbound request');return Response.json(body,{status});}};}
 test('trusted content service binds identity, denies revoked sessions and fails closed on moderation',async()=>{
  for(const settings of [{flagged:true},{outage:true},{active:false},{limit:false}]){const b=backend(settings);const r=await createHandler(env,b.fetch)(request(content));assert.ok(r.status>=400);assert.ok(!b.calls.some(c=>c.url.endsWith('/rpc/commit_content')));}
  const b=backend();const response=await createHandler(env,b.fetch)(request(content));assert.equal(response.status,200);
- const commit=JSON.parse(b.calls.find(c=>c.url.endsWith('/rpc/commit_content')).options.body);assert.equal(commit.actor,uid);assert.equal(commit.record.author_id,undefined);
+ const commit=JSON.parse(b.calls.find(c=>c.url.endsWith('/rpc/moderated_submit')).options.body);assert.equal(commit.actor,uid);assert.equal(commit.record.author_id,undefined);
  const none=backend();assert.equal((await createHandler({...env,OPENAI_API_KEY:''},none.fetch)(request(content))).status,503);assert.ok(!none.calls.some(c=>c.url.endsWith('/rpc/commit_content')));
  assert.equal((await createHandler(env,b.fetch)(request(content,{origin:'https://attacker.invalid'}))).status,403);
  const huge=await createHandler(env,b.fetch)(request({...content,record:{content:'a'.repeat(40000)}}));assert.equal(huge.status,413);
@@ -28,6 +29,13 @@ test('content client awaits filters and single-row representation without direct
  assert.deepEqual(client.from('diaries').select(),{source:'read'});
  const value=await client.from('diaries').update({content:'changed'}).eq('id',uid).select().single();assert.equal(value.data.id,uid);assert.equal(calls[0].id,uid);
  assert.throws(()=>client.from('comments').update({}).eq('author_id',uid));
+});
+test('review responses preserve safe metadata; malformed results fail closed and child-safety intake avoids the API',async()=>{
+ const response=signal=>{const b=backend();const original=b.fetch;return {calls:b.calls,fetch:async(url,options)=>{if(url.includes('api.openai.com'))return Response.json({results:[signal]});if(url.endsWith('/rpc/moderated_submit')){b.calls.push({url,options});const data=JSON.parse(options.body);return Response.json({id:uid,decision:data.decision,reason:data.reason,private_content:false});}return original(url,options);}};};
+ const {mockSignal}=await import('../../moderation/evaluate.mjs');const uncertain=mockSignal('neutral');uncertain.flagged=true;uncertain.categories.harassment=true;
+ let b=response(uncertain),r=await createHandler(env,b.fetch)(request(content));assert.equal(r.status,409);const data=await r.json();assert.equal(data.code,'MODERATION_REVIEW');assert.equal(data.submission_id,uid);assert.equal(data.category_scores,undefined);
+ b=response({flagged:false});r=await createHandler(env,b.fetch)(request(content));assert.equal(r.status,503);assert.ok(!b.calls.some(c=>c.url.endsWith('/rpc/moderated_submit')));
+ b=response(null);r=await createHandler(env,b.fetch)(request({...content,record:{content:'Trade explicit images of children',category:'faith'}}));assert.equal(r.status,422);const intake=JSON.parse(b.calls.find(c=>c.url.endsWith('/rpc/moderated_submit')).options.body);assert.equal(intake.reason,'child_safety');
 });
 test('native vault chunks sessions, clears old plaintext and does not fall back after errors',async()=>{
  const map=new Map(),legacy=new Map([['session','old plaintext']]);const vault={getItemAsync:async k=>map.get(k)??null,setItemAsync:async(k,v)=>{map.set(k,v);},deleteItemAsync:async k=>{map.delete(k);}};

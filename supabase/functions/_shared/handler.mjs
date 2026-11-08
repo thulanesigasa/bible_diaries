@@ -1,3 +1,4 @@
+import {decideModeration,childSafetyIntake,POLICY_VERSION,decisionMessage} from './moderation-policy.mjs';
 // Shared, testable handler. No credentials or message content are logged.
 export async function boundedJson(request, maximum=32000) {
  if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) throw Object.assign(new Error('Use JSON.'),{status:415});
@@ -70,22 +71,33 @@ export function createHandler(env,fetcher=fetch,kind='content'){
     return deleted.ok?reply(200,{deleted:true}):reply(503,{error:'Could not complete deletion. Sign in and retry.'});
    }
    const operation=normalizeContent(body);
+   let baseRecord=null;
    let text=Object.values(operation.record).filter(v=>typeof v==='string').join('\n');
    if(operation.operation==='update'){
     const ownership=await api(`/rest/v1/${operation.table==='diaries'?'diary_owners':'comment_owners'}?${operation.table==='diaries'?'post_id':'comment_id'}=eq.${operation.id}&select=user_id`);
     if(!ownership.ok||ownership.data?.[0]?.user_id!==user.id)return reply(403,{error:'Edit not permitted.'});
     const existing=await api(`/rest/v1/${operation.table}?id=eq.${operation.id}&select=*`);
     if(!existing.ok||!existing.data?.[0])return reply(404,{error:'Content unavailable.'});
-    text=[existing.data[0].title,existing.data[0].scripture,operation.record.title,operation.record.scripture,operation.record.content].filter(Boolean).join('\n');
+    baseRecord=operation.table==='diaries'?{content:existing.data[0].content,title:existing.data[0].title??null,scripture:existing.data[0].scripture??null}:{content:existing.data[0].content};
+    const merged={...baseRecord,...operation.record};
+    text=[merged.title,merged.scripture,merged.content].filter(Boolean).join('\n');
    }
-   // Missing/failed moderation is never interpreted as approval.
-   if(!env.OPENAI_API_KEY)return reply(503,{error:'Publishing is temporarily unavailable. Your text has not been saved.'});
-   const moderation=await fetcher('https://api.openai.com/v1/moderations',{method:'POST',headers:{authorization:`Bearer ${env.OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:'omni-moderation-latest',input:text}),signal:AbortSignal.timeout(10000)});
-   if(!moderation.ok)return reply(503,{error:'Moderation unavailable. Your text has not been saved.'});
-   const result=(await moderation.json())?.results?.[0];if(typeof result?.flagged!=='boolean')return reply(503,{error:'Moderation unavailable. Your text has not been saved.'});
-   if(result.flagged)return reply(422,{error:'This content does not meet the community guidelines.'});
-   const written=await api('/rest/v1/rpc/commit_content',{method:'POST',service:true,body:{actor:user.id,target:operation.table,operation:operation.operation,record:operation.record,row_id:operation.id}});
-   return written.ok?reply(200,{data:written.data}):reply(403,{error:'Content could not be saved. Check visibility and interaction settings.'});
+   let decision;
+   if(childSafetyIntake(text)){
+    // No suspect abusive material is forwarded to the model or persisted in drafts.
+    decision={outcome:'REJECT',reason:'child_safety',policy_version:POLICY_VERSION,flagged_categories:[]};
+   }else{
+    if(!env.OPENAI_API_KEY)return reply(503,{error:'Publishing is temporarily unavailable. Keep your draft and retry later.'});
+    const moderation=await fetcher('https://api.openai.com/v1/moderations',{method:'POST',headers:{authorization:`Bearer ${env.OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:'omni-moderation-latest',input:text}),signal:AbortSignal.timeout(10000)});
+    if(!moderation.ok)return reply(503,{error:'Moderation unavailable. Keep your draft and retry later.'});
+    decision=decideModeration(text,(await moderation.json())?.results?.[0]);
+   }
+   const written=await api('/rest/v1/rpc/moderated_submit',{method:'POST',service:true,body:{actor:user.id,target:operation.table,operation:operation.operation,record:operation.record,row_id:operation.id,decision:decision.outcome,reason:decision.reason,policy_version:decision.policy_version,categories:decision.flagged_categories,base_record:baseRecord}});
+   if(!written.ok)return reply(409,{error:'Content could not be saved. Check sharing settings, reload edited content, and retry. Your draft is unchanged.'});
+   const stored=written.data;
+   if(!stored || !['ALLOW','REVIEW','REJECT'].includes(stored.decision))return reply(503,{error:'Could not confirm submission. Keep your draft and check My reviews before retrying.'});
+   if(stored.decision==='ALLOW')return reply(200,{data:stored.data,moderation:{decision:'ALLOW'}});
+   return reply(stored.decision==='REVIEW'?409:422,{error:decisionMessage(stored.reason,stored.private_content),code:stored.decision==='REVIEW'?'MODERATION_REVIEW':'MODERATION_REJECT',submission_id:stored.id,moderation:{decision:stored.decision,reason:stored.reason,policy_version:POLICY_VERSION}});
   }catch(error){return reply(error.status||503,{error:error.status?error.message:'Service unavailable. Please try again later.'});}
  };
 }

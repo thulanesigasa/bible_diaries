@@ -14,6 +14,6 @@ const client=createClient(url,key,{auth:{storage:authStorage,persistSession:true
 export const supabase=withContentWrites(client,async body=>{
  const {data:{session}}=await client.auth.getSession();
  const r=await fetch('/api/content',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${session?.access_token||''}`},body:JSON.stringify(body)});
- const data=await r.json();return r.ok?{data:data.data}:{error:{message:data.error||'Could not save content.'}};
+ const data=await r.json();return r.ok?{data:data.data}:{error:{message:data.error||'Could not save content.',code:data.code,submission_id:data.submission_id}};
 });
 export default supabase;

@@ -1,0 +1,586 @@
+{
+  "policy_version": "bd-context-2.0.1",
+  "model_versions": [],
+  "mode": "synthetic_mock",
+  "notice": "Illustrative labels require human validation. Mock metrics test policy behavior and do not measure OpenAI or production accuracy. No score thresholds were fitted; numeric calibration requires actual model responses. The held-out split is for future validation; these supplied examples were visible during requirements review.",
+  "development": {
+    "count": 176,
+    "confusion_matrix": {
+      "ALLOW": {
+        "ALLOW": 80,
+        "REVIEW": 1,
+        "REJECT": 0
+      },
+      "REVIEW": {
+        "ALLOW": 4,
+        "REVIEW": 39,
+        "REJECT": 0
+      },
+      "REJECT": {
+        "ALLOW": 14,
+        "REVIEW": 8,
+        "REJECT": 30
+      }
+    },
+    "per_class": {
+      "ALLOW": {
+        "precision": 0.8163265306122449,
+        "recall": 0.9876543209876543,
+        "f1": 0.893854748603352,
+        "support": 81
+      },
+      "REVIEW": {
+        "precision": 0.8125,
+        "recall": 0.9069767441860465,
+        "f1": 0.8571428571428572,
+        "support": 43
+      },
+      "REJECT": {
+        "precision": 1,
+        "recall": 0.5769230769230769,
+        "f1": 0.7317073170731707,
+        "support": 52
+      }
+    },
+    "false_positive_rate": 0.012345679012345678,
+    "false_negative_rate": 0.18947368421052632,
+    "mismatches": [
+      {
+        "id": "BD-041",
+        "split": "development",
+        "category": "testimony_and_support",
+        "expected": "ALLOW",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-123",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-133",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-139",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-147",
+        "split": "development",
+        "category": "sensitive_disclosures_and_context",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-161",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-166",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-169",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-170",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-174",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-175",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-179",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-180",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-183",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-185",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-188",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "severe_safety"
+      },
+      {
+        "id": "BD-190",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-191",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-194",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-195",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-206",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-208",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-211",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-214",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-215",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-217",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-218",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      }
+    ]
+  },
+  "held_out": {
+    "count": 44,
+    "confusion_matrix": {
+      "ALLOW": {
+        "ALLOW": 18,
+        "REVIEW": 1,
+        "REJECT": 0
+      },
+      "REVIEW": {
+        "ALLOW": 0,
+        "REVIEW": 17,
+        "REJECT": 0
+      },
+      "REJECT": {
+        "ALLOW": 0,
+        "REVIEW": 0,
+        "REJECT": 8
+      }
+    },
+    "per_class": {
+      "ALLOW": {
+        "precision": 1,
+        "recall": 0.9473684210526315,
+        "f1": 0.972972972972973,
+        "support": 19
+      },
+      "REVIEW": {
+        "precision": 0.9444444444444444,
+        "recall": 1,
+        "f1": 0.9714285714285714,
+        "support": 17
+      },
+      "REJECT": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "support": 8
+      }
+    },
+    "false_positive_rate": 0.05263157894736842,
+    "false_negative_rate": 0,
+    "mismatches": [
+      {
+        "id": "BD-072",
+        "split": "held_out",
+        "category": "scripture_quotes_and_education",
+        "expected": "ALLOW",
+        "actual": "REVIEW",
+        "reason": "context"
+      }
+    ]
+  },
+  "all": {
+    "count": 220,
+    "confusion_matrix": {
+      "ALLOW": {
+        "ALLOW": 98,
+        "REVIEW": 2,
+        "REJECT": 0
+      },
+      "REVIEW": {
+        "ALLOW": 4,
+        "REVIEW": 56,
+        "REJECT": 0
+      },
+      "REJECT": {
+        "ALLOW": 14,
+        "REVIEW": 8,
+        "REJECT": 38
+      }
+    },
+    "per_class": {
+      "ALLOW": {
+        "precision": 0.8448275862068966,
+        "recall": 0.98,
+        "f1": 0.9074074074074074,
+        "support": 100
+      },
+      "REVIEW": {
+        "precision": 0.8484848484848485,
+        "recall": 0.9333333333333333,
+        "f1": 0.888888888888889,
+        "support": 60
+      },
+      "REJECT": {
+        "precision": 1,
+        "recall": 0.6333333333333333,
+        "f1": 0.7755102040816326,
+        "support": 60
+      }
+    },
+    "false_positive_rate": 0.02,
+    "false_negative_rate": 0.15,
+    "mismatches": [
+      {
+        "id": "BD-041",
+        "split": "development",
+        "category": "testimony_and_support",
+        "expected": "ALLOW",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-072",
+        "split": "held_out",
+        "category": "scripture_quotes_and_education",
+        "expected": "ALLOW",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-123",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-133",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-139",
+        "split": "development",
+        "category": "spiritual_pressure_and_manipulation",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-147",
+        "split": "development",
+        "category": "sensitive_disclosures_and_context",
+        "expected": "REVIEW",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-161",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-166",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-169",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-170",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-174",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-175",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-179",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-180",
+        "split": "development",
+        "category": "targeted_mockery_and_bullying",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-183",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-185",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-188",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "severe_safety"
+      },
+      {
+        "id": "BD-190",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-191",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-194",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-195",
+        "split": "development",
+        "category": "threats_and_intimidation",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-206",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-208",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-211",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-214",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-215",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "REVIEW",
+        "reason": "context"
+      },
+      {
+        "id": "BD-217",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      },
+      {
+        "id": "BD-218",
+        "split": "development",
+        "category": "hate_and_severe_harm",
+        "expected": "REJECT",
+        "actual": "ALLOW",
+        "reason": "allow"
+      }
+    ]
+  }
+}

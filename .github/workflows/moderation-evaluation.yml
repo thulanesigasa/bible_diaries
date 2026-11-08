@@ -1,0 +1,31 @@
+name: Evaluate moderation against live API
+on:
+  workflow_dispatch:
+    inputs:
+      labels_reviewed:
+        description: The illustrative labels have been reviewed and this run may send the public test texts to OpenAI
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    if: inputs.labels_reviewed
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Evaluate all labelled examples
+        run: node moderation/evaluate.mjs moderation/live-evaluation-report.json
+        env:
+          MODERATION_LIVE: '1'
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moderation-evaluation
+          path: moderation/live-evaluation-report.json
+          retention-days: 14

@@ -44,7 +44,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: web
-      - run: node --test web/tests/diary-settings.test.mjs web/tests/app-security.test.mjs web/tests/content-service.test.mjs
+      - run: node --test web/tests/*.test.mjs
         working-directory: .
       - run: npx tsc --noEmit
       - run: npx expo export --platform android

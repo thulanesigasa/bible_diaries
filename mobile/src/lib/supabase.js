@@ -28,7 +28,7 @@ const storage=Platform.OS==='web'?{
 const client=createClient(supabaseUrl,supabaseAnonKey,{auth:{storage,autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
 export const supabase=withContentWrites(client,async body=>{
  const {data,error}=await client.functions.invoke('secure-content',{body});
- if(error){let message='Could not save content.';try{message=(await error.context.json()).error||message;}catch{}return {error:{message}};}
+ if(error){let payload={};try{payload=await error.context.json();}catch{}return {error:{message:payload.error||'Could not save content.',code:payload.code,submission_id:payload.submission_id}};}
  return {data:data.data};
 });
 if(Platform.OS!=='web')AppState.addEventListener('change',state=>{if(state==='active')client.auth.startAutoRefresh();else client.auth.stopAutoRefresh();});
