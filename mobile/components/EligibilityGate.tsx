@@ -1,3 +1,4 @@
+import PolicyLinks from "./PolicyLinks";
 import MfaSettings from "./MfaSettings";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -144,24 +145,7 @@ export default function EligibilityGate({
                 />
               </>
             )}
-            <View style={s.links}>
-              {[
-                ["Terms", "terms"],
-                ["Privacy", "privacy"],
-                ["Community standards", "community-guidelines"],
-                ["Child safety", "child-safety"],
-              ].map(([label, path]) => (
-                <TouchableOpacity
-                  key={path}
-                  accessibilityRole="link"
-                  onPress={() =>
-                    Linking.openURL("https://biblediaries.co.za/" + path)
-                  }
-                >
-                  <Text style={s.link}>{label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <PolicyLinks />
             <TouchableOpacity
               accessibilityRole="checkbox"
               accessibilityState={{ checked: accepted }}
@@ -229,7 +213,9 @@ export default function EligibilityGate({
           accessibilityRole="link"
           style={s.check}
           onPress={() =>
-            Linking.openURL("https://biblediaries.co.za/account-deletion")
+            Linking.openURL(
+              "mailto:support@ts-industries.com?subject=Bible%20Diaries%20account%20deletion%20or%20correction",
+            )
           }
         >
           <Text style={s.link}>Request account deletion or a correction</Text>

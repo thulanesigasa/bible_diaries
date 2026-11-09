@@ -53,3 +53,5 @@ The implementation was locally checked with synthetic accounts and mocked extern
 ## Verified deployment record — 9 November 2026
 
 Hosted migration `20261109101535_launch_eligibility_and_reports` was applied to BibleDiaries project `fspfwidfdnqvpgmipate`. `secure-content` version 3 is active with JWT verification enabled; its account-access check runs before the external moderation request. Existing accounts must complete the new age/policy step after updating. Native Android and iOS fingerprints match the existing v1.0.5 binary baseline; no native dependency/configuration change was introduced for these features. Source builds, synthetic browser checks and database tests do not replace real-device testing or store approval.
+
+Consent notices are bundled in the native app: registration and the eligibility gate open Terms, Privacy, Community and Child safety in an in-app reader before acceptance. Reading them does not depend on the production domain being hosted. Restricted accounts can open an email deletion/correction request directly. Public store-policy URLs still require production hosting.

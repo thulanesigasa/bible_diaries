@@ -1,3 +1,4 @@
+import PolicyLinks from "../../components/PolicyLinks";
 import React, { useState } from "react";
 import {
   Text,
@@ -5,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Linking,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "../../src/lib/supabase";
@@ -133,21 +133,7 @@ export default function Register() {
           />
         </React.Fragment>
       ))}
-      {[
-        ["Terms", "terms"],
-        ["Privacy notice", "privacy"],
-        ["Community standards", "community-guidelines"],
-        ["Child safety", "child-safety"],
-      ].map(([label, path]) => (
-        <TouchableOpacity
-          accessibilityRole="link"
-          key={path}
-          onPress={() => Linking.openURL("https://biblediaries.co.za/" + path)}
-          style={s.link}
-        >
-          <Text style={s.linkText}>{label}</Text>
-        </TouchableOpacity>
-      ))}
+      <PolicyLinks />
       <TouchableOpacity
         accessibilityRole="checkbox"
         accessibilityState={{ checked: accepted }}
