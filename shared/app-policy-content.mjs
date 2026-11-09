@@ -41,7 +41,7 @@ export const APP_POLICIES = [
       ],
       [
         "Service providers and security",
-        "Bible Diaries uses Supabase services for account, database and related infrastructure, and the configured moderation provider for automated text checks. Access controls restrict records by account and staff role. No online service can promise that every incident will be prevented. Keep your device locked, use a strong unique password and review unfamiliar sessions in Settings.",
+        "Bible Diaries uses Supabase services for account, database and related infrastructure, and OpenAI for automated text moderation. Submitted text, including private entries and messages, is sent for those checks. Access controls restrict records by account and staff role. No online service can promise that every incident will be prevented. Keep your device locked, use a strong unique password and review unfamiliar sessions in Settings.",
       ],
       [
         "Retention, exports and deletion",
