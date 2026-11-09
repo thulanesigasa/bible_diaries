@@ -62,3 +62,7 @@ Consent notices are bundled in the native app: registration and the eligibility 
 - Pre-existing accounts missing the record finish the missing registration steps once on a dedicated completion route. Existing recorded details are preserved; no birth date or consent is fabricated.
 - Privacy, Terms, Community and Child Safety open on separate screens. Seven detailed support/safety guides cover account access, reflections/reviews, activity, privacy/deletion, community safety, reporting and guardians. New controls and panels use square edges and dividers.
 - Production domain hosting remains deferred at the owner's request. Native policy and help content is bundled and available without a hosted website.
+
+## Compatible OTA publication
+
+OTA publication now follows successful `App security and Docker` CI for trusted pushes on main. It checks out the exact tested commit, compares both generated native fingerprints with `docs/ota-runtime-baseline.json`, and stops if either differs. The known Android baseline is the installed v1.0.5 APK; the iOS fingerprint records matching project source and does not claim an iOS store build. Publication skips superseded mobile/shared source and continues to support a manual dispatch. Native changes require a verified new binary and an explicit baseline update. No browser session is required to start a normal compatible update.

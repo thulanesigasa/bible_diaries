@@ -1,0 +1,6 @@
+{
+  "release": "v1.0.5",
+  "android": "3dd81808323a4ce3086b949bbb1f7441009187b9",
+  "ios": "782496a632b75aa0a4818e2d823db325ed21802d",
+  "verification": "Android APK installed and tested; both platform fingerprints match the v1.0.5 source. No iOS store release is claimed. Update this record only after verifying the corresponding new native build."
+}

@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # OTA Publish Workflow
 #
-# Triggers on every push to main that touches files inside mobile/**
+# Automatically follows successful trusted main-branch app CI.
 # Publishes a new JS bundle to the "production" EAS update channel so that
 # users of the already-installed app receive an in-app prompt to update
 # without needing to reinstall.
@@ -9,17 +9,30 @@
 name: OTA Update — Publish Bundle
 
 on:
+  workflow_run:
+    workflows: ["App security and Docker"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       native_build_verified:
-        description: 'A rebuilt app with the matching runtime fingerprint has been verified'
+        description: "A rebuilt app with the matching runtime fingerprint has been verified"
         required: true
         type: boolean
         default: false
 
+permissions:
+  contents: read
+concurrency:
+  group: ota-publish-${{ github.repository }}
+  cancel-in-progress: false
+env:
+  OTA_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 jobs:
   publish-ota:
-    if: inputs.native_build_verified
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository) ||
+      (github.event_name == 'workflow_dispatch' && inputs.native_build_verified)
     name: Publish OTA Update
     runs-on: ubuntu-latest
 
@@ -31,6 +44,8 @@ jobs:
       # 1. Checkout source
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       # 2. Set up Node.js — use the same major version as in package.json engines
       - name: Set up Node.js
@@ -44,6 +59,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
+      - name: Verify native runtime compatibility
+        run: |
+          npx expo-updates fingerprint:generate --platform android > "$RUNNER_TEMP/ota-android.json"
+          npx expo-updates fingerprint:generate --platform ios > "$RUNNER_TEMP/ota-ios.json"
+          node ../scripts/assert-ota-runtime.mjs ../docs/ota-runtime-baseline.json "$RUNNER_TEMP/ota-android.json" "$RUNNER_TEMP/ota-ios.json"
+
       # 4. Install EAS CLI globally
       - name: Install EAS CLI
         run: npm install --global eas-cli
@@ -54,17 +75,29 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Skip superseded app source
+        id: fresh
+        run: |
+          git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+          if git diff --quiet "$OTA_SOURCE_SHA" refs/remotes/origin/main -- . ../shared; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Newer app source is on main; its successful CI will publish the next update."
+          fi
+
       # 6. Publish OTA update to both production and preview channels
       #    Ensures installed APKs listening to either channel receive the bundle.
       - name: Publish OTA bundle
+        if: steps.fresh.outputs.current == 'true'
         run: |
           eas update \
             --channel production \
-            --message "OTA: $GITHUB_SHA" \
+            --message "OTA: $OTA_SOURCE_SHA" \
             --non-interactive
           eas update \
             --channel preview \
-            --message "OTA: $GITHUB_SHA" \
+            --message "OTA: $OTA_SOURCE_SHA" \
             --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

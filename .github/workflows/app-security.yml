@@ -2,9 +2,35 @@ name: App security and Docker
 on:
   push:
     branches: [main]
-    paths: ['src/**', 'shared/**', 'mobile/**', 'supabase/**', '.github/workflows/app-security.yml']
+    paths:
+      [
+        "src/**",
+        "shared/**",
+        "mobile/**",
+        "supabase/**",
+        ".github/workflows/app-security.yml",
+        ".github/workflows/ota-update.yml",
+        "scripts/assert-ota-runtime.mjs",
+        "docs/ota-runtime-baseline.json",
+      ]
   pull_request:
-    paths: ['src/**', 'shared/**', 'mobile/**', 'supabase/**', '*lock.json', 'package.json', '*Dockerfile*', '*dockerignore', 'compose.yaml', 'web/Dockerfile', '.github/workflows/app-security.yml']
+    paths:
+      [
+        "src/**",
+        "shared/**",
+        "mobile/**",
+        "supabase/**",
+        "*lock.json",
+        "package.json",
+        "*Dockerfile*",
+        "*dockerignore",
+        "compose.yaml",
+        "web/Dockerfile",
+        ".github/workflows/app-security.yml",
+        ".github/workflows/ota-update.yml",
+        "scripts/assert-ota-runtime.mjs",
+        "docs/ota-runtime-baseline.json",
+      ]
 permissions:
   contents: read
 jobs:
