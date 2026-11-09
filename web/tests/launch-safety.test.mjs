@@ -25,7 +25,7 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
       "supabase/migrations/20261108191413_unified_admin_waitlist_and_notifications.sql",
       "supabase/migrations/20261109101535_launch_eligibility_and_reports.sql",
       "supabase/migrations/20261109111244_signup_eligibility_capture.sql",
-      "supabase/migrations/20261109122617_restore_signup_profile_fields.sql",
+      "supabase/migrations/20261109153759_restore_signup_profile_fields.sql",
     ]) {
       if (f.includes("115300"))
         await db.exec(
