@@ -1,0 +1,2 @@
+import {APP_POLICIES} from '../../shared/app-policy-content.mjs';
+export default function AppPolicies(){return <div className="app-policies"><p>Reviewed for this app on 9 November 2026.</p>{APP_POLICIES.map(p=><details key={p.id} open={p.id==='privacy'}><summary>{p.title}</summary><p>{p.intro}</p>{p.sections.map(([heading,text])=><section key={heading}><h3>{heading}</h3><p>{text}</p></section>)}</details>)}</div>;}

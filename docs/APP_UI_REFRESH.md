@@ -1,0 +1,12 @@
+# App UI refresh — 9 November 2026
+
+- Reading text size uses a drag control with every integer from 8 through 24. Preview updates while dragging; only release/assistive adjustment saves. Reading fonts and line spacing retain their existing scope; menus and navigation are not changed by those preferences. The browser app uses a native range input with keyboard controls.
+- Live migration `20261109071136_reading_font_range_8_to_24` widens only the existing font-size check. It preserves owner RLS and all other preferences. Hosted checks confirmed the new range and enabled RLS.
+- Reviews has an explicit compact Stack header matching the other secondary screens; the duplicate oversized in-content title is removed.
+- Activity merges community interactions and system decisions into one date-grouped inbox with avatar/icon rows, unread dots, filters and owner-scoped mark-all-read. Bookmark actor identities are never displayed or fetched. Pagination maintains separate offsets for community and system records; stale filter requests cannot replace the active view.
+- Privacy, terms and community information is available in expandable in-app sections, including visibility, anonymous staff review, providers, retention, requests, content rights, boundaries, appeals and support limits. Descriptions do not claim end-to-end encryption, perfect moderation, immediate deletion or emergency support.
+- The reflection composer is a full-screen social editor with a compact toolbar, author/audience preview, topic choices, optional title/scripture and conversation controls. Closing/reopening on the feed retains text and selected audience. Submissions still go through secure-content; a held/rejected/error response does not clear the draft or claim success.
+
+Validation: 41 shared/backend tests; TypeScript; browser production build; Android export; interactive browser check of the app components at 390px (composer draft/audience preservation under a review response, 8/24/13 size selections, expanded policies, compact reviews and activity filter switching). Browser reading tests covered keyboard sizes, save/reload/reset, privacy preservation and failed saves. Tests use synthetic accounts and mocked requests, not real user content.
+
+Native dependencies, app.json, EAS configuration and runtime policy are unchanged. Android fingerprint remains `3dd81808323a4ce3086b949bbb1f7441009187b9`, matching the v1.0.5 baseline and the previous successful OTA. Publish only after checks pass through the existing manually gated workflow.

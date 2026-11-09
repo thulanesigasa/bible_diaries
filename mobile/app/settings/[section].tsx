@@ -1,3 +1,4 @@
+import AppPolicies from "../../components/AppPolicies";
 import ReadingPreferences from "../../components/ReadingPreferences";
 import React, { useEffect, useState } from "react";
 import {
@@ -293,6 +294,7 @@ export default function SettingsSection() {
           </Text>
         </>
       )}
+      {section === "privacy" && action("Read the privacy policy", () => router.push("/settings/legal" as any))}
       {section === "notifications" && (
         <>
           {(["likes", "comments", "bookmarks", "shares", "posts"] as const).map(
@@ -576,35 +578,7 @@ export default function SettingsSection() {
           </Text>
         </>
       )}
-      {section === "legal" && (
-        <>
-          <Text style={s.label}>Privacy</Text>
-          <Text>
-            Bible Diaries handles account details, reflections, messages,
-            settings and interaction records to provide the service. Private
-            entries and bookmarks are restricted to your account. Anonymous
-            posts hide your public identity; they are not untraceable to the
-            service.
-          </Text>
-          <Text>
-            Request access, correction or deletion at support@ts-industries.com.
-            Account deletion is available under Personal details. Exports and
-            screenshots held by other people cannot be recalled.
-          </Text>
-          <Text style={s.label}>Terms & community expectations</Text>
-          <Text>
-            You are responsible for your account and the content you choose to
-            share. Respect other people, avoid harassment and do not post
-            unlawful, explicit or misleading material. Do not rely on the
-            community for professional or emergency advice.
-          </Text>
-          <Text>
-            Minimum account age is 13; additional local requirements may apply.
-            Launch platforms and availability may change. Contact support for
-            the full applicable terms or a correction.
-          </Text>
-        </>
-      )}
+      {section === "legal" && <AppPolicies accent={accent} />}
       {guard.protectionError && (
         <Text accessibilityLiveRegion="polite" style={{ color: "#b91c1c" }}>
           Screen capture protection could not start. Avoid entering secrets

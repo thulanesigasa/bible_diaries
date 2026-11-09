@@ -1,6 +1,7 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import AppPolicies from "../../../components/AppPolicies";
 import ReadingPreferences from "../../../components/ReadingPreferences";
 import { supabase } from "../../../lib/supabase";
 import { useDiarySettings } from "../../../lib/diary-settings";
@@ -490,13 +491,8 @@ export default function Section({ params }) {
           </p>
         </>
       )}
-      {section === "legal" && (
-        <>
-          <Link href="/privacy">Privacy policy →</Link>
-          <Link href="/terms">Terms of use →</Link>
-          <Link href="/guidelines">Community expectations →</Link>
-        </>
-      )}
+      {section === "legal" && <AppPolicies />}
+
     </main>
   );
 }

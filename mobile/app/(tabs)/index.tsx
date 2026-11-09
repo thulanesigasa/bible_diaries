@@ -23,6 +23,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useApp } from '../_layout';
 import { Heart, MessageSquare, Bookmark, Plus, X, Globe, UserCheck, Send, Share2, Edit2, Trash2 } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
+import ReflectionComposer from '../../components/ReflectionComposer';
 
 const CATEGORIES = ['Hope', 'Faith', 'Love', 'Strength', 'Gratitude', 'Wisdom'];
 
@@ -125,7 +126,7 @@ export default function FeedScreen() {
 
   const openModal = () => {
     if(!settingsReady){showToast('Your sharing preferences are still loading. Please retry.','error');return;}
-    setShowCreateModal(true);setPrivateEntry(diarySettings.default_private);setIsAnonymous(diarySettings.default_anonymous);setCommentsAllowed(diarySettings.default_comments);setLikesAllowed(diarySettings.default_likes);
+    setShowCreateModal(true);if(!newContent&&!newTitle&&!newScripture){setPrivateEntry(diarySettings.default_private);setIsAnonymous(diarySettings.default_anonymous);setCommentsAllowed(diarySettings.default_comments);setLikesAllowed(diarySettings.default_likes);}
     setHideTabBar(true);
   };
 
@@ -250,6 +251,7 @@ export default function FeedScreen() {
   };
 
   const handleCreatePost = async () => {
+    if(publishing)return;
     if (!newContent.trim()) {
       showToast('Reflection content cannot be empty.', 'error');
       return;
@@ -273,7 +275,7 @@ export default function FeedScreen() {
       if (error) {
         showToast(error.message, 'error');
       } else {
-        showToast('Reflection published successfully!');
+        showToast(privateEntry?'Private reflection saved.':'Reflection published successfully!');
         setNewTitle('');
         setNewScripture('');
         setNewContent('');
@@ -518,169 +520,11 @@ export default function FeedScreen() {
       />
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={[styles.fab, { backgroundColor: accent }]} onPress={openModal}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Create reflection" style={[styles.fab, { backgroundColor: accent }]} onPress={openModal}>
         <Plus size={24} color="#FFF" />
       </TouchableOpacity>
 
-      {/* Create Reflection Modal */}
-      <Modal
-        visible={showCreateModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalBg}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.modalContent}
-          >
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Share Your Reflection</Text>
-                <Text style={styles.modalSubTitle}>Inspire the fellowship with your daily walk of faith.</Text>
-              </View>
-              <TouchableOpacity onPress={closeModal} style={styles.modalCloseBtn}>
-                <X size={20} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.modalForm} keyboardShouldPersistTaps="handled">
-              {/* Category selector */}
-              <View style={styles.modalSection}>
-                <Text style={styles.sectionLabel}>Select Category</Text>
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.categoryScrollContainer}
-                >
-                  {CATEGORIES.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={[
-                        styles.catSelectBtn,
-                        selectedCategory === cat && { borderColor: accent, backgroundColor: `${accent}15` }
-                      ]}
-                      onPress={() => setSelectedCategory(cat)}
-                    >
-                      <Text style={[
-                        styles.catSelectText,
-                        selectedCategory === cat && { color: accent }
-                      ]}>{cat}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-
-              {/* Title Input */}
-              <View style={styles.modalSection}>
-                <Text style={styles.sectionLabel}>Title (Optional)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Give your reflection a title..."
-                  placeholderTextColor="#94A3B8"
-                  value={newTitle}
-                  onChangeText={setNewTitle}
-                />
-              </View>
-
-              {/* Scripture Input */}
-              <View style={[styles.modalSection, { zIndex: 10 }]}>
-                <Text style={styles.sectionLabel}>Scripture (Optional)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="e.g. John 3:16"
-                  placeholderTextColor="#94A3B8"
-                  value={newScripture}
-                  onChangeText={setNewScripture}
-                />
-
-                {bookSuggestions.length > 0 && (
-                  <View style={{ backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, marginTop: 4 }}>
-                    {bookSuggestions.map((book, idx) => (
-                      <TouchableOpacity 
-                        key={idx} 
-                        style={{ padding: 12, borderBottomWidth: idx < bookSuggestions.length - 1 ? 1 : 0, borderBottomColor: '#E2E8F0' }}
-                        onPress={() => {
-                          setNewScripture(book + ' ');
-                          setBookSuggestions([]);
-                        }}
-                      >
-                        <Text style={{ fontWeight: '600', color: '#0F172A' }}>{book}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-
-                {verseLoading && (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                    <ActivityIndicator size="small" color={accent} style={{ marginRight: 8 }} />
-                    <Text style={{ fontSize: 12, color: '#64748B' }}>Fetching verse...</Text>
-                  </View>
-                )}
-                
-                {versePreview && (
-                  <View style={{ backgroundColor: `${accent}10`, borderWidth: 1, borderColor: accent, borderRadius: 8, padding: 12, marginTop: 8 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <Text style={{ fontSize: 13, fontWeight: 'bold', color: accent }}>{versePreview.reference} ({versePreview.translation.toUpperCase()})</Text>
-                      <TouchableOpacity onPress={insertVersePreview} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: accent, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                        <Plus size={12} color="#FFFFFF" style={{ marginRight: 2 }} />
-                        <Text style={{ fontSize: 11, color: '#FFFFFF', fontWeight: 'bold' }}>Insert</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <Text style={{ fontSize: 13, color: '#334155', fontStyle: 'italic', lineHeight: 20 }}>
-                      "{versePreview.text}"
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Text Input */}
-              <View style={styles.modalSection}>
-                <Text style={styles.sectionLabel}>Your Reflection</Text>
-                <TextInput
-                  style={styles.textArea}
-                  placeholder="What is on your heart today? Share scripture, a prayer, or an encouraging testimony..."
-                  placeholderTextColor="#94A3B8"
-                  multiline
-                  numberOfLines={6}
-                  value={newContent}
-                  onChangeText={setNewContent}
-                />
-              </View>
-
-              {/* Anonymous setting */}
-              <View style={styles.anonymousRow}>
-                <View style={{flex:1,minWidth:0,paddingRight:12}}>
-                  <Text style={styles.anonymousTitle}>Post Anonymously</Text><Text style={{fontSize:11,color:'#64748b'}}>Anonymous to members; authorised administrators may access account details when reviewing flagged public content.</Text>
-                  <Text style={styles.anonymousDesc}>Your name and avatar will be hidden from other members.</Text>
-                </View>
-                <Switch
-                  value={isAnonymous}
-                  onValueChange={setIsAnonymous}
-                  trackColor={{ false: '#E2E8F0', true: '#bae6fd' }}
-                  thumbColor={isAnonymous ? accent : '#94A3B8'}
-                />
-              </View>
-
-              {[['Keep this entry private',privateEntry,setPrivateEntry],['Allow comments',commentsAllowed,setCommentsAllowed],['Allow likes',likesAllowed,setLikesAllowed]].map(([label,value,setter]:any)=><View key={label} style={styles.anonymousRow}><Text style={styles.anonymousTitle}>{label}</Text><Switch value={value} onValueChange={setter}/></View>)}
-              <TouchableOpacity 
-                style={[styles.btnPublish, { backgroundColor: accent }, publishing && styles.btnDisabled]}
-                onPress={handleCreatePost}
-                disabled={publishing}
-              >
-                {publishing ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <View style={styles.btnPublishRow}>
-                    <Send size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={styles.btnPublishText}>Publish Entry</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
+      <ReflectionComposer visible={showCreateModal} accent={accent} profile={profile} email={user?.email} title={newTitle} scripture={newScripture} content={newContent} category={selectedCategory} categories={CATEGORIES} anonymous={isAnonymous} privateEntry={privateEntry} comments={commentsAllowed} likes={likesAllowed} publishing={publishing} bookSuggestions={bookSuggestions} verse={versePreview} verseLoading={verseLoading} onTitle={setNewTitle} onScripture={setNewScripture} onContent={setNewContent} onCategory={setSelectedCategory} onAnonymous={setIsAnonymous} onPrivate={setPrivateEntry} onComments={setCommentsAllowed} onLikes={setLikesAllowed} onChooseBook={book=>{setNewScripture(book+' ');setBookSuggestions([]);}} onInsertVerse={insertVersePreview} onClose={closeModal} onPublish={handleCreatePost}/>
 
       {/* Edit Post Modal */}
       <Modal visible={isEditingPost} animationType="slide" presentationStyle="pageSheet">

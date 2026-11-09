@@ -181,7 +181,8 @@ export default function RootLayout() {
           <Stack.Screen name="profile/[id]" options={{ headerShown: true, title: 'Member Profile', headerTintColor: accent }} />
           <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="achievements" options={{headerShown:true,title:"Achievements",headerTintColor:accent}}/>
-          <Stack.Screen name="activity" options={{headerShown:true,title:"Activity & Notifications",headerTintColor:accent}}/>
+          <Stack.Screen name="activity" options={{headerShown:true,title:"Activity",headerTintColor:accent,headerTitleStyle:{fontSize:17,fontWeight:"600"},headerLargeTitle:false}}/>
+          <Stack.Screen name="reviews" options={{headerShown:true,title:"My reviews & appeals",headerTintColor:accent,headerTitleStyle:{fontSize:17,fontWeight:"600"},headerLargeTitle:false,headerShadowVisible:false}}/>
           <Stack.Screen name="settings/[section]" options={{headerShown:true,title:"Settings",headerTintColor:accent}}/>
           <Stack.Screen name="settings/account" options={{headerShown:true,title:"Personal details",headerTintColor:accent}}/>
         </Stack>

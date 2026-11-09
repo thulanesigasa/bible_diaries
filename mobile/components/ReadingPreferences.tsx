@@ -1,23 +1,21 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import ReadingSizeSlider from './ReadingSizeSlider';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Type, Minus, Plus, RotateCcw, Check } from 'lucide-react-native';
 import { DEFAULT_SETTINGS } from '../../shared/diary-settings.mjs';
 import { READING_SIZES, READING_FONTS, READING_SPACING, READING_SAMPLE } from '../../shared/settings-presentation.mjs';
 export default function ReadingPreferences({ settings, disabled, accent, onChange }: { settings: any; disabled: boolean; accent: string; onChange: (patch: any) => void }) {
-  const size = READING_SIZES.indexOf(settings.font_size);
+  const [size, setSize] = useState(settings.font_size);
+  useEffect(() => {if (!disabled) setSize(settings.font_size);}, [settings.font_size, disabled]);
   const family = (v: string) => v === 'mono' ? 'SpaceMono' : v === 'serif' ? Platform.OS === 'ios' ? 'Georgia' : 'serif' : undefined;
   const choice = (key: string, label: string, selected: boolean, change: () => void, detail?: string, ff?: string) => <TouchableOpacity key={key} accessibilityRole="button" accessibilityState={{ selected, disabled }} disabled={disabled} onPress={change} style={[s.choice, selected && { borderColor: accent, backgroundColor: '#f0f7ff' }]}>
     <View style={s.choiceTop}><Text style={[s.choiceLabel, { fontFamily: ff, color: selected ? accent : '#334155' }]}>{label}</Text>{selected && <Check size={14} color={accent} />}</View>{detail && <Text style={s.detail}>{detail}</Text>}
   </TouchableOpacity>;
   return <View style={s.page}>
     <Text style={s.intro}>Make reflections comfortable to read. Your choices are saved to your account; menus keep their own text size.</Text>
-    <View style={s.preview}><Text style={s.eyebrow}>READING PREVIEW</Text><Text style={[s.previewTitle, { fontFamily: family(settings.font_family) }]}>A moment to reflect</Text><Text style={{ fontSize: settings.font_size, lineHeight: settings.font_size * settings.line_spacing, fontFamily: family(settings.font_family), color: '#243347' }}>{READING_SAMPLE}</Text><Text style={s.previewFoot}>This preview updates after each saved choice.</Text></View>
-    <View style={s.control}><View style={s.header}><Type size={18} color={accent} /><Text style={s.label}>Text size</Text><Text style={s.value}>{settings.font_size} pt</Text></View>
-      <View style={s.stepper}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Decrease reading text size" disabled={disabled || size <= 0} accessibilityState={{ disabled: disabled || size <= 0 }} onPress={() => onChange({ font_size: READING_SIZES[size - 1] })} style={[s.stepButton, (disabled || size <= 0) && s.disabled]}><Minus size={18} color={accent} /></TouchableOpacity>
-        <Text style={s.sizePreview}>Aa</Text>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Increase reading text size" disabled={disabled || size >= READING_SIZES.length - 1} accessibilityState={{ disabled: disabled || size >= READING_SIZES.length - 1 }} onPress={() => onChange({ font_size: READING_SIZES[size + 1] })} style={[s.stepButton, (disabled || size >= READING_SIZES.length - 1) && s.disabled]}><Plus size={18} color={accent} /></TouchableOpacity>
-      </View><View style={s.choices}>{READING_SIZES.map((n: number) => choice(`size-${n}`, String(n), settings.font_size === n, () => onChange({ font_size: n })))}</View>
+    <View style={s.preview}><Text style={s.eyebrow}>READING PREVIEW</Text><Text style={[s.previewTitle, { fontFamily: family(settings.font_family) }]}>A moment to reflect</Text><Text style={{ fontSize: size, lineHeight: size * settings.line_spacing, fontFamily: family(settings.font_family), color: '#243347' }}>{READING_SAMPLE}</Text><Text style={s.previewFoot}>Drag the slider to preview. Your size saves when you release it.</Text></View>
+    <View style={s.control}><View style={s.header}><Type size={18} color={accent} /><Text style={s.label}>Text size</Text><Text style={s.value}>{size} pt</Text></View>
+      <ReadingSizeSlider value={size} disabled={disabled} accent={accent} onChange={setSize} onComplete={n => onChange({font_size:n})} />
     </View>
     <View style={s.control}><Text style={s.label}>Font style</Text><Text style={s.hint}>Choose how your reflection text looks.</Text><View style={s.choices}>{READING_FONTS.map(([v, label, detail]: string[]) => choice(v, label, settings.font_family === v, () => onChange({ font_family: v }), detail, family(v)))}</View></View>
     <View style={s.control}><Text style={s.label}>Line spacing</Text><Text style={s.hint}>Give each line a little more breathing room.</Text><View style={s.choices}>{READING_SPACING.map(([v, label]: any[]) => choice(`spacing-${v}`, label, settings.line_spacing === v, () => onChange({ line_spacing: v })))}</View></View>

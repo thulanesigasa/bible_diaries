@@ -54,6 +54,7 @@ test("activity and achievements are owner-only, non-forgeable, anonymous-aware a
       "supabase/migrations/20261101115300_security_audit_baseline.sql",
       "supabase/migrations/20261101122925_enforce_app_security.sql",
       "supabase/migrations/20261108135008_diary_settings_activity.sql",
+      "supabase/migrations/20261109071136_reading_font_range_8_to_24.sql",
     ]) {
       if (f.includes("115300"))
         await db.exec(
@@ -201,6 +202,15 @@ test("activity and achievements are owner-only, non-forgeable, anonymous-aware a
       "insert into diary_settings(user_id,notify_likes) values($1,false)",
       [id(1)],
     );
+    for (let size=8;size<=24;size++) {
+      await db.query("update diary_settings set font_size=$1 where user_id=$2",[size,id(1)]);
+      const saved=(await db.query("select font_size,notify_likes from diary_settings where user_id=$1",[id(1)])).rows[0];
+      assert.equal(saved.font_size,size);assert.equal(saved.notify_likes,false);
+    }
+    for (const invalid of [7,25]) await assert.rejects(db.query("update diary_settings set font_size=$1 where user_id=$2",[invalid,id(1)]));
+    await role(2);
+    assert.equal((await db.query("update diary_settings set font_size=8 where user_id=$1 returning user_id",[id(1)])).rows.length,0);
+    await role(1);
     const sessions = (await db.query("select my_diary_sessions() s")).rows[0].s;
     assert.equal(sessions.length, 1);
     assert.equal(sessions[0].current, true);
