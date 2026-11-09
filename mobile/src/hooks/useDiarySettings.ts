@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { DeviceEventEmitter } from "react-native";
 import { useApp } from "../../app/_layout";
 import { DEFAULT_SETTINGS } from "../../../shared/diary-settings.mjs";
 export function useDiarySettings() {
@@ -28,13 +29,23 @@ export function useDiarySettings() {
   useEffect(() => {
     void reload();
   }, [reload]);
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener("diary-settings-changed", (event) => {
+      if (event.userId === owner.current) setSettings((current: any) => ({ ...current, ...event.patch }));
+    });
+    return () => subscription.remove();
+  }, []);
   const save = async (patch: any) => {
+    if (!user?.id || readyFor !== user.id) throw new Error("Wait for your settings to load before making changes.");
+    const requested = user.id;
     const next = { ...settings, ...patch };
     const { error } = await supabase
       .from("diary_settings")
       .upsert({ ...next, user_id: user.id });
     if (error) throw new Error("Could not save settings. Please retry.");
+    if (owner.current !== requested) return;
     setSettings(next);
+    DeviceEventEmitter.emit("diary-settings-changed", { userId: requested, patch });
   };
   return { settings, save, error, reload, ready: readyFor === user?.id };
 }

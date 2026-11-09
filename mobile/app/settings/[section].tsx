@@ -1,3 +1,4 @@
+import ReadingPreferences from "../../components/ReadingPreferences";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -35,7 +36,7 @@ export default function SettingsSection() {
   const { section } = useLocalSearchParams<{ section: string }>(),
     { user, profile, setProfile, supabase, accent, showToast } = useApp(),
     router = useRouter();
-  const { settings, save, error, reload } = useDiarySettings(),
+  const { settings, save, error, reload, ready } = useDiarySettings(),
     guard = useSecurePasswordCapture();
   const [busy, setBusy] = useState(false),
     [items, setItems] = useState<any[]>([]),
@@ -141,7 +142,7 @@ export default function SettingsSection() {
       onPress={fn}
       style={s.action}
     >
-      <Text style={{ color: accent, fontWeight: "600", fontSize: 16 }}>
+      <Text style={{ color: accent, fontWeight: "600", fontSize: 14 }}>
         {busy ? "Please wait…" : label}
       </Text>
     </TouchableOpacity>
@@ -247,59 +248,7 @@ export default function SettingsSection() {
         ? action(error + " Retry", () => reload())
         : null}
       {!!loadError && <Text accessibilityLiveRegion="polite">{loadError}</Text>}
-      {section === "reading" && (
-        <>
-          <Text>Applies to reflection content and reading screens.</Text>
-          <Text style={s.label}>Text size</Text>
-          <View style={s.options}>
-            {[12, 14, 16, 18, 20, 24].map((n) => (
-              <TouchableOpacity
-                key={n}
-                disabled={busy}
-                onPress={() => persist({ font_size: n })}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: settings.font_size === n ? accent : "#475569",
-                    fontWeight: settings.font_size === n ? "700" : "400",
-                  }}
-                >
-                  {n}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Text style={s.label}>Font style</Text>
-          <View style={s.options}>
-            {["sans", "serif", "mono"].map((v) =>
-              action(v, () => persist({ font_family: v })),
-            )}
-          </View>
-          <Text style={s.label}>Line spacing</Text>
-          <View style={s.options}>
-            {[1.4, 1.6, 1.8, 2].map((v) =>
-              action(String(v), () => persist({ line_spacing: v })),
-            )}
-          </View>
-          <Text
-            style={{
-              fontSize: settings.font_size,
-              lineHeight: settings.font_size * settings.line_spacing,
-              fontFamily:
-                settings.font_family === "serif"
-                  ? Platform.OS === "ios"
-                    ? "Georgia"
-                    : "serif"
-                  : settings.font_family === "mono"
-                    ? "SpaceMono"
-                    : undefined,
-            }}
-          >
-            Be still, and know that I am God. — Psalm 46:10
-          </Text>
-        </>
-      )}
+      {section === "reading" && <ReadingPreferences settings={settings} disabled={busy || !ready} accent={accent} onChange={persist} />}
       {section === "privacy" && (
         <>
           {control(
@@ -667,14 +616,14 @@ export default function SettingsSection() {
 }
 const s = StyleSheet.create({
   page: {
-    padding: 24,
-    gap: 20,
+    padding: 20,
+    gap: 16,
     paddingBottom: 100,
     backgroundColor: "#fff",
     flexGrow: 1,
   },
-  title: { fontSize: 27, fontWeight: "700", color: "#0f172a" },
-  label: { fontSize: 17, fontWeight: "600", color: "#0f172a" },
+  title: { fontSize: 21, fontWeight: "700", color: "#0f172a" },
+  label: { fontSize: 15, fontWeight: "600", color: "#0f172a" },
   hint: { fontSize: 13, color: "#64748b", lineHeight: 19, marginTop: 5 },
   row: {
     flexDirection: "row",

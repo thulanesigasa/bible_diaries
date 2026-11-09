@@ -1,6 +1,7 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import ReadingPreferences from "../../../components/ReadingPreferences";
 import { supabase } from "../../../lib/supabase";
 import { useDiarySettings } from "../../../lib/diary-settings";
 import { useApp } from "../../AppWrapper";
@@ -55,7 +56,7 @@ async function exportData(userId) {
 export default function Section({ params }) {
   const { section } = use(params),
     { user, profile, setProfile } = useApp(),
-    { settings, save, error } = useDiarySettings(user?.id);
+    { settings, save, error, ready } = useDiarySettings(user?.id);
   const [items, setItems] = useState([]),
     [earned, setEarned] = useState([]),
     [progress, setProgress] = useState({}),
@@ -213,66 +214,7 @@ export default function Section({ params }) {
         {SETTINGS_GROUPS.find((x) => x[0] === section)?.[1] || "Settings"}
       </h1>
       {(message || error) && <p role="status">{message || error}</p>}
-      {section === "reading" && (
-        <>
-          <label>
-            Text size{" "}
-            <select
-              value={settings.font_size}
-              disabled={busy}
-              onChange={(e) =>
-                run(() => persist({ font_size: Number(e.target.value) }))
-              }
-            >
-              {[12, 14, 16, 18, 20, 24].map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Font style{" "}
-            <select
-              value={settings.font_family}
-              disabled={busy}
-              onChange={(e) =>
-                run(() => persist({ font_family: e.target.value }))
-              }
-            >
-              {["sans", "serif", "mono"].map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Line spacing{" "}
-            <select
-              value={settings.line_spacing}
-              disabled={busy}
-              onChange={(e) =>
-                run(() => persist({ line_spacing: Number(e.target.value) }))
-              }
-            >
-              {[1.4, 1.6, 1.8, 2].map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <p
-            style={{
-              fontSize: settings.font_size,
-              lineHeight: settings.line_spacing,
-              fontFamily:
-                settings.font_family === "mono"
-                  ? "monospace"
-                  : settings.font_family === "serif"
-                    ? "Georgia,serif"
-                    : "sans-serif",
-            }}
-          >
-            Be still, and know that I am God. — Psalm 46:10
-          </p>
-        </>
-      )}
+      {section === "reading" && <ReadingPreferences settings={settings} disabled={busy || !ready} onChange={patch => run(() => persist(patch))} />}
       {section === "privacy" && (
         <>
           {toggle(

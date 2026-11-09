@@ -29,11 +29,14 @@ export function useDiarySettings(userId) {
     void reload();
   }, [reload]);
   const save = async (patch) => {
+    if (!userId || readyFor !== userId) throw Error("Wait for your settings to load before making changes.");
+    const requested = userId;
     const next = { ...settings, ...patch };
     const r = await supabase
       .from("diary_settings")
       .upsert({ ...next, user_id: userId });
     if (r.error) throw Error("Could not save preferences.");
+    if (owner.current !== requested) return;
     setSettings(next);
     window.dispatchEvent(new Event("diary-settings-changed"));
   };
