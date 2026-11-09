@@ -11,7 +11,7 @@ export function KeyboardForm({children,style,...props}:ScrollViewProps){
  const context=useMemo(()=>({
   register(field:Field){fields.current.push(field);return()=>{fields.current=fields.current.filter(f=>f!==field);};},
   next(field:Field){const next=fields.current.slice(fields.current.indexOf(field)+1).find(f=>f.enabled&&f.node);next?.node?.focus();return !!next;},
-  reveal(){if(timer.current)clearTimeout(timer.current);timer.current=setTimeout(()=>{if(Platform.OS==='web'){(globalThis as any).document?.activeElement?.scrollIntoView?.({block:'nearest'});return;}const input=NativeInput.State.currentlyFocusedInput();if(input&&Keyboard.isVisible())scroll.current?.getScrollResponder()?.scrollResponderScrollNativeHandleToKeyboard(input,28,true);},80);}
+  reveal(){if(timer.current)clearTimeout(timer.current);timer.current=setTimeout(()=>{if(Platform.OS==='web'){const input=(globalThis as any).document?.activeElement;if(fields.current.some(f=>f.node===input))input?.scrollIntoView?.({block:'nearest'});return;}const input=NativeInput.State.currentlyFocusedInput();if(input&&fields.current.some(f=>f.node===input)&&Keyboard.isVisible())scroll.current?.getScrollResponder()?.scrollResponderScrollNativeHandleToKeyboard(input,28,true);},80);}
  }),[]);
  useEffect(()=>{const sub=Keyboard.addListener('keyboardDidShow',context.reveal);return()=>{sub.remove();if(timer.current)clearTimeout(timer.current);};},[context]);
  return <Form.Provider value={context}><KeyboardFrame style={style}><ScrollView {...props} ref={scroll} style={{flex:1}} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" onLayout={context.reveal}>{children}</ScrollView></KeyboardFrame></Form.Provider>;
