@@ -1,9 +1,9 @@
+import { KeyboardFrame, FormInput as TextInput } from '../../components/KeyboardForm';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   FlatList, 
-  TextInput, 
   TouchableOpacity, 
   StyleSheet, 
   ActivityIndicator 
@@ -95,7 +95,7 @@ export default function ConnectScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardFrame style={styles.container}>
       {/* Search Header */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
@@ -129,7 +129,7 @@ export default function ConnectScreen() {
           }
         />
       )}
-    </View>
+    </KeyboardFrame>
   );
 }
 

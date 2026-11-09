@@ -30,8 +30,8 @@ export function useSecurePasswordCapture() {
   return {
     onPasswordFocus: () => controller.current?.focus(),
     onPasswordBlur: () => controller.current?.blur(),
-    enableProtection: () => controller.current?.focus(),
-    disableProtection: () => controller.current?.blur(),
+    enableProtection: () => controller.current?.focus('screen'),
+    disableProtection: () => controller.current?.blur('screen'),
     protectionError,
   };
 }

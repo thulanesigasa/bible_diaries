@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../../../shared/user-error.mjs';
+
 import HelpIndex from "../../../components/HelpIndex";
 import MfaSettings from "../../../components/MfaSettings";
 import { use, useEffect, useState } from "react";
@@ -79,7 +81,7 @@ export default function Section({ params }) {
     try {
       await fn();
     } catch (e) {
-      setMessage(e.message || "Could not complete this request.");
+      setMessage(userError(e, "Could not complete this request."));
     } finally {
       setBusy(false);
     }
@@ -130,7 +132,7 @@ export default function Section({ params }) {
       if (active && r) setItems(r.data || []);
     }
     load().catch((e) => {
-      if (active) setMessage(e.message);
+      if (active) setMessage(userError(e));
     });
     return () => {
       active = false;

@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../shared/user-error.mjs';
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
@@ -19,7 +21,7 @@ export default function SafetyCenter({ guardian = false }) {
       setItems(data || []);
       setError("");
     } catch (e) {
-      setError(e.message || "Could not load. Retry.");
+      setError(userError(e, "Could not load. Retry."));
     } finally {
       setBusy(false);
     }
@@ -40,7 +42,7 @@ export default function SafetyCenter({ guardian = false }) {
       if (error) throw error;
       await load();
     } catch (e) {
-      setError(e.message || "Could not confirm. Refresh.");
+      setError(userError(e, "Could not confirm. Refresh."));
     } finally {
       setBusy(false);
     }

@@ -3,6 +3,7 @@ export function createPasswordCapture(capture, key, onError = () => {}) {
   let queue = Promise.resolve(),
     timer,
     disposed = false;
+  const reasons = new Set();
   const run = (enable) =>
     (queue = queue
       .then(() =>
@@ -10,18 +11,21 @@ export function createPasswordCapture(capture, key, onError = () => {}) {
           ? capture.preventScreenCaptureAsync(key)
           : capture.allowScreenCaptureAsync(key),
       )
-      .catch(onError));
+      .then(() => true)
+      .catch(() => { onError(); return false; }));
   return {
-    focus() {
+    focus(reason = 'focus') {
       clearTimeout(timer);
-      if (!disposed) return run(true);
+      if (!disposed) { reasons.add(reason); return run(true); }
     },
-    blur() {
+    blur(reason = 'focus') {
       clearTimeout(timer);
-      timer = setTimeout(() => run(false), 0);
+      reasons.delete(reason);
+      timer = setTimeout(() => { if (!reasons.size) run(false); }, 0);
     },
     dispose() {
       disposed = true;
+      reasons.clear();
       clearTimeout(timer);
       return run(false);
     },

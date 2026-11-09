@@ -1,3 +1,4 @@
+import { FormInput as TextInput, KeyboardForm } from '../../components/KeyboardForm';
 import HelpIndex from "../../components/HelpIndex";
 import MfaSettings from "../../components/MfaSettings";
 import AppPolicies from "../../components/AppPolicies";
@@ -7,7 +8,6 @@ import {
   View,
   Text,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Switch,
   Platform,
@@ -178,7 +178,7 @@ export default function SettingsSection() {
       if (!(await verifyPin(user?.id, currentPin)))
         throw new Error("Enter your current PIN to change app lock settings.");
     } else if (lock.biometric) {
-      await guard.enableProtection();
+      if ((await guard.enableProtection()) === false) throw Error("Could not protect this screen. Close the recorder and try again.");
       try {
         if (!(await verifyDevice()))
           throw new Error("Verification was cancelled.");
@@ -193,7 +193,7 @@ export default function SettingsSection() {
       if (patch.enabled && !lock.pin && !lock.biometric)
         throw new Error("Set a PIN or enable biometrics first.");
       if (patch.biometric) {
-        await guard.enableProtection();
+        if ((await guard.enableProtection()) === false) throw Error("Could not protect this screen. Close the recorder and try again.");
         try {
           if (!(await verifyDevice()))
             throw new Error("Verification was cancelled.");
@@ -244,7 +244,7 @@ export default function SettingsSection() {
       }
     });
   return (
-    <ScrollView
+    <KeyboardForm
       contentContainerStyle={s.page}
       keyboardShouldPersistTaps="handled"
     >
@@ -577,7 +577,7 @@ export default function SettingsSection() {
           while recording and restart the app.
         </Text>
       )}
-    </ScrollView>
+    </KeyboardForm>
   );
 }
 const s = StyleSheet.create({

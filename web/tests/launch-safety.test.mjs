@@ -25,6 +25,7 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
       "supabase/migrations/20261108191413_unified_admin_waitlist_and_notifications.sql",
       "supabase/migrations/20261109101535_launch_eligibility_and_reports.sql",
       "supabase/migrations/20261109111244_signup_eligibility_capture.sql",
+      "supabase/migrations/20261109153759_restore_signup_profile_fields.sql",
     ]) {
       if (f.includes("115300"))
         await db.exec(
@@ -349,6 +350,11 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
           confirmed ? new Date().toISOString() : null,
           JSON.stringify({
             first_name: "Signup",
+            surname: "Reader",
+            username: `reader_${n}`,
+            gender: n === 9 ? "Female" : "Male",
+            phone_number: "+27712345678",
+            address: "Synthetic private address",
             full_name: "Signup Reader",
             signup_eligibility: {
               birth_date: birth,
@@ -360,6 +366,13 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
         ],
       );
     await signup(8);
+    assert.deepEqual((await db.query('select username,gender,first_name,surname from public.profiles where id=$1',[uid(8)])).rows[0],{username:'reader_8',gender:'Male',first_name:'Signup',surname:'Reader'});
+    for (const username of ['READER_8','bad handle','ab']) await assert.rejects(db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)',[uid(30),'synthetic@example.invalid',JSON.stringify({username,gender:'Female'})]));
+    assert.equal((await db.query('select count(*)::int n from auth.users where id=$1',[uid(30)])).rows[0].n,0);
+    assert.equal((await db.query('select phone_number from public.profile_contacts where user_id=$1',[uid(8)])).rows[0].phone_number,'+27712345678');
+    const metadata8=(await db.query('select raw_user_meta_data from auth.users where id=$1',[uid(8)])).rows[0].raw_user_meta_data;
+    assert.equal(metadata8.phone_number,undefined);assert.equal(metadata8.address,undefined);
+
     await signup(9, "2011-01-01", "person4@example.invalid");
     await signup(10, "1990-01-01", null, true, false);
     for (const n of [8, 9, 10])

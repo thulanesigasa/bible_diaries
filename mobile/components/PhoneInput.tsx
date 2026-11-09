@@ -1,13 +1,15 @@
+import { FormInput as TextInput } from './KeyboardForm';
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Modal,
   FlatList,
   StyleSheet,
   Platform,
+  KeyboardAvoidingView,
+  TextInput as SearchInput,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
@@ -217,7 +219,7 @@ export default function PhoneInput({
         transparent
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <View style={styles.modalContent}>
             {/* Modal Header */}
             <View style={styles.modalHeader}>
@@ -236,7 +238,7 @@ export default function PhoneInput({
             {/* Search Box */}
             <View style={styles.searchBox}>
               <SvgXml xml={searchSvg} width={16} height={16} style={{ marginRight: 8 }} />
-              <TextInput
+              <SearchInput
                 style={styles.searchInput}
                 placeholder="Search country or code (e.g. +27)"
                 placeholderTextColor="#94A3B8"
@@ -275,7 +277,7 @@ export default function PhoneInput({
               contentContainerStyle={{ paddingBottom: 24 }}
             />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

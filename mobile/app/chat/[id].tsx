@@ -1,10 +1,10 @@
+import { KeyboardFrame, FormInput as TextInput } from '../../components/KeyboardForm';
 import ReportButton from "../../components/ReportButton";
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   FlatList,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
@@ -225,11 +225,7 @@ export default function ChatWindowScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 30}
-    >
+    <KeyboardFrame style={styles.container}>
       {/* Custom Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -287,7 +283,7 @@ export default function ChatWindowScreen() {
           <Send size={18} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardFrame>
   );
 }
 

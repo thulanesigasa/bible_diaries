@@ -9,7 +9,7 @@ export const APP_POLICIES = [
     sections: [
       [
         "Account information",
-        "Bible Diaries uses your account email and the profile information you choose to provide to identify your account, display your profile and support account-related requests. Keep contact details accurate. Do not place passwords, one-time codes, identity numbers, financial details or your home address in a public profile or reflection.",
+        "Signup collects your name, surname, username, email address, gender and birth date, together with consent records and any guardian details required for your age. Phone number, address and profile photo are optional. Your username and photo form part of your profile; your phone and address are stored in owner-only contact records and your birth date stays in the restricted eligibility ledger. Bible Diaries uses your account email and the profile information you choose to provide to identify your account, display your profile and support account-related requests. Keep contact details accurate. Do not place passwords, one-time codes, identity numbers, financial details or your home address in a public profile or reflection.",
       ],
       [
         "Private entries and public reflections",

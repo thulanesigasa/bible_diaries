@@ -1,8 +1,9 @@
+import { userError } from '../../shared/user-error.mjs';
+import { FormInput as TextInput } from './KeyboardForm';
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
@@ -26,14 +27,14 @@ export default function MfaSettings({
     load();
   }, []);
   useEffect(() => {
-    if (secret) guard.onPasswordFocus();
-    else guard.onPasswordBlur();
-    return () => guard.onPasswordBlur();
+    if (secret) void guard.enableProtection();
+    else guard.disableProtection();
+    return () => guard.disableProtection();
   }, [secret]);
   async function load() {
     const { data, error } = await supabase.auth.mfa.listFactors();
     if (error) {
-      setMessage(error.message);
+      setMessage(userError(error));
       return;
     }
     setFactor(data.totp?.find((x: any) => x.status === "verified") || null);
@@ -43,6 +44,7 @@ export default function MfaSettings({
     pending.current = true;
     setBusy(true);
     try {
+      if ((await guard.enableProtection()) === false) throw Error("Could not protect this screen. Close the recorder and try again.");
       const { data: existing, error: listing } =
         await supabase.auth.mfa.listFactors();
       if (listing) throw listing;
@@ -64,7 +66,7 @@ export default function MfaSettings({
         "Add this key manually to an authenticator app, then enter its current six-digit code. Keep the key private.",
       );
     } catch (e: any) {
-      setMessage(e.message || "Could not start setup.");
+      setMessage(userError(e, "Could not start setup."));
     } finally {
       pending.current = false;
       setBusy(false);
@@ -89,7 +91,7 @@ export default function MfaSettings({
       onVerified?.();
     } catch (e: any) {
       setCode("");
-      setMessage(e.message || "Verification failed. Use a fresh code.");
+      setMessage(userError(e, "Verification failed. Use a fresh code."));
     } finally {
       pending.current = false;
       setBusy(false);

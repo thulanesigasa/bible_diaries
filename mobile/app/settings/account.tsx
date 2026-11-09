@@ -1,9 +1,9 @@
+import { FormInput as TextInput, KeyboardForm } from '../../components/KeyboardForm';
 import DeleteAccount from "../../components/DeleteAccount";
 import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -253,11 +253,8 @@ export default function SettingsTabScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <ScrollView
+
+      <KeyboardForm
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -509,8 +506,8 @@ export default function SettingsTabScreen() {
             <Text style={styles.signOutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardForm>
+
   );
 }
 

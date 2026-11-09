@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../shared/user-error.mjs';
+
 
 import EligibilityGate from "../components/EligibilityGate";
 import "../components/launch-safety.css";
@@ -72,7 +74,7 @@ export default function AppWrapper({ children }) {
 
   const showToast = (message, type = "success") => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message: userError(message), type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);

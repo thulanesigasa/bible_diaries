@@ -1,9 +1,10 @@
+import { userError } from '../../shared/user-error.mjs';
+import { KeyboardForm, FormInput as TextInput } from './KeyboardForm';
 import React, { useEffect, useRef, useState } from "react";
 import {
   AppState,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   DeviceEventEmitter,
@@ -101,6 +102,7 @@ export default function AppLockGate({
       sub.remove();
       update.remove();
       clearInterval(timer);
+      guard.onPasswordBlur();
       guard.disableProtection();
       if (Platform.OS === "ios")
         void ScreenCapture.disableAppSwitcherProtectionAsync().catch(() => {});
@@ -111,7 +113,7 @@ export default function AppLockGate({
     setBusy(true);
     setMessage("");
     try {
-      await guard.enableProtection();
+      if ((await guard.enableProtection()) === false) throw Error("Could not protect this screen. Close the recorder and try again.");
       const ok = biometric
         ? await verifyDevice()
         : await verifyPin(userId, pin);
@@ -119,11 +121,11 @@ export default function AppLockGate({
       lastActive.current = Date.now();
       setLocked(false);
       setPin("");
+      guard.onPasswordBlur();guard.disableProtection();
     } catch (e: any) {
-      setMessage(e.message);
+      setMessage(userError(e));
       setPin("");
     } finally {
-      guard.disableProtection();
       setBusy(false);
     }
   };
@@ -142,7 +144,7 @@ export default function AppLockGate({
     >
       <View style={{flex:1}} accessibilityElementsHidden={locked||background} importantForAccessibility={locked||background?"no-hide-descendants":"auto"}>{children}</View>
       {((locked && !!userId) || (background && policy.privacyShield)) && (
-        <Modal visible animationType="none" onRequestClose={()=>{}}><View style={s.cover} accessibilityViewIsModal>
+        <Modal visible animationType="none" onRequestClose={()=>{}}><KeyboardForm style={{backgroundColor:"#fff"}} contentContainerStyle={s.cover} accessibilityViewIsModal>
           {background ? (
             <View />
           ) : (
@@ -181,7 +183,7 @@ export default function AppLockGate({
               </TouchableOpacity>
             </>
           )}
-        </View></Modal>
+        </KeyboardForm></Modal>
       )}
     </View>
   );
@@ -189,11 +191,7 @@ export default function AppLockGate({
 const s = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   cover: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    flexGrow: 1,
     backgroundColor: "#fff",
     zIndex: 10000,
     elevation: 100,

@@ -1,13 +1,13 @@
+import { FormInput as TextInput, KeyboardForm } from '../../components/KeyboardForm';
 import {clearLock} from '../../src/lib/app-lock';
-import React, { useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ScrollView, 
-  KeyboardAvoidingView, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Image
@@ -23,14 +23,16 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
-  const passwordRef = useRef<TextInput>(null);
-  const { onPasswordFocus, onPasswordBlur } = useSecurePasswordCapture();
 
+  const passwordRef = useRef<TextInput>(null);
+  const { onPasswordFocus, onPasswordBlur, enableProtection, disableProtection } = useSecurePasswordCapture();
+
+  useEffect(() => {if(password||showPassword)void enableProtection();else disableProtection();return()=>disableProtection();},[password,showPassword]);
   const { showToast } = useApp();
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (loading) return;
     if (!email || !password) {
       showToast('Please fill in all fields.', 'error');
       return;
@@ -39,7 +41,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -49,10 +51,10 @@ export default function LoginScreen() {
         // A successful account-password sign-in also recovers a forgotten local PIN.
         if(data.user?.id && Platform.OS!=='web')await clearLock(data.user.id);
         const userGender = data.user?.user_metadata?.gender;
-        const greeting = userGender === 'Male' 
-          ? 'Welcome back, brother!' 
-          : userGender === 'Female' 
-            ? 'Welcome back, sister!' 
+        const greeting = userGender === 'Male'
+          ? 'Welcome back, brother!'
+          : userGender === 'Female'
+            ? 'Welcome back, sister!'
             : 'Welcome back, brother/sister!';
         showToast(greeting);
         router.replace('/(tabs)');
@@ -66,20 +68,17 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        
+
+      <KeyboardForm contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+
         {/* Card Panel Container */}
         <View style={styles.card}>
           <View style={styles.header}>
             <View style={styles.logoRow}>
-              <Image 
-                source={require('../../assets/images/icon.png')} 
-                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }} 
-                resizeMode="contain" 
+              <Image
+                source={require('../../assets/images/icon.png')}
+                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }}
+                resizeMode="contain"
               />
               <Text style={styles.logoText}>Bible Diaries</Text>
             </View>
@@ -130,9 +129,9 @@ export default function LoginScreen() {
                   }}
                   editable={!loading}
                 />
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.eyeBtnAbsolute}
-                  onPress={() => setShowPassword(!showPassword)}
+                  onPress={async () => {if(!showPassword&&(await enableProtection())===false){showToast("Could not protect this screen. Close the recorder and try again.","error");return;}setShowPassword(!showPassword);}}
                 >
                   {showPassword ? (
                     <EyeOff size={18} color="#475569" />
@@ -143,7 +142,7 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.btnPrimary, loading && styles.btnDisabled]}
               onPress={handleLogin}
               disabled={loading}
@@ -170,8 +169,8 @@ export default function LoginScreen() {
             </Link>
           </View>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardForm>
+
   );
 }
 

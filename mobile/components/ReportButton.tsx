@@ -1,9 +1,10 @@
+import { userError } from '../../shared/user-error.mjs';
+import { FormInput as TextInput, KeyboardForm } from './KeyboardForm';
 import React, { useState, useRef } from "react";
 import {
   Modal,
   View,
   Text,
-  TextInput,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -52,7 +53,7 @@ export default function ReportButton({
       setShare(false);
       setBlock(false);
     } catch (e: any) {
-      setMessage(e.message || "Report was not confirmed. Retry.");
+      setMessage(userError(e, "Report was not confirmed. Retry."));
     } finally {
       pending.current = false;
       setBusy(false);
@@ -79,7 +80,7 @@ export default function ReportButton({
         }}
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-          <ScrollView
+          <KeyboardForm
             contentContainerStyle={s.page}
             keyboardShouldPersistTaps="handled"
           >
@@ -177,7 +178,7 @@ export default function ReportButton({
                 {busy ? "Submitting…" : "Submit report"}
               </Text>
             </TouchableOpacity>
-          </ScrollView>
+          </KeyboardForm>
         </SafeAreaView>
       </Modal>
     </>
