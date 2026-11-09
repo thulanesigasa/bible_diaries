@@ -1,14 +1,14 @@
 # Bible Diaries admin dashboard
 
-The protected dashboard at `/admin` monitors waiting-list interest. It shows unique signup totals, today’s registrations, the last seven and thirty days, a thirty-day chart and accessible daily table, platform preferences, latest signup time and the time figures were refreshed. Calendar boundaries use Africa/Johannesburg (SAST).
+The protected dashboard at `/admin/waitlist` monitors waiting-list interest. It shows unique signup totals, today’s registrations, the last seven and thirty days, a thirty-day chart and accessible daily table, platform preferences, latest signup time and the time figures were refreshed. Calendar boundaries use Africa/Johannesburg (SAST).
 
-The dashboard returns **aggregate counts only**. Subscriber email addresses and signup IP hashes are not sent to the administrator’s browser. Counts describe waiting-list requests, not installed app users or verified waiting-list addresses. The administrator’s own email is displayed to identify the signed-in account.
+The dashboard returns aggregate counts and a protected, paginated registration list containing subscriber email, platform and signup date. Signup IP hashes are never sent to the administrator’s browser. Counts describe waiting-list requests, not installed app users or verified waiting-list addresses. The administrator’s own email is displayed to identify the signed-in account.
 
 ## Configure before use
 
-The Bible Diaries Supabase project (`fspfwidfdnqvpgmipate`) was still INACTIVE when checked during implementation. The dashboard code and SQL are tested locally; no live schema or account was changed. Merging source does not restore the project or configure a host.
+Verify the current Bible Diaries Supabase project (`fspfwidfdnqvpgmipate`) and installed waiting-list tables/functions before deployment. The application database is active, but the waiting-list schema and moderation migration must each be checked independently. Merging source does not configure a host or grant administrator roles.
 
-1. Restore the **Bible Diaries** project.
+1. Check the **Bible Diaries** project is active and you are using its intended environment.
 2. Run `web/database/waitlist.sql` once if the launch-waitlist tables are not already installed.
 3. Run `web/database/admin.sql` once. It adds the service-only aggregate RPC and login rate-limit table/function, with RLS enabled and public execution revoked. It does not modify application profiles, diaries or Auth accounts.
 4. Use a Supabase Auth account that you control and whose email has been verified. Use the normal verification/invitation flow if needed. There is no public admin-registration endpoint.
@@ -31,7 +31,7 @@ Keep keys, salts and local environment files out of Git. Do not add these variab
 
 ## Access controls
 
-- The protected page and each stats API request validate the access token using Supabase Auth’s user endpoint; a decoded JWT or user-editable metadata is never used as an authorization shortcut.
+- The protected page and each protected API request validate the access token using Supabase Auth’s user endpoint and the active-session RPC; a decoded JWT or user-editable metadata is never used as an authorization shortcut.
 - The user must have a verified email, be a non-anonymous account and have a UUID in the server-managed allowlist. Removing the UUID blocks subsequent requests, including requests with an existing cookie.
 - The server retains only the access token in an HttpOnly cookie. In production it uses the `__Host-` cookie prefix with Secure, Path=/ and SameSite=Strict. No domain override is set. No browser local/session storage auth token or refresh token is used.
 - The cookie expires after the shorter of the supplied access-token lifetime and one hour. There is no background refresh; sign in again after expiry. The Auth provider also validates the token lifetime.
@@ -48,3 +48,9 @@ Keep keys, salts and local environment files out of Git. Do not add these variab
 After building with `SITE_URL=https://bible-diaries.example`, `npm run test:site` checks public pages and a complete protected-admin HTTP flow against a short-lived production process. Only that test process imports a fake Auth backend; there is no test bypass, alternate Auth URL or mock mode in application code. No real account or subscriber record is used.
 
 Live Auth, database, ingress and browser visual checks still need deployment verification. Refresh failures show an error rather than fabricated zero counts; previously loaded figures keep their recorded update time. Access is read-only: account administration, exports, subscriber deletion and email campaigns are not part of this dashboard. Use authorised Supabase access for subscriber correction/removal requests.
+
+## Domain separation
+
+Set `SITE_ROLE=admin` and `SITE_URL=https://admin.biblediaries.co.za` for both administrator workspaces. The waiting site uses `SITE_ROLE=waitlist` and redirects admin navigation to that portal. The main-admin workspace uses `/admin/moderation` with a separate cookie and server-managed moderation membership. The waiting-list allowlist does not grant that membership. See `../../docs/DOMAIN_STRUCTURE.md`.
+
+Waiting-list administrators must also be provisioned in `private.waitlist_admins`; the allowlist alone is insufficient. That membership is disjoint from `private.moderation_memberships`. Use different Auth accounts and passwords.

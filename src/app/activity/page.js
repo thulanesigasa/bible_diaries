@@ -1,4 +1,5 @@
 "use client";
+import ModerationNotifications from "../../components/ModerationNotifications";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
@@ -79,6 +80,7 @@ export default function Activity() {
   return (
     <main className="diary-settings">
       <h1>Activity & Notifications</h1>
+      <ModerationNotifications/>
       <p>
         Interactions with your reflections and new posts from authors you
         follow. Bookmark identities stay private.
@@ -92,7 +94,7 @@ export default function Activity() {
         </select>
       </label>
       <button disabled={busy} onClick={() => mark()}>
-        Mark all as read
+        Mark community activity as read
       </button>
       {error && (
         <p role="alert">

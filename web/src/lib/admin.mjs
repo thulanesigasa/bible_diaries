@@ -1,3 +1,4 @@
+import {adminEnabled} from './deployment.mjs';
 import { createHmac } from 'node:crypto';
 import { isIP } from 'node:net';
 import { PROJECT_URL, normalizeEmail } from './waitlist.mjs';
@@ -7,6 +8,7 @@ export function adminCookieName(env = process.env) {
   return env.NODE_ENV === 'production' ? '__Host-bible-diaries-admin' : 'bible-diaries-admin';
 }
 export function adminConfiguration(env = process.env) {
+  if(!adminEnabled(env))return null;
   const ids = (env.ADMIN_USER_IDS || '').split(',').map(value => value.trim().toLowerCase()).filter(Boolean);
   const key = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY;
   const secret = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -31,10 +33,13 @@ export async function getAdminUser(token, { env = process.env, fetcher = fetch }
     const user = await response.json();
     // Validate with Auth on every protected request. Never authorize user_metadata or a decoded-only JWT.
     if (!config.ids.includes(user.id) || !normalizeEmail(user.email) || typeof user.email_confirmed_at !== 'string' || !Number.isFinite(Date.parse(user.email_confirmed_at)) || user.is_anonymous) return null;
+    const active=await fetcher(`${PROJECT_URL}/rest/v1/rpc/session_is_active`,{method:'POST',headers:{apikey:config.key,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:'{}',cache:'no-store',signal:AbortSignal.timeout(8000)});
+    if(!active.ok||await active.json()!==true)return null;
+    const membership=await fetcher(`${PROJECT_URL}/rest/v1/rpc/waitlist_is_admin`,{method:'POST',headers:{apikey:config.key,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:'{}',cache:'no-store',signal:AbortSignal.timeout(8000)});if(!membership.ok||await membership.json()!==true)return null;
     return { id: user.id, email: user.email };
   } catch { return null; }
 }
-async function boundedJson(request) {
+export async function boundedJson(request) {
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') || '')) throw new Error();
   const reader = request.body?.getReader();
   if (!reader) throw new Error();
@@ -53,8 +58,8 @@ async function boundedJson(request) {
 function rpc(config, name, body, fetcher) {
   return fetcher(`${PROJECT_URL}/rest/v1/rpc/${name}`, { method: 'POST', headers: { apikey: config.secret, Authorization: `Bearer ${config.secret}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store', signal: AbortSignal.timeout(8000) });
 }
-export async function handleAdminLogin(request, { env = process.env, fetcher = fetch } = {}) {
-  const config = adminConfiguration(env);
+export async function handleAdminLogin(request, { env = process.env, fetcher = fetch, configuration=adminConfiguration, authorize=getAdminUser, cookieName=adminCookieName, scope='waitlist' } = {}) {
+  const config = configuration(env);
   if (!config) return privateReply(503, { error: 'Admin sign-in is not configured yet. Contact the site owner.' });
   if (request.headers.get('origin') !== config.origin) return privateReply(403, { error: 'Please sign in from this website.' });
   const ip = request.headers.get(config.ipHeader)?.trim();
@@ -65,7 +70,7 @@ export async function handleAdminLogin(request, { env = process.env, fetcher = f
   const email = normalizeEmail(body.email);
   const hash = value => createHmac('sha256', config.salt).update(value).digest('hex');
   try {
-    const limited = await rpc(config, 'bible_diaries_admin_login_attempt', { p_ip_hash: hash(`ip:${ip}`), p_email_hash: hash(`email:${email}`) }, fetcher);
+    const limited = await rpc(config, 'bible_diaries_admin_login_attempt', { p_ip_hash: hash(`${scope}:ip:${ip}`), p_email_hash: hash(`${scope}:email:${email}`) }, fetcher);
     if (!limited.ok) return privateReply(503, { error: 'Secure sign-in is temporarily unavailable.' });
     const allowed = await limited.json();
     if (allowed === false) { const response = privateReply(429, { error: 'Too many sign-in attempts. Please try again in 15 minutes.' }); response.headers.set('Retry-After', '900'); return response; }
@@ -74,11 +79,11 @@ export async function handleAdminLogin(request, { env = process.env, fetcher = f
     if (!response.ok) return privateReply(401, { error: 'Unable to sign in with an authorised administrator account.' });
     const session = await response.json();
     if (!Number.isFinite(session.expires_in) || session.expires_in < 1 || typeof session.access_token !== 'string' || !/^[A-Za-z0-9_.-]{20,8192}$/.test(session.access_token)) return privateReply(503, { error:'Secure sign-in is temporarily unavailable.' });
-    const user = await getAdminUser(session.access_token, { env, fetcher });
+    const user = await authorize(session.access_token, { env, fetcher });
     if (!user) return privateReply(401, { error:'Unable to sign in with an authorised administrator account.' });
     const result = privateReply(200, { success:true });
     // No refresh token is retained; sign in again after at most one hour.
-    result.headers.set('Set-Cookie', `${adminCookieName(env)}=${session.access_token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${Math.min(Math.floor(session.expires_in), 3600)}${env.NODE_ENV === 'production' ? '; Secure' : ''}`);
+    result.headers.set('Set-Cookie', `${cookieName(env)}=${session.access_token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${Math.min(Math.floor(session.expires_in), 3600)}${env.NODE_ENV === 'production' ? '; Secure' : ''}`);
     return result;
   } catch { return privateReply(503, { error:'Secure sign-in is temporarily unavailable.' }); }
 }
@@ -101,16 +106,29 @@ export async function handleAdminStats(token, { env = process.env, fetcher = fet
     return stats ? privateReply(200, stats) : privateReply(503, { error:'The waiting-list service returned an invalid response.' });
   } catch { return privateReply(503, { error:'Waiting-list data is temporarily unavailable.' }); }
 }
-export async function handleAdminLogout(request, token, { env = process.env, fetcher = fetch } = {}) {
+export async function handleAdminSubscribers(token, offset=0, {env=process.env,fetcher=fetch}={}){
+ const user=await getAdminUser(token,{env,fetcher});
+ if(!user)return privateReply(401,{error:'Sign in with an authorised waiting-list administrator account.'});
+ if(!Number.isSafeInteger(offset)||offset<0||offset>1000000)return privateReply(400,{error:'Invalid page.'});
+ const config=adminConfiguration(env);
+ try{
+  const query=new URLSearchParams({select:'first_name,surname,email,phone_e164,phone_country,gender,platform,consented_at',order:'consented_at.desc,email.asc',limit:'51',offset:String(offset)});
+  const r=await fetcher(`${PROJECT_URL}/rest/v1/bible_diaries_waitlist?${query}`,{headers:{apikey:config.secret,Authorization:`Bearer ${config.secret}`},cache:'no-store',signal:AbortSignal.timeout(8000)});
+  if(!r.ok)throw Error();const records=await r.json();
+  if(!Array.isArray(records)||records.length>51||records.some(x=>!normalizeEmail(x.email)||!['android','huawei','ios','any'].includes(x.platform)||!Number.isFinite(Date.parse(x.consented_at))))throw Error();
+  return privateReply(200,{records:records.slice(0,50).map(x=>({firstName:x.first_name||null,surname:x.surname||null,email:x.email,phone:x.phone_e164||null,country:x.phone_country||null,gender:x.gender||null,platform:x.platform,joinedAt:x.consented_at})),offset,hasMore:records.length>50});
+ }catch{return privateReply(503,{error:'Waiting-list registrations are temporarily unavailable.'});}
+}
+export async function handleAdminLogout(request, token, { env = process.env, fetcher = fetch, configuration=adminConfiguration, cookieName=adminCookieName } = {}) {
   let origin;
   try { origin = siteOrigin(env); } catch { return privateReply(503, { error:'Sign-out is temporarily unavailable.' }); }
   if (!origin || request.headers.get('origin') !== origin) return privateReply(403, { error:'Please sign out from this website.' });
-  const config = adminConfiguration(env);
+  const config = configuration(env);
   if (config && token && /^[A-Za-z0-9_.-]{20,8192}$/.test(token)) {
     // Revoke the Auth session's refresh capability as well as clearing this browser cookie.
     try { await fetcher(`${PROJECT_URL}/auth/v1/logout?scope=local`, { method:'POST',headers:{apikey:config.key,Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(8000) }); } catch { /* Clear the local session even if Auth is unavailable. */ }
   }
   const response = privateReply(200, { success:true });
-  response.headers.set('Set-Cookie', `${adminCookieName(env)}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${env.NODE_ENV === 'production' ? '; Secure' : ''}`);
+  response.headers.set('Set-Cookie', `${cookieName(env)}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${env.NODE_ENV === 'production' ? '; Secure' : ''}`);
   return response;
 }

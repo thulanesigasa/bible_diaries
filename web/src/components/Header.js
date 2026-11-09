@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import Logo from './Logo';
-function NavigationLinks({ onNavigate }) {
+function NavigationLinks({ onNavigate, links }) {
   return <>
-    <a href="/about" onClick={onNavigate}>Our story</a><a href="/features" onClick={onNavigate}>Features</a><a href="/pc" onClick={onNavigate}>On PC</a><a href="/safety" onClick={onNavigate}>Safety</a><a href="/support" onClick={onNavigate}>Support</a><a href="/legal" onClick={onNavigate}>Legal</a><a href="/#waitlist" className="button small" onClick={onNavigate}>Join the waiting list <span aria-hidden="true">↗</span></a>
+    <a href="/about" onClick={onNavigate}>Our story</a><a href="/features" onClick={onNavigate}>Features</a><a href="/pc" onClick={onNavigate}>On PC</a><a href="/safety" onClick={onNavigate}>Safety</a><a href="/support" onClick={onNavigate}>Support</a><a href="/legal" onClick={onNavigate}>Legal</a><a href={links.signup} className="button small" onClick={onNavigate}>Join the waiting list <span aria-hidden="true">↗</span></a>
   </>;
 }
-export default function Header() {
+export default function Header({links}) {
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const toggleRef = useRef(null);
@@ -42,7 +42,7 @@ export default function Header() {
 
   return <header className={`site-header${scrolled ? ' is-scrolled' : ''}`}><div className="wrap nav-bar">
     <a href="/" className="brand" aria-label="Bible Diaries home" onClick={closeMenu}><Logo/><span>Bible <b>Diaries</b></span></a>
-    <nav className="navigation desktop-navigation" aria-label="Main navigation"><NavigationLinks/></nav>
+    <nav className="navigation desktop-navigation" aria-label="Main navigation"><NavigationLinks links={links}/></nav>
     {/* Native disclosure remains operable before hydration or without JavaScript. */}
     <details ref={menuRef} className="mobile-navigation">
       {/* From Uiverse.io by JulanDeAlb; native summary supplies keyboard/expanded semantics. */}
@@ -52,7 +52,7 @@ export default function Header() {
           <path className="line" d="M7 16 27 16"/>
         </svg>
       </summary>
-      <nav id="site-navigation" className="navigation" aria-label="Mobile navigation"><NavigationLinks onNavigate={closeMenu}/></nav>
+      <nav id="site-navigation" className="navigation" aria-label="Mobile navigation"><NavigationLinks links={links} onNavigate={closeMenu}/></nav>
     </details>
   </div></header>;
 }

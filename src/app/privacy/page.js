@@ -20,6 +20,7 @@ export default function PrivacyPage() {
             1. Overview & Commitment
           </h2>
           <p style={{ lineHeight: '1.7', marginBottom: '0.75rem' }}>
+            Anonymous sharing hides your identity from other members. Authorised administrators may access your account name, surname and email when reviewing flagged public content; that access is recorded. Private entries and messages require separate restricted-review consent.
             At bible_diaries, we respect your personal reflections and data. Your spiritual diaries, prayers, and meditations are deeply personal. We are committed to securing your data and ensuring your fellowship remains safe and private.
           </p>
           <p style={{ lineHeight: '1.7' }}>

@@ -4,6 +4,10 @@ import { once } from 'node:events';
 import { createServer } from 'node:net';
 import assert from 'node:assert/strict';
 import { contentPaths } from '../src/content/pages.mjs';
+
+// The socket is local HTTP; simulate an HTTPS-terminating ingress. Explicit HTTP
+// tests override this header to exercise the production redirect.
+const fetch=(input,init={})=>{const headers=new Headers(init.headers);if(!headers.has('x-forwarded-proto'))headers.set('x-forwarded-proto','https');return globalThis.fetch(input,{...init,headers});};
 const listener = createServer();
 listener.listen(0, '127.0.0.1'); await once(listener, 'listening');
 const port = listener.address().port;
@@ -22,7 +26,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   assert.ok(ready, 'Production process did not become ready.');
-  const known = new Set(['/', ...contentPaths, '/waitlist-privacy', '/opengraph-image', '/logo.webp', '/logo.png']);
+  const known = new Set(['/admin/login','/admin/moderation/login','/', ...contentPaths, '/waitlist-privacy', '/opengraph-image', '/logo.webp', '/logo.png']);
   const documents = new Map();
   for (const path of ['/', ...contentPaths, '/waitlist-privacy']) {
     const response = await fetch(origin + path);
@@ -59,7 +63,7 @@ try {
   const robots = await (await fetch(origin + '/robots.txt')).text();
   assert.ok(robots.includes('Allow: /') && robots.includes('Disallow: /api/'));
   for (const path of ['/llm.txt','/llms.txt']) assert.equal((await fetch(origin + path)).status, 200);
-  const adminRedirect = await fetch(origin + '/admin', { redirect:'manual' });
+  const adminRedirect = await fetch(origin + '/admin/waitlist', { redirect:'manual' });
   assert.equal(adminRedirect.status, 307); assert.equal(adminRedirect.headers.get('location'), '/admin/login');
   assert.equal((await fetch(origin + '/api/admin/stats')).status, 401);
   const loginPage = await fetch(origin + '/admin/login');

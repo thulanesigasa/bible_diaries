@@ -19,14 +19,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - run: docker compose config --quiet
-      - run: docker compose build --pull app website
+      - run: docker compose build --pull app website admin
       - run: docker compose up -d --wait --wait-timeout 120
       - run: |
           curl --fail http://localhost:3000/api/health
           curl --fail http://localhost:3001/api/health
+          curl --fail http://localhost:3002/api/health
           node scripts/check-csp.mjs http://localhost:3000
           test "$(docker compose exec -T app id -u)" != 0
           test "$(docker compose exec -T website id -u)" != 0
+          test "$(docker compose exec -T admin id -u)" != 0
       - if: always()
         run: docker compose down
   mobile:

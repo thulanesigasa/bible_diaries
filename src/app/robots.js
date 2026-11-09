@@ -1,0 +1,1 @@
+export default function robots(){return {rules:[{userAgent:'*',allow:'/',disallow:['/api/','/admin','/feed','/post/','/chat','/connect','/settings','/reviews','/activity','/login','/register','/reset-password']}],sitemap:`${process.env.APP_ORIGIN||'https://biblediaries.co.za'}/sitemap.xml`};}

@@ -19,9 +19,10 @@ export default function ActivityShortcut() {
           .select("id", { count: "exact", head: true })
           .eq("recipient_id", user?.id)
           .is("read_at", null)
-          .then(({ count, error }: any) => {
+          .then(async ({ count, error }: any) => {
             if (active && !error) {
-              setCount(count || 0);
+              const n=await supabase.from('moderation_notifications').select('id',{count:'exact',head:true}).eq('user_id',user?.id).is('read_at',null);
+              if(active)setCount((count||0)+(n.error?0:n.count||0));
               setNow(new Date());
             }
           });

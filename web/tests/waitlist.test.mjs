@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { handleWaitlist, normalizeEmail, PROJECT_URL } from '../src/lib/waitlist.mjs';
 const env = { SUPABASE_URL: PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY: 'test-secret', WAITLIST_RATE_LIMIT_SALT: 'x'.repeat(32), SITE_URL: 'https://bible-diaries.example', WAITLIST_TRUSTED_IP_HEADER: 'x-test-ip' };
-const payload = { email: '  Hello@Example.com ', platform: 'huawei', consent: true, website: '' };
+const payload = {first_name:'Test',surname:'Member',phone:'0821234567',phone_country:'ZA',gender:'male', email: '  Hello@Example.com ', platform: 'huawei', consent: true, website: '' };
 const request = (data = payload, headers = {}) => new Request(env.SITE_URL + '/api/waitlist', { method: 'POST', headers: { origin: env.SITE_URL, 'content-type': 'application/json', 'x-test-ip': '192.0.2.10', ...headers }, body: typeof data === 'string' ? data : JSON.stringify(data) });
 const noFetch = async () => { throw new Error('Database must not be called'); };
 test('normalizes valid email and rejects malformed addresses', () => {
@@ -23,9 +23,10 @@ test('rejects invalid consent, platform, honeypot, malformed and oversized bodie
 });
 test('sends normalized consent and platform server-side, hashes IP, confirms only committed success', async () => {
   let saved;
-  const fetcher = async (url, options) => { assert.equal(url, `${PROJECT_URL}/rest/v1/rpc/bible_diaries_join_waitlist`); saved = JSON.parse(options.body); assert.equal(options.headers.Authorization, 'Bearer test-secret'); return Response.json('accepted'); };
+  const fetcher = async (url, options) => { assert.equal(url, `${PROJECT_URL}/rest/v1/rpc/bible_diaries_join_waitlist_v2`); saved = JSON.parse(options.body); assert.equal(options.headers.Authorization, 'Bearer test-secret'); return Response.json('accepted'); };
   const response = await handleWaitlist(request(), { env, fetcher });
   assert.equal(response.status, 200); assert.equal((await response.json()).success, true);
+  assert.equal(saved.p_phone,'+27821234567');assert.equal(saved.p_phone_country,'ZA');assert.equal(saved.p_first_name,'Test');assert.equal(saved.p_gender,'male');
   assert.equal(saved.p_email, 'hello@example.com'); assert.equal(saved.p_platform, 'huawei'); assert.equal(saved.p_consent, true); assert.match(saved.p_ip_hash, /^[a-f0-9]{64}$/); assert.ok(!JSON.stringify(saved).includes('192.0.2.10'));
 });
 test('maps rate limits and database failures without reporting false success', async () => {

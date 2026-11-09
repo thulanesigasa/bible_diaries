@@ -1,3 +1,5 @@
+import {normalizePhone} from './phone.mjs';
+import {waitlistEnabled} from './deployment.mjs';
 import { createHmac } from 'node:crypto';
 import { isIP } from 'node:net';
 export const PROJECT_URL = 'https://fspfwidfdnqvpgmipate.supabase.co';
@@ -31,6 +33,7 @@ async function readBody(request) {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 export async function handleWaitlist(request, { env = process.env, fetcher = fetch } = {}) {
+  if(!waitlistEnabled(env))return reply(404,{error:'Use the dedicated waiting-list website.'});
   if (request.method !== 'POST') return reply(405, { error: 'Method not allowed.' });
   const { SUPABASE_URL: project, SUPABASE_SERVICE_ROLE_KEY: secret, WAITLIST_RATE_LIMIT_SALT: salt, SITE_URL: site, WAITLIST_TRUSTED_IP_HEADER: header } = env;
   if (project !== PROJECT_URL || !secret || !salt || salt.length < 32 || !site || !header || !/^[a-z0-9-]+$/i.test(header)) return reply(503, { error: 'The waiting list is not ready yet. Please try again later.' });
@@ -45,14 +48,19 @@ export async function handleWaitlist(request, { env = process.env, fetcher = fet
   if (!body || typeof body !== 'object' || Array.isArray(body)) return reply(400, { error: 'Invalid request. Please check the form.' });
   const email = normalizeEmail(body.email);
   if (!email) return reply(400, { error: 'Please enter a valid email address.' });
+  const name=v=>typeof v==='string'&&v.trim().length>=1&&v.trim().length<=80&&!/[<>\x00-\x1f]/.test(v)?v.trim().replace(/\s+/g,' '):null;
+  const first=name(body.first_name),surname=name(body.surname),phone=normalizePhone(body.phone,body.phone_country);
+  if(!first||!surname)return reply(400,{error:'Enter your name and surname.'});
+  if(!phone)return reply(400,{error:'Enter a valid cell phone number and country code.'});
+  if(!['male','female'].includes(body.gender))return reply(400,{error:'Choose male or female.'});
   if (body.consent !== true) return reply(400, { error: 'Please agree to receive launch notifications.' });
   if (!['android', 'huawei', 'ios', 'any'].includes(body.platform)) return reply(400, { error: 'Please select a valid platform.' });
   if (body.website !== undefined && body.website !== '') return reply(400, { error: 'We could not accept this request.' });
   const hash = createHmac('sha256', salt).update(ip).digest('hex');
   try {
-    const result = await fetcher(`${PROJECT_URL}/rest/v1/rpc/bible_diaries_join_waitlist`, {
+    const result = await fetcher(`${PROJECT_URL}/rest/v1/rpc/bible_diaries_join_waitlist_v2`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', apikey: secret, Authorization: `Bearer ${secret}` },
-      body: JSON.stringify({ p_email: email, p_platform: body.platform, p_consent: true, p_ip_hash: hash }),
+      body: JSON.stringify({ p_email: email, p_platform: body.platform, p_consent: true, p_ip_hash: hash,p_first_name:first,p_surname:surname,p_phone:phone.number,p_phone_country:phone.country,p_gender:body.gender }),
       cache: 'no-store', signal: AbortSignal.timeout(8000)
     });
     if (!result.ok) return reply(503, { error: 'We could not confirm your request. Please try again later.' });

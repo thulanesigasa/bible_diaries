@@ -6,6 +6,10 @@ The layout follows the exégeomai coming soon website, adapted to Bible Diaries�
 
 The legal, privacy, support and safety collection contains approximately 27,000 words across nine documents, with substantive sections, examples, navigation and official background-reading links. See the [content review](./docs/CONTENT_REVIEW.md) for the word-count breakdown, scope and accuracy boundaries.
 
+## Domain structure
+
+`web/` preserves the current waiting-list website design at `waiting.biblediaries.co.za` (`SITE_ROLE=waitlist`) and serves the central portal at `admin.biblediaries.co.za` (`SITE_ROLE=admin`). The repository root now hosts the new main website and browser application at `biblediaries.co.za`. See [three-domain setup](../docs/DOMAIN_STRUCTURE.md).
+
 ## Architecture
 
 This is a standalone Next.js marketing website in `web/`. The existing root web application and `mobile/` app continue to have independent dependencies and deployment settings.
@@ -25,7 +29,7 @@ This is a standalone Next.js marketing website in `web/`. The existing root web 
 | `src/components/LaptopMockup.js` | Responsive illustrative desktop app inside a laptop frame, shown on the homepage and PC guide |
 | `src/components/Decorations.js` | Non-interactive crosses, rings, diamonds, dot patterns, guide lines and brand watermarks |
 | `src/app/api/waitlist/route.js` | Server-side POST handler |
-| `src/app/admin/`, `src/components/AdminDashboard.js` | Protected aggregate waiting-list dashboard and sign-in page |
+| `src/app/admin/`, `src/components/AdminDashboard.js` | Protected waiting-list statistics, registration list and sign-in page |
 | `src/app/api/admin/`, `src/lib/admin.mjs` | Server-validated administrator authorization, login, stats and logout |
 | `src/lib/waitlist.mjs` | Validation, trusted-origin checks, IP hashing and database RPC |
 | `src/app/waitlist-privacy/` | Dedicated waitlist notice and removal instructions |
@@ -49,7 +53,7 @@ The landing page and previews work without database credentials. The form delibe
 
 ## Activate real waiting-list signups
 
-The connected Bible Diaries Supabase project (`fspfwidfdnqvpgmipate`) was reported **INACTIVE** during implementation. Its live schema has not been modified or verified. Restore it before activating signups.
+The connected Bible Diaries Supabase project (`fspfwidfdnqvpgmipate`) is separate from the exégeomai project. Verify its current state and the waiting-list tables/functions before activating signups. The app database has been updated since the original marketing-site implementation.
 
 1. Restore the **Bible Diaries** Supabase project. Do not use the exégeomai database.
 2. Run `database/waitlist.sql` once in that project's SQL Editor, or incorporate the script into your normal migration process. The script creates only new, Bible Diaries-prefixed tables and one function. It does not change accounts, diaries, profiles or other app tables.
@@ -71,7 +75,7 @@ Rate limits allow five validated submissions per hashed IP per 15-minute window,
 
 ## Subscriber management
 
-The protected dashboard at **`/admin`** shows signup totals, daily growth and platform preferences. It requires an explicitly approved, email-verified Supabase Auth account. See [admin setup and security](./docs/ADMIN_DASHBOARD.md) for server variables, SQL setup, session behaviour and verification. It shows aggregates only; it does not list subscriber addresses.
+The protected dashboard at **`/admin`** shows signup totals, daily growth and platform preferences. It requires an explicitly approved, email-verified Supabase Auth account. See [admin setup and security](./docs/ADMIN_DASHBOARD.md) for server variables, SQL setup, session behaviour and verification. It shows aggregate figures and a protected, paginated registration list. Moderation is a separate dashboard and permission.
 
 Use the Supabase dashboard with authorised access when individual records need to be viewed or corrected in `public.bible_diaries_waitlist`. No subscriber list or service-role key is exposed to the website. Platform values are `android`, `huawei`, `ios` and `any`.
 

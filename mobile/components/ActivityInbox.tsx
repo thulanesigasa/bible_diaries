@@ -1,3 +1,4 @@
+import ModerationNotifications from './ModerationNotifications';
 import React, { useCallback, useState } from "react";
 import {
   View,
@@ -119,7 +120,7 @@ export default function ActivityInbox() {
         ))}
       </View>
       <TouchableOpacity onPress={() => mark()}>
-        <Text style={{ color: accent }}>Mark all as read</Text>
+        <Text style={{ color: accent }}>Mark community activity as read</Text>
       </TouchableOpacity>
       {!!error && (
         <TouchableOpacity onPress={() => load(false)}>
@@ -127,6 +128,7 @@ export default function ActivityInbox() {
         </TouchableOpacity>
       )}
       <FlatList
+        ListHeaderComponent={<ModerationNotifications/>}
         data={rows}
         keyExtractor={(x) => x.id}
         refreshing={loading}

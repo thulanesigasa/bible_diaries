@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { BookOpen, MessageSquare, Users, Settings, LogOut, Loader, Heart, Filter } from 'lucide-react';
 import Avatar from '../components/Avatar';
 
+const PUBLIC_PAGES=new Set(['/','/about','/features','/how-it-works','/pc','/faq','/support','/safety','/security','/community-guidelines','/legal','/privacy','/terms','/cookies']);
 const AppContext = createContext({
   user: null,
   profile: null,
@@ -28,6 +29,7 @@ export default function AppWrapper({ children }) {
   const [toasts, setToasts] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
+  const isPublicPage=PUBLIC_PAGES.has(pathname);
 
   const showToast = (message, type = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -93,12 +95,12 @@ export default function AppWrapper({ children }) {
 
     const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/reset-password';
 
-    if (!user && !isAuthPage) {
+    if (!user && !isAuthPage && !isPublicPage) {
       router.push('/login');
     } else if (user && isAuthPage && pathname !== '/reset-password') {
       router.push('/feed');
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, isPublicPage]);
 
   // Handle dynamic gender styling class on body
   useEffect(() => {
@@ -127,9 +129,9 @@ export default function AppWrapper({ children }) {
     }
   };
 
-  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/reset-password';
+  const isAuthPage = isPublicPage || pathname === '/login' || pathname === '/register' || pathname === '/reset-password';
 
-  if (loading) {
+  if (loading && !isPublicPage) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
         <Loader className="spinner" style={{ color: 'var(--gold-accent)', width: '32px', height: '32px' }} />

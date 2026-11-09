@@ -1,15 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import { siteOrigin } from './src/lib/seo.mjs';
 /** @type {import('next').NextConfig} */
 const config = {
   outputFileTracingRoot: fileURLToPath(new URL('.', import.meta.url)),
   output:'standalone',
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
-  async redirects() {
-    const origin = siteOrigin();
-    return origin?.startsWith('https://') ? [{ source: '/:path*', has: [{ type: 'header', key: 'x-forwarded-proto', value: 'http' }], destination: `${origin}/:path*`, permanent: true }] : [];
-  },
   async headers() {
     return [{ source: '/(.*)', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },

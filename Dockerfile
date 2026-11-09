@@ -9,6 +9,7 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY src ./src
 COPY shared ./shared
+COPY web/src/content ./web/src/content
 COPY supabase/functions/_shared ./supabase/functions/_shared
 COPY public ./public
 COPY next.config.mjs jsconfig.json postcss.config.mjs ./

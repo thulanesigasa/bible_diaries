@@ -18,7 +18,7 @@ export function AchievementBell() {
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
         .is("seen_at", null);
-      if (active && !r.error) setCount(r.count || 0);
+      if(active && !r.error)setCount(r.count||0);
     };
     void load();
     window.addEventListener("focus", load);
@@ -58,7 +58,8 @@ export function ActivityShortcut() {
         .eq("recipient_id", user.id)
         .is("read_at", null);
       if (active && !r.error) {
-        setCount(r.count || 0);
+        const n=await supabase.from('moderation_notifications').select('id',{count:'exact',head:true}).eq('user_id',user.id).is('read_at',null);
+        if(active)setCount((r.count||0)+(n.error?0:n.count||0));
         setNow(new Date());
       }
     };

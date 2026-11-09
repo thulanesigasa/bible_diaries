@@ -1,11 +1,19 @@
+> Current architecture update: see DOMAIN_STRUCTURE.md. Authorised public-content
+> reviewers now receive the account name/surname/email, with audited access, as
+> explicitly requested. Private content retains restricted consent and identity
+> withholding. The new alignment migration adds separate waiting-list roles and
+> atomic owner-only review notifications. These details supersede older statements
+> below describing the initial review-only implementation.
+
 # Contextual moderation V2
 
 ## Deployment state
 
-Source implementation and local verification are complete. The database migration
-has **not been applied**: both connected Supabase confirmation attempts expired.
-The deployed `secure-content` function is still version 1. Existing production
-moderation is unchanged. Do not deploy the new handler before its migration.
+The moderation foundation `20261108142855` is installed. The three-domain follow-up
+migration `20261108191413` was applied successfully, and `secure-content` version 2
+is ACTIVE with JWT verification enabled. Administrator accounts, custom-domain
+hosting and a compatible native UI update still require operational activation.
+See DOMAIN_STRUCTURE.md for the current roles, identity-access rules and rollout.
 
 The target was verified as `bible_diaries`, project `fspfwidfdnqvpgmipate`, PostgreSQL
 17.11. The pre-deployment audit found one account and zero diaries, comments or
@@ -110,7 +118,7 @@ written to logs, analytics or the evaluation report.
 
 ## Executed validation
 
-- **33/33 tests passed** with `node --test web/tests/*.test.mjs`.
+- **39/39 tests passed** with `node --test web/tests/*.test.mjs`.
 - Native TypeScript and Android JavaScript export passed.
 - Browser production build passed; My reviews and the moderator dashboard
   hydrated at a 390px viewport without horizontal overflow or browser errors.

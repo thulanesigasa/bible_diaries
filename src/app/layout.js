@@ -3,6 +3,8 @@ import "./globals.css";
 import AppWrapper from "./AppWrapper";
 
 export const metadata = {
+  metadataBase:new URL(process.env.APP_ORIGIN||'https://biblediaries.co.za'),
+  openGraph:{type:'website',siteName:'Bible Diaries',title:'Bible Diaries — Reflect. Share. Grow.',images:[{url:'/logo.png',alt:'Bible Diaries'}]},
   robots:{index:false,follow:false},
   title: "Bible Diaries - Sharing Reflections & Faith",
   description: "A premium spiritual space to share daily reflections, bible study diaries, and connect with other believers under categories of hope, faith, love, and wisdom.",

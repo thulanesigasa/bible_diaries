@@ -524,7 +524,7 @@ export default function Feed() {
             </h3>
             
             <form onSubmit={handleCreatePost}>
-              <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:16}}>{[['Post anonymously',anonymousEntry,setAnonymousEntry],['Private entry',privateEntry,setPrivateEntry],['Allow comments',commentsAllowed,setCommentsAllowed],['Allow likes',likesAllowed,setLikesAllowed]].map(([label,value,setter])=><label key={label}><input type="checkbox" checked={value} onChange={e=>setter(e.target.checked)}/> {label}</label>)}</div>
+              <p style={{fontSize:12}}>Anonymous sharing hides your identity from members. Authorised administrators can access account details when reviewing flagged public content.</p><div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:16}}>{[['Post anonymously',anonymousEntry,setAnonymousEntry],['Private entry',privateEntry,setPrivateEntry],['Allow comments',commentsAllowed,setCommentsAllowed],['Allow likes',likesAllowed,setLikesAllowed]].map(([label,value,setter])=><label key={label}><input type="checkbox" checked={value} onChange={e=>setter(e.target.checked)}/> {label}</label>)}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <input
                   type="text"

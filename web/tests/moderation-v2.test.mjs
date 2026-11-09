@@ -25,7 +25,7 @@ test('category safeguards preserve criticism, quotes, disclosures and severe fla
 test('review queue prevents forgery, unauthorized access, private disclosures, repeated decisions and stale edits',async()=>{
  const db=new PGlite();try{
  await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create schema storage;
- create table auth.users(id uuid primary key,raw_user_meta_data jsonb default '{}',banned_until timestamptz);
+ create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb default '{}',banned_until timestamptz);
  create table auth.sessions(id uuid primary key,user_id uuid references auth.users on delete cascade,created_at timestamptz default now(),updated_at timestamptz default now(),user_agent text);
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
  create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
@@ -33,9 +33,9 @@ test('review queue prevents forgery, unauthorized access, private disclosures, r
  create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
  create table storage.objects(bucket_id text,owner uuid,name text);alter table storage.objects enable row level security;
  create function public.rls_auto_enable() returns event_trigger language plpgsql security definer as $$begin end$$;`);
- for(const f of ['schema.sql','supabase/migrations/20261101115300_security_audit_baseline.sql','supabase/migrations/20261101122925_enforce_app_security.sql','supabase/migrations/20261108135008_diary_settings_activity.sql','supabase/migrations/20261108142855_contextual_moderation.sql']){
+ for(const f of ['schema.sql','supabase/migrations/20261101115300_security_audit_baseline.sql','supabase/migrations/20261101122925_enforce_app_security.sql','supabase/migrations/20261108135008_diary_settings_activity.sql','supabase/migrations/20261108142855_contextual_moderation.sql','supabase/migrations/20261108191413_unified_admin_waitlist_and_notifications.sql']){
  if(f.includes('115300'))await db.exec('grant all on all tables in schema public to anon,authenticated,service_role;');await db.exec(await readFile(new URL('../../'+f,import.meta.url),'utf8'));}
- for(let n=1;n<=4;n++){await db.query('insert into auth.users(id,raw_user_meta_data) values($1,$2)',[uid(n),JSON.stringify({full_name:'Synthetic'})]);await db.query('insert into auth.sessions(id,user_id) values($1,$2)',[uid(n+10),uid(n)]);}
+ for(let n=1;n<=4;n++){await db.query('insert into auth.users(id,raw_user_meta_data,email) values($1,$2,$3)',[uid(n),JSON.stringify({full_name:'Synthetic'}),`synthetic${n}@example.invalid`]);await db.query('insert into auth.sessions(id,user_id) values($1,$2)',[uid(n+10),uid(n)]);}
  await db.query("insert into private.moderation_memberships values($1,'moderator'),($2,'safety_reviewer')",[uid(2),uid(3)]);
  const role=async n=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[uid(n),JSON.stringify({session_id:uid(n+10)})]);await db.exec('set role authenticated');};
  const server=()=>db.exec('reset role;set role service_role');
@@ -45,7 +45,7 @@ test('review queue prevents forgery, unauthorized access, private disclosures, r
  const pending=await submit();await role(1);assert.equal((await list(false)).length,1);assert.equal((await db.query('select count(*)::int n from diaries')).rows[0].n,0);
  await assert.rejects(list(true));await assert.rejects(db.exec('select * from private.moderation_submissions'));await assert.rejects(act(pending.id,1,'approve'));
  await role(4);assert.equal((await list(false)).length,0);await assert.rejects(act(pending.id,1,'withdraw'));await assert.rejects(db.query("select moderated_submit($1,'diaries','insert','{}',null,'ALLOW','allow','x','[]',null)",[uid(4)]));
- await role(2);const queue=await list(true);assert.equal(queue.length,1);assert.equal(queue[0].owner_id,undefined);await act(pending.id,1,'approve');await assert.rejects(act(pending.id,1,'approve'));
+ await role(2);const queue=await list(true);assert.equal(queue.length,1);assert.equal(queue[0].owner_id,undefined);assert.equal(queue[0].author.email,'synthetic1@example.invalid');await act(pending.id,1,'approve');await assert.rejects(act(pending.id,1,'approve'));
  const privateJob=await submit({visibility:'private'});await role(2);assert.equal((await list(true)).length,0);await assert.rejects(act(privateJob.id,1,'approve'));
  await role(3);assert.equal((await list(true)).length,0);await role(1);await act(privateJob.id,1,'consent');await role(3);assert.equal((await list(true)).length,1);await act(privateJob.id,2,'reject');await role(1);await act(privateJob.id,3,'appeal');await assert.rejects(act(privateJob.id,4,'appeal'));
  await role(1);const published=(await db.query('select * from diaries where visibility=\'public\' limit 1')).rows[0];const base={content:published.content,title:published.title,scripture:published.scripture};
@@ -57,7 +57,9 @@ test('review queue prevents forgery, unauthorized access, private disclosures, r
  await role(2);assert.ok(!(await list(true)).some(x=>x.id===chat.id));await role(4);assert.ok(!(await list(false)).some(x=>x.id===chat.id));
  await role(1);await act(chat.id,1,'consent');await role(3);const held=(await list(true)).find(x=>x.id===chat.id);assert.equal(held.record.receiver_id,undefined);assert.equal(held.record.message,'Private held message');await act(chat.id,2,'approve');
  await role(4);assert.equal((await db.query('select count(*)::int n from chats')).rows[0].n,1);
- await server();await assert.rejects(db.query("select commit_content($1,'diaries','insert','{}',null)",[uid(1)]));
+ await role(1);const notices=(await db.query('select * from moderation_notifications')).rows;assert.ok(notices.some(n=>n.outcome==='approved'));assert.ok(notices.some(n=>n.outcome==='rejected'));await assert.rejects(db.exec("update moderation_notifications set outcome='approved'"));await db.exec('update moderation_notifications set read_at=now()');await role(4);assert.equal((await db.query('select count(*)::int n from moderation_notifications')).rows[0].n,0);
+ await db.exec('reset role');await db.query('insert into private.waitlist_admins values($1)',[uid(4)]);await assert.rejects(db.query('insert into private.waitlist_admins values($1)',[uid(2)]));await assert.rejects(db.query("insert into private.moderation_memberships values($1,'moderator')",[uid(4)]));await role(4);assert.equal((await db.query('select waitlist_is_admin() v')).rows[0].v,true);
+ await server();const fields=['FIRST@example.invalid','android',true,'a'.repeat(64),'First','Person','+27821234567','ZA','female'];const joined=await db.query('select bible_diaries_join_waitlist_v2($1,$2,$3,$4,$5,$6,$7,$8,$9) v',fields);assert.equal(joined.rows[0].v,'accepted');const record=(await db.query('select * from bible_diaries_waitlist')).rows[0];assert.equal(record.first_name,'First');assert.equal(record.phone_e164,'+27821234567');assert.equal(record.phone_country,'ZA');assert.equal(record.gender,'female');await db.query('select bible_diaries_join_waitlist_v2($1,$2,$3,$4,$5,$6,$7,$8,$9) v',[...fields.slice(0,5),'Changed',...fields.slice(6)]);assert.equal((await db.query('select surname from bible_diaries_waitlist')).rows[0].surname,'Person');await assert.rejects(db.query("select commit_content($1,'diaries','insert','{}',null)",[uid(1)]));
  await db.exec('reset role');await db.query('delete from auth.sessions where user_id=$1',[uid(2)]);await role(2);await assert.rejects(list(true));
  }finally{await db.close();}
 });

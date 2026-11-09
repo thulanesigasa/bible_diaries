@@ -14,7 +14,7 @@ test('admin configuration fails closed and requires trusted project and account 
   assert.equal(adminConfiguration({...env,ADMIN_USER_IDS:'admin@example.com'}),null);
 });
 test('admin authorization revalidates with Auth, rejects unverified, anonymous and non-allowlisted users',async()=>{
-  assert.deepEqual(await getAdminUser(token,{env,fetcher:async(url,options)=>{assert.equal(url,PROJECT_URL+'/auth/v1/user');assert.equal(options.headers.Authorization,'Bearer '+token);return Response.json(user);}}),{id,email:user.email});
+  assert.deepEqual(await getAdminUser(token,{env,fetcher:async(url,options)=>{if(['/rpc/session_is_active','/rpc/waitlist_is_admin'].some(p=>url.endsWith(p)))return Response.json(true);assert.equal(url,PROJECT_URL+'/auth/v1/user');assert.equal(options.headers.Authorization,'Bearer '+token);return Response.json(user);}}),{id,email:user.email});
   for(const replacement of [{...user,email_confirmed_at:null},{...user,is_anonymous:true},{...user,id:'22222222-2222-4222-8222-222222222222',user_metadata:{admin:true}},{...user,email:'invalid'}]) assert.equal(await getAdminUser(token,{env,fetcher:async()=>Response.json(replacement)}),null);
   assert.equal(await getAdminUser(token,{env,fetcher:async()=>new Response('',{status:401})}),null);
   assert.equal(await getAdminUser(undefined,{env,fetcher:async()=>{throw Error('must not fetch');}}),null);
@@ -30,10 +30,10 @@ test('admin login consumes durable limits before Auth and only sets a secure Htt
   const fetcher=async(url,options)=>{calls.push(url);
     if(url.includes('login_attempt')) {const body=JSON.parse(options.body);assert.match(body.p_ip_hash,/^[a-f0-9]{64}$/);assert.match(body.p_email_hash,/^[a-f0-9]{64}$/);assert.ok(!options.body.includes(user.email)&&!options.body.includes('192.0.2.1'));return Response.json(true);}
     if(url.includes('grant_type=password'))return Response.json({access_token:token,refresh_token:'must-not-be-saved',expires_in:7200});
-    return Response.json(user);
+    return Response.json(['/rpc/session_is_active','/rpc/waitlist_is_admin'].some(p=>url.endsWith(p))?true:user);
   };
   const result=await handleAdminLogin(request(),{env,fetcher});
-  assert.equal(result.status,200);assert.equal(calls.length,3);assert.ok(calls[0].includes('login_attempt'));
+  assert.equal(result.status,200);assert.equal(calls.length,5);assert.ok(calls[0].includes('login_attempt'));
   const cookie=result.headers.get('set-cookie');
   for(const flag of ['__Host-bible-diaries-admin=','HttpOnly','Secure','SameSite=Strict','Path=/','Max-Age=3600'])assert.ok(cookie.includes(flag));
   assert.ok(!cookie.includes('must-not-be-saved'));
@@ -51,10 +51,10 @@ test('stats require current authorization and expose only validated aggregate fi
   let calledStats=false;
   const denied=await handleAdminStats(token,{env,fetcher:async url=>{if(url.includes('waitlist_stats'))calledStats=true;return Response.json({...user,id:'stranger'});}});
   assert.equal(denied.status,401);assert.equal(calledStats,false);
-  const valid=await handleAdminStats(token,{env,fetcher:async url=>url.includes('/auth/')?Response.json(user):Response.json({...stats,emails:['subscriber@example.com'],password:'hidden'})});
+  const valid=await handleAdminStats(token,{env,fetcher:async url=>['/rpc/session_is_active','/rpc/waitlist_is_admin'].some(p=>url.endsWith(p))?Response.json(true):url.includes('/auth/')?Response.json(user):Response.json({...stats,emails:['subscriber@example.com'],password:'hidden'})});
   assert.equal(valid.status,200);const output=await valid.json();assert.equal(output.total,4);assert.ok(!JSON.stringify(output).includes('subscriber@example.com'));assert.ok(!('password' in output));
   assert.equal(validateStats({...stats,total:5}),null);assert.equal(validateStats({...stats,timezone:'UTC'}),null);
-  const failed=await handleAdminStats(token,{env,fetcher:async url=>url.includes('/auth/')?Response.json(user):new Response('internal secret',{status:500})});
+  const failed=await handleAdminStats(token,{env,fetcher:async url=>['/rpc/session_is_active','/rpc/waitlist_is_admin'].some(p=>url.endsWith(p))?Response.json(true):url.includes('/auth/')?Response.json(user):new Response('internal secret',{status:500})});
   assert.equal(failed.status,503);assert.ok(!(await failed.text()).includes('internal secret'));
 });
 test('logout requires the exact origin, revokes remotely and clears the cookie',async()=>{

@@ -650,8 +650,8 @@ export default function FeedScreen() {
 
               {/* Anonymous setting */}
               <View style={styles.anonymousRow}>
-                <View>
-                  <Text style={styles.anonymousTitle}>Post Anonymously</Text>
+                <View style={{flex:1,minWidth:0,paddingRight:12}}>
+                  <Text style={styles.anonymousTitle}>Post Anonymously</Text><Text style={{fontSize:11,color:'#64748b'}}>Anonymous to members; authorised administrators may access account details when reviewing flagged public content.</Text>
                   <Text style={styles.anonymousDesc}>Your name and avatar will be hidden from other members.</Text>
                 </View>
                 <Switch
