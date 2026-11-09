@@ -1,15 +1,230 @@
-import Link from 'next/link';
-import './main-site.css';
-export const MAIN_FAQS=[
- ['What is Bible Diaries?','A personal diary and community for reflecting on Scripture, recording your journey and encouraging others. You decide which reflections stay private and which you share.'],
- ['Can I use it on my computer?','The browser companion lets you read and write with a keyboard. Sign in through this website to open the web app. Your available features depend on the deployed version.'],
- ['Where can I get the mobile app?','Google Play and Huawei AppGallery are planned first, followed by Apple App Store later. Join the waiting list for official store announcements. No store release date is guaranteed.'],
- ['Is the waiting list an app account?','No. It is a separate launch-notification request. Its form collects your name, surname, email, international phone number, phone region, gender and platform preference with your consent.'],
- ['Can I post anonymously?','Anonymous posts hide your identity from the community. Authorised administrators may access account identity when reviewing a flagged public submission; access is restricted and recorded. Private entries and messages have separate review-consent safeguards.'],
- ['What happens when my content is flagged?','Content requiring review is held before publication or delivery. An administrator can approve it or reject it with an explanation. System notifications and My reviews & appeals show the decision when these services are activated in your app version.'],
- ['Can I challenge a rejection?','Yes. Read the explanation, edit and resubmit, or use the appeal option in My reviews & appeals. Automated checks and human reviewers can make mistakes.'],
- ['How can I contact you?','Email support@ts-industries.com. Describe the issue and include the app/browser version where relevant. Never send passwords or verification codes. Support is not an emergency service.']
+import Link from "next/link";
+import "./main-site.css";
+export const MAIN_FAQS = [
+  [
+    "What is Bible Diaries?",
+    "A personal diary and community for reflecting on Scripture, recording your journey and encouraging others. You decide which reflections stay private and which you share.",
+  ],
+  [
+    "Can I use it on my computer?",
+    "The browser companion lets you read and write with a keyboard. Sign in through this website to open the web app. Your available features depend on the deployed version.",
+  ],
+  [
+    "Where can I get the mobile app?",
+    "Google Play and Huawei AppGallery are planned first, followed by Apple App Store later. Join the waiting list for official store announcements. No store release date is guaranteed.",
+  ],
+  [
+    "Is the waiting list an app account?",
+    "No. It is a separate launch-notification request. Its form collects your name, surname, email, international phone number, phone region, gender and platform preference with your consent.",
+  ],
+  [
+    "Can I post anonymously?",
+    "Anonymous posts hide your identity from the community. Authorised administrators may access account identity when reviewing a flagged public submission; access is restricted and recorded. Private entries and messages have separate review-consent safeguards.",
+  ],
+  [
+    "What happens when my content is flagged?",
+    "Content requiring review is held before publication or delivery. An administrator can approve it or reject it with an explanation. System notifications and My reviews & appeals show the decision when these services are activated in your app version.",
+  ],
+  [
+    "Can I challenge a rejection?",
+    "Yes. Read the explanation, edit and resubmit, or use the appeal option in My reviews & appeals. Automated checks and human reviewers can make mistakes.",
+  ],
+  [
+    "How can I contact you?",
+    "Email support@ts-industries.com. Describe the issue and include the app/browser version where relevant. Never send passwords or verification codes. Support is not an emergency service.",
+  ],
 ];
-export function MainHeader(){return <header className="main-top"><Link href="/" className="main-brand"><img src="/logo.png" width="38" height="38" alt=""/><span>Bible <b>Diaries</b></span></Link><nav aria-label="Website navigation"><Link href="/features">The app</Link><Link href="/faq">FAQ</Link><Link href="/support">Support</Link><Link className="main-small-button" href="/login">Sign in</Link></nav></header>;}
-export function MainFooter(){return <footer className="main-footer"><div><Link className="main-brand" href="/">Bible <b>Diaries</b></Link><p>Your faith. Your words. Your journey.</p></div><nav aria-label="Information and policies"><Link href="/about">About</Link><Link href="/pc">On PC</Link><Link href="/safety">Safety</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/support">Contact</Link></nav><small>© {new Date().getFullYear()} Bible Diaries · T.S Industries</small></footer>;}
-export default function MainSite(){return <div className="main-site"><MainHeader/><main><section className="main-hero"><div><p className="main-overline">FAITH, WITH ROOM TO GROW</p><h1>Make space for<br/>what God is<br/><span>doing in you.</span></h1><p className="main-intro">Some moments belong in your diary. Others might be the encouragement someone needs. Bible Diaries gives both a home.</p><div className="main-actions"><Link className="main-button" href="/feed">Open the web app ↗</Link><a className="main-secondary" href="https://waiting.biblediaries.co.za">Join the waiting list</a></div><p className="main-caption">Personal reflection. Thoughtful sharing. Everyday faith.</p></div><div className="main-notebook" aria-label="Illustrative Bible Diaries reflection preview"><div className="main-notebook-top"><span>MY DIARY</span><span>01 / GRATITUDE</span></div><p className="main-script">A little quiet.<br/>A little clarity.</p><div className="main-note-page"><span>PERSONAL REFLECTION</span><h2>Learning to be present.</h2><p>Today, I’m learning to slow down. To notice the small answers, the unexpected kindness, and the moments I would otherwise rush past.</p><div className="main-note-line"/><small>Private until you choose to share.</small></div><p className="main-caption">An illustrative preview, not a member’s private entry.</p></div></section><section className="main-features" id="features"><p className="main-overline">ONE JOURNEY. DIFFERENT MOMENTS.</p><h2>Write for yourself.<br/>Connect with purpose.</h2><div className="main-feature-grid">{[['01','Your personal diary','Keep prayers, lessons and reflections in one place. Set your sharing preferences before you post.'],['02','A community that listens','Explore faith, hope, love, wisdom, strength and gratitude. Encourage others through comments and conversations.'],['03','Your journey, remembered','Bookmark words that matter, revisit your reflections and see personal achievement milestones.'],['04','More room on PC','Read and write in your browser. Use a keyboard for longer reflections and continue on a larger screen.']].map(([n,t,d])=><article key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p></article>)}</div></section><section className="main-trust"><div><p className="main-overline">CARE IS PART OF THE EXPERIENCE</p><h2>A meaningful space needs thoughtful boundaries.</h2></div><div><p>You choose what to share. Automated checks and authorised review help address harmful content. A flagged submission can be approved or rejected with a reason, while private content has additional access safeguards.</p><p>These protections have limits. Honest disagreement and constructive criticism belong in the conversation.</p><Link href="/safety">Read about safety and review →</Link></div></section><section className="main-faq" id="faq"><div><p className="main-overline">BEFORE YOU BEGIN</p><h2>A few good questions.</h2><Link href="/faq">All frequently asked questions →</Link></div><div>{MAIN_FAQS.slice(0,5).map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section><section className="main-invitation"><h2>Your next reflection can begin right here.</h2><div className="main-actions"><Link className="main-button" href="/login">Sign in to Bible Diaries</Link><a href="https://waiting.biblediaries.co.za">Get launch updates →</a></div></section></main><MainFooter/></div>;}
+export function MainHeader() {
+  return (
+    <header className="main-top">
+      <Link href="/" className="main-brand">
+        <img src="/logo.png" width="38" height="38" alt="" />
+        <span>
+          Bible <b>Diaries</b>
+        </span>
+      </Link>
+      <nav aria-label="Website navigation">
+        <Link href="/features">The app</Link>
+        <Link href="/faq">FAQ</Link>
+        <Link href="/support">Support</Link>
+        <Link className="main-small-button" href="/login">
+          Sign in
+        </Link>
+      </nav>
+    </header>
+  );
+}
+export function MainFooter() {
+  return (
+    <footer className="main-footer">
+      <div>
+        <Link className="main-brand" href="/">
+          Bible <b>Diaries</b>
+        </Link>
+        <p>Your faith. Your words. Your journey.</p>
+      </div>
+      <nav aria-label="Information and policies">
+        <Link href="/about">About</Link>
+        <Link href="/pc">On PC</Link>
+        <Link href="/safety">Safety</Link>
+        <Link href="/privacy">Privacy</Link>
+        <Link href="/child-safety">Child safety</Link>
+        <Link href="/guardian">Guardians</Link>
+        <Link href="/account-deletion">Delete account</Link>
+        <Link href="/terms">Terms</Link>
+        <Link href="/support">Contact</Link>
+      </nav>
+      <small>© {new Date().getFullYear()} Bible Diaries · T.S Industries</small>
+    </footer>
+  );
+}
+export default function MainSite() {
+  return (
+    <div className="main-site">
+      <MainHeader />
+      <main>
+        <section className="main-hero">
+          <div>
+            <p className="main-overline">FAITH, WITH ROOM TO GROW</p>
+            <h1>
+              Make space for
+              <br />
+              what God is
+              <br />
+              <span>doing in you.</span>
+            </h1>
+            <p className="main-intro">
+              Some moments belong in your diary. Others might be the
+              encouragement someone needs. Bible Diaries gives both a home.
+            </p>
+            <div className="main-actions">
+              <Link className="main-button" href="/feed">
+                Open the web app ↗
+              </Link>
+              <a
+                className="main-secondary"
+                href="https://waiting.biblediaries.co.za"
+              >
+                Join the waiting list
+              </a>
+            </div>
+            <p className="main-caption">
+              Personal reflection. Thoughtful sharing. Everyday faith.
+            </p>
+          </div>
+          <div
+            className="main-notebook"
+            aria-label="Illustrative Bible Diaries reflection preview"
+          >
+            <div className="main-notebook-top">
+              <span>MY DIARY</span>
+              <span>01 / GRATITUDE</span>
+            </div>
+            <p className="main-script">
+              A little quiet.
+              <br />A little clarity.
+            </p>
+            <div className="main-note-page">
+              <span>PERSONAL REFLECTION</span>
+              <h2>Learning to be present.</h2>
+              <p>
+                Today, I’m learning to slow down. To notice the small answers,
+                the unexpected kindness, and the moments I would otherwise rush
+                past.
+              </p>
+              <div className="main-note-line" />
+              <small>Private until you choose to share.</small>
+            </div>
+            <p className="main-caption">
+              An illustrative preview, not a member’s private entry.
+            </p>
+          </div>
+        </section>
+        <section className="main-features" id="features">
+          <p className="main-overline">ONE JOURNEY. DIFFERENT MOMENTS.</p>
+          <h2>
+            Write for yourself.
+            <br />
+            Connect with purpose.
+          </h2>
+          <div className="main-feature-grid">
+            {[
+              [
+                "01",
+                "Your personal diary",
+                "Keep prayers, lessons and reflections in one place. Set your sharing preferences before you post.",
+              ],
+              [
+                "02",
+                "A community that listens",
+                "Explore faith, hope, love, wisdom, strength and gratitude. Encourage others through comments and conversations.",
+              ],
+              [
+                "03",
+                "Your journey, remembered",
+                "Bookmark words that matter, revisit your reflections and see personal achievement milestones.",
+              ],
+              [
+                "04",
+                "More room on PC",
+                "Read and write in your browser. Use a keyboard for longer reflections and continue on a larger screen.",
+              ],
+            ].map(([n, t, d]) => (
+              <article key={n}>
+                <span>{n}</span>
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="main-trust">
+          <div>
+            <p className="main-overline">CARE IS PART OF THE EXPERIENCE</p>
+            <h2>A meaningful space needs thoughtful boundaries.</h2>
+          </div>
+          <div>
+            <p>
+              You choose what to share. Automated checks and authorised review
+              help address harmful content. A flagged submission can be approved
+              or rejected with a reason, while private content has additional
+              access safeguards.
+            </p>
+            <p>
+              These protections have limits. Honest disagreement and
+              constructive criticism belong in the conversation.
+            </p>
+            <Link href="/safety">Read about safety and review →</Link>
+          </div>
+        </section>
+        <section className="main-faq" id="faq">
+          <div>
+            <p className="main-overline">BEFORE YOU BEGIN</p>
+            <h2>A few good questions.</h2>
+            <Link href="/faq">All frequently asked questions →</Link>
+          </div>
+          <div>
+            {MAIN_FAQS.slice(0, 5).map(([q, a]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+        <section className="main-invitation">
+          <h2>Your next reflection can begin right here.</h2>
+          <div className="main-actions">
+            <Link className="main-button" href="/login">
+              Sign in to Bible Diaries
+            </Link>
+            <a href="https://waiting.biblediaries.co.za">
+              Get launch updates →
+            </a>
+          </div>
+        </section>
+      </main>
+      <MainFooter />
+    </div>
+  );
+}

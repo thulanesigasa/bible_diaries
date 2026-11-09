@@ -1,3 +1,4 @@
+import MfaSettings from "../../components/MfaSettings";
 import AppPolicies from "../../components/AppPolicies";
 import ReadingPreferences from "../../components/ReadingPreferences";
 import React, { useEffect, useState } from "react";
@@ -210,7 +211,10 @@ export default function SettingsSection() {
     });
   const profileChange = (patch: any) =>
     run(async () => {
-      const r = await supabase.from("profiles").update(patch).eq("id", user?.id);
+      const r = await supabase
+        .from("profiles")
+        .update(patch)
+        .eq("id", user?.id);
       if (r.error) throw new Error("Could not save privacy settings.");
       setProfile({ ...profile, ...patch });
     });
@@ -249,7 +253,14 @@ export default function SettingsSection() {
         ? action(error + " Retry", () => reload())
         : null}
       {!!loadError && <Text accessibilityLiveRegion="polite">{loadError}</Text>}
-      {section === "reading" && <ReadingPreferences settings={settings} disabled={busy || !ready} accent={accent} onChange={persist} />}
+      {section === "reading" && (
+        <ReadingPreferences
+          settings={settings}
+          disabled={busy || !ready}
+          accent={accent}
+          onChange={persist}
+        />
+      )}
       {section === "privacy" && (
         <>
           {control(
@@ -294,7 +305,10 @@ export default function SettingsSection() {
           </Text>
         </>
       )}
-      {section === "privacy" && action("Read the privacy policy", () => router.push("/settings/legal" as any))}
+      {section === "privacy" &&
+        action("Read the privacy policy", () =>
+          router.push("/settings/legal" as any),
+        )}
       {section === "notifications" && (
         <>
           {(["likes", "comments", "bookmarks", "shares", "posts"] as const).map(
@@ -355,6 +369,7 @@ export default function SettingsSection() {
           })}
         </>
       )}
+      {section === "security" && <MfaSettings />}
       {section === "security" && (
         <>
           <Text style={s.label}>Account password</Text>

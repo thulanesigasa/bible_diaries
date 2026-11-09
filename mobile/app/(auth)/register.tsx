@@ -1,805 +1,221 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ScrollView, 
-  KeyboardAvoidingView, 
-  Platform,
-  ActivityIndicator,
-  Image,
-  Keyboard
-} from 'react-native';
-import { useRouter, Link } from 'expo-router';
-import { useApp } from '../_layout';
-import { supabase } from '../../src/lib/supabase';
-import { BookOpen, Check, Eye, EyeOff, Camera } from 'lucide-react-native';
-import Avatar from '../../components/Avatar';
-import PhoneInput from '../../components/PhoneInput';
-import * as ImagePicker from 'expo-image-picker';
-import { useSecurePasswordCapture } from '../../src/hooks/useSecurePasswordCapture';
-
-// Colour palettes
-const MALE_ACCENT   = '#0EA5E9';  // blue
-const FEMALE_ACCENT = '#EC4899';  // pink
-
-export default function RegisterScreen() {
-  const [step, setStep] = useState(1);
-  const { onPasswordFocus, onPasswordBlur } = useSecurePasswordCapture();
-  
-  // Field states
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  const [firstName, setFirstName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [countryCode, setCountryCode] = useState('+27');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [gender, setGender] = useState('Male');
-  
-  const [loading, setLoading] = useState(false);
-
-  // Input refs for smooth sequential keyboard navigation
-  const emailRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
-  const confirmPasswordRef = useRef<TextInput>(null);
-  const firstNameRef = useRef<TextInput>(null);
-  const surnameRef = useRef<TextInput>(null);
-  const phoneRef = useRef<TextInput>(null);
-  const addressRef = useRef<TextInput>(null);
-
-  const { showToast } = useApp();
-  const router = useRouter();
-
-  // Auto-focus the first input of a new step when step advances
-  useEffect(() => {
-    if (step === 2) {
-      const timer = setTimeout(() => {
-        firstNameRef.current?.focus();
-      }, 150);
-      return () => clearTimeout(timer);
-    } else if (step === 3) {
-      const timer = setTimeout(() => {
-        addressRef.current?.focus();
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
-
-  // Derive accent colour from gender — live update as user taps
-  const accent = gender === 'Female' ? FEMALE_ACCENT : MALE_ACCENT;
-
-  const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { score: 0, label: '', color: '#475569' };
-    let score = 0;
-    if (pwd.length >= 6) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[a-z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd)) score++;
-    if (/[^A-Za-z0-9]/.test(pwd)) score++;
-
-    let label = 'Weak';
-    let color = '#EF4444';
-    if (score >= 4) {
-      label = 'Strong';
-      color = '#10B981';
-    } else if (score >= 3) {
-      label = 'Moderate';
-      color = '#F59E0B';
-    }
-    return { score, label, color };
-  };
-
-  const strength = getPasswordStrength(password);
-
-  const handleImageUpload = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        showToast('Permission to access photos is required.', 'error');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.7,
-        base64: true,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        
-        if (asset.fileSize && asset.fileSize > 1024 * 1024 * 5) {
-          showToast('Image size should be less than 5MB', 'error');
-          return;
-        }
-
-        if (asset.base64) {
-          const mimeType = asset.mimeType || 'image/jpeg';
-          const base64Data = `data:${mimeType};base64,${asset.base64}`;
-          setAvatarUrl(base64Data);
-          showToast('Profile photo updated.');
-        } else {
-          setAvatarUrl(asset.uri);
-          showToast('Profile photo selected.');
-        }
-      }
-    } catch (e: any) {
-      showToast('Error picking image: ' + e.message, 'error');
-    }
-  };
-
-  const handleNext = () => {
-    if (step === 1) {
-      if (!email) {
-        showToast('Please enter your email address.', 'error');
-        emailRef.current?.focus();
-        return;
-      }
-      if (!password) {
-        showToast('Please enter a password.', 'error');
-        passwordRef.current?.focus();
-        return;
-      }
-      if (password.length < 6) {
-        showToast('Password must be at least 6 characters.', 'error');
-        passwordRef.current?.focus();
-        return;
-      }
-      if (password !== confirmPassword) {
-        showToast('Passwords do not match.', 'error');
-        confirmPasswordRef.current?.focus();
-        return;
-      }
-      setShowPassword(false);
-      onPasswordBlur();
-      setStep(2);
-    } else if (step === 2) {
-      if (!firstName) {
-        showToast('Please enter your first name.', 'error');
-        firstNameRef.current?.focus();
-        return;
-      }
-      if (!surname) {
-        showToast('Please enter your surname.', 'error');
-        surnameRef.current?.focus();
-        return;
-      }
-      if (!phoneNumber) {
-        showToast('Please enter your phone number.', 'error');
-        phoneRef.current?.focus();
-        return;
-      }
-      if (!gender) {
-        showToast('Please select your gender.', 'error');
-        return;
-      }
-      setStep(3);
-    }
-  };
-
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleRegister = async () => {
-    if (!address) {
-      showToast('Physical address is required.', 'error');
-      addressRef.current?.focus();
+import React, { useState } from "react";
+import {
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Linking,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { supabase } from "../../src/lib/supabase";
+import { useSecurePasswordCapture } from "../../src/hooks/useSecurePasswordCapture";
+import { ageAt } from "../../../shared/launch-safety.mjs";
+export default function Register() {
+  const router = useRouter(),
+    guard = useSecurePasswordCapture();
+  const [first, setFirst] = useState(""),
+    [surname, setSurname] = useState(""),
+    [email, setEmail] = useState(""),
+    [password, setPassword] = useState(""),
+    [confirm, setConfirm] = useState(""),
+    [birth, setBirth] = useState(""),
+    [accepted, setAccepted] = useState(false),
+    [busy, setBusy] = useState(false),
+    [message, setMessage] = useState("");
+  async function submit() {
+    if (busy) return;
+    const age = ageAt(birth);
+    if (age === null || age < 13) {
+      setMessage(
+        "Enter a valid birth date. Accounts are available from age 13.",
+      );
       return;
     }
-
-    const cleanPhone = phoneNumber.replace(/^0+/, '');
-    const fullPhoneNumber = cleanPhone ? `${countryCode}${cleanPhone}` : '';
-
-    setLoading(true);
+    if (
+      !accepted ||
+      !first.trim() ||
+      !surname.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+      password.length < 12 ||
+      password !== confirm
+    ) {
+      setMessage(
+        "Complete your name and email, use a password of at least 12 characters, match both passwords and accept the terms.",
+      );
+      return;
+    }
+    setBusy(true);
     try {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
-            first_name: firstName,
-            surname: surname,
-            full_name: `${firstName} ${surname}`,
-            phone_number: fullPhoneNumber,
-            address: address,
-            avatar_url: avatarUrl || null,
-            gender: gender,
-            bio: 'Walking in faith.',
-            favorite_verse: '',
-            spiritual_journey: ''
-          }
-        }
+            first_name: first.trim(),
+            surname: surname.trim(),
+            full_name: `${first.trim()} ${surname.trim()}`,
+          },
+        },
       });
-
-      if (error) {
-        showToast(error.message, 'error');
-      } else {
-        showToast('Registration successful! Welcome to bible_diaries.');
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/(auth)/login');
-        }
-      }
-    } catch (err) {
-      showToast('An error occurred during registration.', 'error');
-      console.error(err);
+      if (error) throw error;
+      setPassword("");
+      setConfirm("");
+      setMessage(
+        "Check your email to confirm your address, then sign in and complete the secure age and consent check. If you already have an account, sign in or use password recovery.",
+      );
+    } catch (e: any) {
+      setMessage(
+        e.message || "Registration could not be confirmed. Retry later.",
+      );
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
-  };
-
+  }
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+    <ScrollView
+      style={s.screen}
+      contentContainerStyle={s.page}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.card}>
-
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.logoRow}>
-              <Image 
-                source={require('../../assets/images/icon.png')} 
-                style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }} 
-                resizeMode="contain" 
-              />
-              <Text style={[styles.logoText, { color: accent }]}>Bible Diaries</Text>
-            </View>
-            <Text style={styles.title}>Create Your Account</Text>
-            <Text style={styles.subtitle}>Join our community to share and browse diaries</Text>
-          </View>
-
-          {/* Step Indicator */}
-          <View style={styles.stepIndicatorRow}>
-            {[1, 2, 3].map((num) => (
-              <View key={num} style={num < 3 ? styles.stepWrapper : styles.stepWrapperLast}>
-                <View style={[
-                  styles.stepDot,
-                  (step === num || step > num) && { backgroundColor: accent, borderColor: accent },
-                ]}>
-                  {step > num ? (
-                    <Check size={14} color="#FFFFFF" />
-                  ) : (
-                    <Text style={[
-                      styles.stepDotText,
-                      step === num && styles.stepDotTextActive
-                    ]}>{num}</Text>
-                  )}
-                </View>
-                {num < 3 && (
-                  <View style={[
-                    styles.stepLine,
-                    step > num && { backgroundColor: accent }
-                  ]} />
-                )}
-              </View>
-            ))}
-          </View>
-
-          {/* Step 1: Account Credentials */}
-          {step === 1 && (
-            <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address</Text>
-                <TextInput
-                  ref={emailRef}
-                  style={styles.input}
-                  placeholder="e.g. grace@example.com"
-                  placeholderTextColor="#94A3B8"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  returnKeyType="next"
-                  returnKeyLabel="Next"
-                  blurOnSubmit={false}
-                  onSubmitEditing={() => passwordRef.current?.focus()}
-                  editable={!loading}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <View style={{ position: 'relative', justifyContent: 'center' }}>
-                  <TextInput
-                    ref={passwordRef}
-                    style={styles.input}
-                    placeholder="Min. 6 characters"
-                    placeholderTextColor="#94A3B8"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    returnKeyLabel="Next"
-                    blurOnSubmit={false}
-                    onFocus={onPasswordFocus}
-                    onBlur={()=>{setShowPassword(false);onPasswordBlur();}}
-                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                    editable={!loading}
-                  />
-                  <TouchableOpacity 
-                    style={styles.eyeBtnAbsolute}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={18} color="#475569" />
-                    ) : (
-                      <Eye size={18} color="#475569" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {password ? (
-                <View style={{ marginTop: 2, marginBottom: 2 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <Text style={{ fontSize: 11, color: '#64748B' }}>Password Strength:</Text>
-                    <Text style={{ fontSize: 11, color: strength.color, fontWeight: '700' }}>{strength.label}</Text>
-                  </View>
-                  <View style={{ height: 4, width: '100%', backgroundColor: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
-                    <View style={{
-                      height: '100%',
-                      width: `${(strength.score / 5) * 100}%`,
-                      backgroundColor: strength.color,
-                      borderRadius: 2,
-                    }} />
-                  </View>
-                </View>
-              ) : null}
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Confirm Password</Text>
-                <View style={{ position: 'relative', justifyContent: 'center' }}>
-                  <TextInput
-                    ref={confirmPasswordRef}
-                    style={styles.input}
-                    placeholder="Repeat your password"
-                    placeholderTextColor="#94A3B8"
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry={!showConfirmPassword}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    returnKeyLabel="Next"
-                    blurOnSubmit={false}
-                    onFocus={onPasswordFocus}
-                    onBlur={()=>{setShowConfirmPassword(false);onPasswordBlur();}}
-                    onSubmitEditing={() => {
-                      setShowPassword(false);
-      onPasswordBlur();
-                      handleNext();
-                    }}
-                    editable={!loading}
-                  />
-                  <TouchableOpacity 
-                    style={styles.eyeBtnAbsolute}
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} color="#475569" />
-                    ) : (
-                      <Eye size={18} color="#475569" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <TouchableOpacity 
-                style={[styles.btnPrimary, { backgroundColor: accent, marginTop: 8 }]}
-                onPress={handleNext}
-              >
-                <Text style={styles.btnText}>Continue</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Step 2: Personal Details */}
-          {step === 2 && (
-            <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>First Name</Text>
-                <TextInput
-                  ref={firstNameRef}
-                  style={styles.input}
-                  placeholder="e.g. Elijah"
-                  placeholderTextColor="#94A3B8"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  returnKeyType="next"
-                  returnKeyLabel="Next"
-                  blurOnSubmit={false}
-                  onSubmitEditing={() => surnameRef.current?.focus()}
-                  editable={!loading}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Surname</Text>
-                <TextInput
-                  ref={surnameRef}
-                  style={styles.input}
-                  placeholder="e.g. Bennett"
-                  placeholderTextColor="#94A3B8"
-                  value={surname}
-                  onChangeText={setSurname}
-                  returnKeyType="next"
-                  returnKeyLabel="Next"
-                  blurOnSubmit={false}
-                  onSubmitEditing={() => phoneRef.current?.focus()}
-                  editable={!loading}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Phone Number</Text>
-                <PhoneInput
-                  countryCode={countryCode}
-                  phoneNumber={phoneNumber}
-                  onCountryCodeChange={setCountryCode}
-                  onPhoneNumberChange={setPhoneNumber}
-                  inputRef={phoneRef}
-                  returnKeyType="next"
-                  returnKeyLabel="Next"
-                  blurOnSubmit={false}
-                  onSubmitEditing={handleNext}
-                  editable={!loading}
-                  accent={accent}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Gender</Text>
-                <View style={styles.genderRow}>
-                  {/* Male Button */}
-                  <TouchableOpacity
-                    style={[
-                      styles.genderBtn,
-                      gender === 'Male' && { backgroundColor: MALE_ACCENT, borderColor: MALE_ACCENT }
-                    ]}
-                    onPress={() => setGender('Male')}
-                  >
-                    <Text style={[
-                      styles.genderText,
-                      gender === 'Male' && styles.genderTextActive
-                    ]}>Male</Text>
-                  </TouchableOpacity>
-
-                  {/* Female Button */}
-                  <TouchableOpacity
-                    style={[
-                      styles.genderBtn,
-                      gender === 'Female' && { backgroundColor: FEMALE_ACCENT, borderColor: FEMALE_ACCENT }
-                    ]}
-                    onPress={() => setGender('Female')}
-                  >
-                    <Text style={[
-                      styles.genderText,
-                      gender === 'Female' && styles.genderTextActive
-                    ]}>Female</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.btnRow}>
-                <TouchableOpacity 
-                  style={styles.btnSecondary}
-                  onPress={handleBack}
-                >
-                  <Text style={styles.btnSecondaryText}>Back</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[styles.btnPrimary, { flex: 1, backgroundColor: accent }]}
-                  onPress={handleNext}
-                >
-                  <Text style={styles.btnText}>Continue</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-
-          {/* Step 3: Profile Photo & Location Details */}
-          {step === 3 && (
-            <View style={styles.form}>
-              {/* Profile Photo Upload area */}
-              <View style={styles.avatarContainer}>
-                <View style={{ position: 'relative' }}>
-                  <Avatar 
-                    src={avatarUrl} 
-                    fullName={firstName || 'New'} 
-                    size={80}
-                  />
-                  <TouchableOpacity 
-                    style={[styles.avatarCameraBtn, { backgroundColor: accent }]}
-                    onPress={handleImageUpload}
-                  >
-                    <Camera size={14} color="#FFFFFF" />
-                  </TouchableOpacity>
-                </View>
-                <View style={{ flex: 1, marginLeft: 16 }}>
-                  <Text style={styles.avatarTitle}>Profile Photo</Text>
-                  <Text style={styles.avatarSubtitle}>Upload a picture of yourself, or we will assign a default initials avatar.</Text>
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Physical Address</Text>
-                <TextInput
-                  ref={addressRef}
-                  style={styles.input}
-                  placeholder="e.g. 77 Scripture Lane, Glory Town"
-                  placeholderTextColor="#94A3B8"
-                  value={address}
-                  onChangeText={setAddress}
-                  returnKeyType="done"
-                  returnKeyLabel="Register"
-                  onSubmitEditing={handleRegister}
-                  editable={!loading}
-                />
-              </View>
-
-              <View style={styles.btnRow}>
-                <TouchableOpacity 
-                  style={styles.btnSecondary}
-                  onPress={handleBack}
-                  disabled={loading}
-                >
-                  <Text style={styles.btnSecondaryText}>Back</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[styles.btnPrimary, { flex: 1, backgroundColor: accent }, loading && styles.btnDisabled]}
-                  onPress={handleRegister}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.btnText}>Register</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-
-          {/* Footer Link */}
-          <View style={styles.footerLinkRow}>
-            <Text style={styles.footerLinkText}>Already have an account? </Text>
-            <Link href="/(auth)/login" asChild>
-              <TouchableOpacity>
-                <Text style={[styles.linkText, { color: accent }]}>Sign In</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Text style={s.brand}>BIBLE DIARIES</Text>
+      <Text style={s.title} accessibilityRole="header">
+        Begin your journey
+      </Text>
+      <Text style={s.text}>
+        A place for your reflections and thoughtful fellowship. Accounts are for
+        ages 13+. Under 18? A separate verified adult guardian must approve
+        access before you can participate.
+      </Text>
+      {[
+        ["First name", first, setFirst],
+        ["Surname", surname, setSurname],
+        ["Email", email, setEmail],
+        ["Birth date (YYYY-MM-DD)", birth, setBirth],
+      ].map(([label, value, setter]: any) => (
+        <React.Fragment key={label}>
+          <Text style={s.label}>{label}</Text>
+          <TextInput
+            accessibilityLabel={label}
+            style={s.input}
+            value={value}
+            onChangeText={setter}
+            maxLength={
+              label.startsWith("Birth") ? 10 : label === "Email" ? 254 : 80
+            }
+            keyboardType={label === "Email" ? "email-address" : "default"}
+            autoCapitalize={label === "Email" ? "none" : "words"}
+          />
+        </React.Fragment>
+      ))}
+      <Text style={s.text}>
+        The birth date above is only an on-device eligibility check. After email
+        confirmation you will record it securely; it is not included in signup
+        metadata.
+      </Text>
+      {[
+        ["Password", password, setPassword],
+        ["Confirm password", confirm, setConfirm],
+      ].map(([label, value, setter]: any) => (
+        <React.Fragment key={label}>
+          <Text style={s.label}>{label}</Text>
+          <TextInput
+            accessibilityLabel={label}
+            secureTextEntry
+            style={s.input}
+            value={value}
+            onChangeText={setter}
+            maxLength={128}
+            autoCapitalize="none"
+            onFocus={guard.onPasswordFocus}
+            onBlur={guard.onPasswordBlur}
+            textContentType="newPassword"
+          />
+        </React.Fragment>
+      ))}
+      {[
+        ["Terms", "terms"],
+        ["Privacy notice", "privacy"],
+        ["Community standards", "community-guidelines"],
+        ["Child safety", "child-safety"],
+      ].map(([label, path]) => (
+        <TouchableOpacity
+          accessibilityRole="link"
+          key={path}
+          onPress={() => Linking.openURL("https://biblediaries.co.za/" + path)}
+          style={s.link}
+        >
+          <Text style={s.linkText}>{label}</Text>
+        </TouchableOpacity>
+      ))}
+      <TouchableOpacity
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: accepted }}
+        style={s.link}
+        onPress={() => setAccepted(!accepted)}
+      >
+        <Text style={s.text}>
+          {accepted ? "☑" : "☐"} I accept the terms and community standards and
+          acknowledge the privacy notice.
+        </Text>
+      </TouchableOpacity>
+      {!!message && (
+        <Text accessibilityRole="alert" style={s.message}>
+          {message}
+        </Text>
+      )}
+      <TouchableOpacity
+        accessibilityRole="button"
+        disabled={busy || !accepted}
+        style={[s.button, (!accepted || busy) && { opacity: 0.5 }]}
+        onPress={submit}
+      >
+        <Text style={s.buttonText}>
+          {busy ? "Creating…" : "Create account"}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        accessibilityRole="button"
+        style={s.link}
+        onPress={() => router.replace("/(auth)/login")}
+      >
+        <Text style={s.linkText}>Already registered? Sign in</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: "#fff" },
+  page: {
     padding: 24,
+    paddingTop: 64,
+    paddingBottom: 48,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
+    gap: 12,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    width: '100%',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  logoText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#475569',
-    textAlign: 'center',
-  },
-  stepIndicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 10,
-  },
-  stepWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  stepWrapperLast: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stepDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepDotText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#94A3B8',
-  },
-  stepDotTextActive: {
-    color: '#FFFFFF',
-  },
-  stepLine: {
-    height: 2,
-    flex: 1,
-    backgroundColor: '#F1F5F9',
-    marginHorizontal: 8,
-  },
-  form: {
-    gap: 16,
-  },
-  inputGroup: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
-  },
+  brand: { fontSize: 11, letterSpacing: 2, color: "#0369a1" },
+  title: { fontSize: 28, fontWeight: "700", color: "#172033" },
+  text: { fontSize: 14, lineHeight: 22, color: "#475569" },
+  label: { fontSize: 13, fontWeight: "600", color: "#334155" },
   input: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 14,
-    color: '#0F172A',
-  },
-  eyeBtnAbsolute: {
-    position: 'absolute',
-    right: 14,
-    padding: 6,
-    zIndex: 10,
-  },
-  avatarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
+    minHeight: 48,
     padding: 12,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.04)',
+    borderColor: "#cbd5e1",
+    borderRadius: 10,
+    color: "#172033",
   },
-  avatarCameraBtn: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderRadius: 14,
-    width: 26,
-    height: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+  link: { minHeight: 44, justifyContent: "center" },
+  linkText: { fontSize: 14, color: "#0369a1" },
+  button: {
+    minHeight: 48,
+    padding: 14,
+    backgroundColor: "#0369a1",
+    borderRadius: 10,
+    alignItems: "center",
   },
-  avatarTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginBottom: 2,
-  },
-  avatarSubtitle: {
-    fontSize: 11,
-    color: '#64748B',
-    lineHeight: 15,
-  },
-  btnPrimary: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnDisabled: {
-    opacity: 0.7,
-  },
-  btnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  btnRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  btnSecondary: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnSecondaryText: {
-    color: '#0F172A',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  footerLinkRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  footerLinkText: {
-    fontSize: 13,
-    color: '#475569',
-  },
-  linkText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  genderRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 4,
-  },
-  genderBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(15, 23, 42, 0.04)',
-  },
-  genderText: {
-    color: '#64748B',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  genderTextActive: {
-    color: '#FFFFFF',
-  },
+  buttonText: { color: "#fff", fontWeight: "600" },
+  message: { fontSize: 14, color: "#0369a1", lineHeight: 22 },
 });

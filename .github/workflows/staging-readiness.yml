@@ -1,0 +1,29 @@
+name: Staging readiness checks
+on:
+  workflow_dispatch:
+    inputs:
+      staging_origin:
+        description: Dedicated HTTPS staging origin (hostname must include staging)
+        required: true
+      confirm_staging_load:
+        description: Confirm limited staging health traffic
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+jobs:
+  staging-smoke:
+    if: inputs.confirm_staging_load
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check staging health latency and errors
+        env:
+          STAGING_ORIGIN: ${{ inputs.staging_origin }}
+          CONFIRM_STAGING_LOAD: "yes"
+        run: node scripts/load-staging.mjs

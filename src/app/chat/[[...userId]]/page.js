@@ -1,18 +1,20 @@
-'use client';
+"use client";
+import ReportButton from "../../../components/ReportButton";
 
-import { useState, useEffect, useRef, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { useApp } from '../../AppWrapper';
-import { Send, Loader, User, BookOpen } from 'lucide-react';
-import Avatar from '../../../components/Avatar';
-import {ActivityShortcut} from '../../../components/DiaryShortcuts';
+import { useState, useEffect, useRef, use } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useApp } from "../../AppWrapper";
+import { Send, Loader, User, BookOpen } from "lucide-react";
+import Avatar from "../../../components/Avatar";
+import { ActivityShortcut } from "../../../components/DiaryShortcuts";
 
 export default function ChatPage({ params }) {
   // Use React's use() to read params since in Next 15+ it is a Promise!
   const resolvedParams = use(params);
   const userIdArray = resolvedParams?.userId;
-  const activeChatUserId = userIdArray && userIdArray[0] ? userIdArray[0] : null;
+  const activeChatUserId =
+    userIdArray && userIdArray[0] ? userIdArray[0] : null;
 
   const { user, profile, showToast } = useApp();
   const router = useRouter();
@@ -20,11 +22,11 @@ export default function ChatPage({ params }) {
   const [chatRooms, setChatRooms] = useState([]);
   const [messages, setMessages] = useState([]);
   const [activePartner, setActivePartner] = useState(null);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [sending, setSending] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -34,7 +36,7 @@ export default function ChatPage({ params }) {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({
         top: scrollContainerRef.current.scrollHeight,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -48,38 +50,42 @@ export default function ChatPage({ params }) {
     try {
       // Fetch all profiles to list potential partners
       const { data: allProfiles, error: profileErr } = await supabase
-        .from('profiles')
-        .select('*');
+        .from("profiles")
+        .select("*");
 
       if (profileErr) throw profileErr;
 
       // Filter out self
-      const otherMembers = (allProfiles || []).filter(p => p.id !== user.id);
-      
+      const otherMembers = (allProfiles || []).filter((p) => p.id !== user.id);
+
       // Let's find last message for each member
       const { data: chatData, error: chatErr } = await supabase
-        .from('chats')
-        .select('*');
-      
+        .from("chats")
+        .select("*");
+
       if (chatErr) throw chatErr;
 
-      const rooms = otherMembers.map(member => {
+      const rooms = otherMembers.map((member) => {
         // Find messages between user and member
-        const pairChats = (chatData || []).filter(c => 
-          (c.sender_id === user.id && c.receiver_id === member.id) ||
-          (c.sender_id === member.id && c.receiver_id === user.id)
-        ).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        const pairChats = (chatData || [])
+          .filter(
+            (c) =>
+              (c.sender_id === user.id && c.receiver_id === member.id) ||
+              (c.sender_id === member.id && c.receiver_id === user.id),
+          )
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         return {
           profile: member,
-          lastMessage: pairChats[0]?.message || 'No messages yet.',
-          lastTime: pairChats[0]?.created_at || null
+          lastMessage: pairChats[0]?.message || "No messages yet.",
+          lastTime: pairChats[0]?.created_at || null,
         };
       });
 
       // Sort chat rooms: those with messages first, then alphabetically
       rooms.sort((a, b) => {
-        if (a.lastTime && b.lastTime) return new Date(b.lastTime) - new Date(a.lastTime);
+        if (a.lastTime && b.lastTime)
+          return new Date(b.lastTime) - new Date(a.lastTime);
         if (a.lastTime) return -1;
         if (b.lastTime) return 1;
         return a.profile.full_name.localeCompare(b.profile.full_name);
@@ -87,16 +93,16 @@ export default function ChatPage({ params }) {
 
       setChatRooms(rooms);
     } catch (err) {
-      console.error('Operation failed.');
-      showToast('Error loading inbox.', 'error');
+      console.error("Operation failed.");
+      showToast("Error loading inbox.", "error");
     } finally {
       setLoadingRooms(false);
     }
   };
 
   // Filtered Chat Rooms based on search query
-  const filteredChatRooms = chatRooms.filter(room =>
-    room.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredChatRooms = chatRooms.filter((room) =>
+    room.profile.full_name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Fetch active chat messages
@@ -104,14 +110,15 @@ export default function ChatPage({ params }) {
     setLoadingChat(true);
     try {
       const { data, error } = await supabase
-        .from('chats')
-        .select('*')
+        .from("chats")
+        .select("*")
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`) // Fetches all messages involving user
-        .then(res => {
+        .then((res) => {
           // Client-side filter to only include interactions with this specific partner
-          const filtered = (res.data || []).filter(c => 
-            (c.sender_id === user.id && c.receiver_id === partnerId) ||
-            (c.sender_id === partnerId && c.receiver_id === user.id)
+          const filtered = (res.data || []).filter(
+            (c) =>
+              (c.sender_id === user.id && c.receiver_id === partnerId) ||
+              (c.sender_id === partnerId && c.receiver_id === user.id),
           );
           return { data: filtered, error: res.error };
         });
@@ -121,16 +128,16 @@ export default function ChatPage({ params }) {
 
       // Get partner profile details
       const { data: partData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', partnerId);
-      
+        .from("profiles")
+        .select("*")
+        .eq("id", partnerId);
+
       if (partData && partData[0]) {
         setActivePartner(partData[0]);
       }
     } catch (err) {
-      console.error('Operation failed.');
-      showToast('Error loading messages.', 'error');
+      console.error("Operation failed.");
+      showToast("Error loading messages.", "error");
     } finally {
       setLoadingChat(false);
     }
@@ -156,43 +163,49 @@ export default function ChatPage({ params }) {
     if (!user) return;
 
     // Listen to all chats involving this user
-    const channel = supabase.channel(`user_inbox_${user.id}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chats'
-      }, (payload) => {
+    const channel = supabase
+      .channel(`user_inbox_${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chats",
+        },
+        (payload) => {
+          const msg = payload.new;
 
-        const msg = payload.new;
-        
-        // Check if the message involves the current user
-        const involvesUser = 
-          msg.sender_id.toLowerCase() === user.id.toLowerCase() || 
-          msg.receiver_id.toLowerCase() === user.id.toLowerCase();
-          
-        if (involvesUser) {
-          // Always refresh the inbox list when a new message arrives for us
-          fetchChatRooms();
+          // Check if the message involves the current user
+          const involvesUser =
+            msg.sender_id.toLowerCase() === user.id.toLowerCase() ||
+            msg.receiver_id.toLowerCase() === user.id.toLowerCase();
 
-          // If the message belongs to the currently open chat, append it
-          if (activeChatUserId) {
-            const belongsToActiveChat = 
-              (msg.sender_id.toLowerCase() === user.id.toLowerCase() && msg.receiver_id.toLowerCase() === activeChatUserId.toLowerCase()) ||
-              (msg.sender_id.toLowerCase() === activeChatUserId.toLowerCase() && msg.receiver_id.toLowerCase() === user.id.toLowerCase());
-              
-            if (belongsToActiveChat) {
-              setMessages(prev => {
-                // Avoid duplicates from optimistic update
-                if (prev.some(m => m.id === msg.id)) return prev;
-                return [...prev, msg];
-              });
+          if (involvesUser) {
+            // Always refresh the inbox list when a new message arrives for us
+            fetchChatRooms();
+
+            // If the message belongs to the currently open chat, append it
+            if (activeChatUserId) {
+              const belongsToActiveChat =
+                (msg.sender_id.toLowerCase() === user.id.toLowerCase() &&
+                  msg.receiver_id.toLowerCase() ===
+                    activeChatUserId.toLowerCase()) ||
+                (msg.sender_id.toLowerCase() ===
+                  activeChatUserId.toLowerCase() &&
+                  msg.receiver_id.toLowerCase() === user.id.toLowerCase());
+
+              if (belongsToActiveChat) {
+                setMessages((prev) => {
+                  // Avoid duplicates from optimistic update
+                  if (prev.some((m) => m.id === msg.id)) return prev;
+                  return [...prev, msg];
+                });
+              }
             }
           }
-        }
-      })
-      .subscribe((status, err) => {
-
-      });
+        },
+      )
+      .subscribe((status, err) => {});
 
     return () => {
       channel.unsubscribe();
@@ -205,7 +218,7 @@ export default function ChatPage({ params }) {
     if (!inputText.trim() || !activeChatUserId) return;
 
     const text = inputText.trim();
-    setInputText('');
+    setInputText("");
 
     // Optimistic update: show message immediately
     const optimisticMsg = {
@@ -215,33 +228,35 @@ export default function ChatPage({ params }) {
       message: text,
       created_at: new Date().toISOString(),
     };
-    setMessages(prev => [...prev, optimisticMsg]);
+    setMessages((prev) => [...prev, optimisticMsg]);
 
     setSending(true);
     try {
       const { data, error } = await supabase
-        .from('chats')
+        .from("chats")
         .insert({
           sender_id: user.id,
           receiver_id: activeChatUserId,
-          message: text
+          message: text,
         })
         .select()
         .single();
 
       if (error) {
-        showToast(error.message, 'error');
+        showToast(error.message, "error");
         // Remove optimistic message on error
-        setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
         setInputText(text);
       } else if (data) {
         // Replace optimistic message with real one
-        setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data : m));
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMsg.id ? data : m)),
+        );
         fetchChatRooms();
       }
     } catch (err) {
-      showToast('Error sending message: ' + err.message, 'error');
-      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+      showToast("Error sending message: " + err.message, "error");
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
       setInputText(text);
     } finally {
       setSending(false);
@@ -250,156 +265,247 @@ export default function ChatPage({ params }) {
 
   return (
     <>
-    <ActivityShortcut/>
-    <div className="container" style={{ margin: '1rem auto' }}>
-      <div className="glass-panel chat-layout">
-        
-        {/* Left Side: Inbox Navigation List */}
-        <aside className={`chat-sidebar ${activeChatUserId ? 'chat-sidebar-mobile-hide' : ''}`}>
-          <div className="chat-sidebar-title">Conversations</div>
-          
-          <div style={{ padding: '0 0.75rem 0.75rem 0.75rem' }}>
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                fontSize: '0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                width: '100%'
-              }}
-            />
-          </div>
+      <ActivityShortcut />
+      <div className="container" style={{ margin: "1rem auto" }}>
+        <div className="glass-panel chat-layout">
+          {/* Left Side: Inbox Navigation List */}
+          <aside
+            className={`chat-sidebar ${activeChatUserId ? "chat-sidebar-mobile-hide" : ""}`}
+          >
+            <div className="chat-sidebar-title">Conversations</div>
 
-          {loadingRooms ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-              <Loader size={20} className="spinner" style={{ color: 'var(--gold-accent)' }} />
+            <div style={{ padding: "0 0.75rem 0.75rem 0.75rem" }}>
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  padding: "8px 12px",
+                  fontSize: "0.85rem",
+                  borderRadius: "var(--radius-sm)",
+                  backgroundColor: "var(--bg-secondary)",
+                  border: "1px solid var(--border-color)",
+                  width: "100%",
+                }}
+              />
             </div>
-          ) : filteredChatRooms.length === 0 ? (
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
-              No conversations found.
-            </p>
-          ) : (
-            filteredChatRooms.map((room) => {
-              const active = activeChatUserId === room.profile.id;
-              return (
-                <div
-                  key={room.profile.id}
-                  className={`chat-room-item ${active ? 'active' : ''}`}
-                  onClick={() => router.push(`/chat/${room.profile.id}`)}
-                >
-                  <Avatar
-                    src={room.profile.avatar_url}
-                    fullName={room.profile.full_name}
-                    email={room.profile.email}
-                    size={40}
-                    className="chat-room-avatar"
-                  />
-                  <div className="chat-room-info">
-                    <span className="chat-room-name">{room.profile.full_name}</span>
-                    <span className="chat-room-last-msg">{room.lastMessage}</span>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </aside>
 
-        {/* Right Side: Conversation Chat Window */}
-        <section className="chat-window">
-          {activeChatUserId && activePartner ? (
-            <>
-              {/* Header */}
-              <div className="chat-window-header">
-                 <Avatar
-                   src={activePartner.avatar_url}
-                   fullName={activePartner.full_name}
-                   email={activePartner.email}
-                   size={36}
-                   style={{ border: '1px solid var(--gold-accent)' }}
-                 />
-                <div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '600' }}>{activePartner.full_name}</h4>
-                  {activePartner.favorite_verse && (
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontStyle: 'italic', fontFamily: 'var(--font-serif)' }}>
-                      Favorite Verse: {activePartner.favorite_verse.split('-')[0]}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Message History List */}
-              <div className="chat-window-messages" ref={scrollContainerRef}>
-                {loadingChat ? (
-                  <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                    <Loader size={24} className="spinner" style={{ color: 'var(--gold-accent)' }} />
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="empty-state" style={{ fontSize: '0.9rem' }}>
-                    This is the start of your message thread with {activePartner.full_name}. Write an encouraging greeting!
-                  </div>
-                ) : (
-                  messages.map((msg) => {
-                    const sentByMe = msg.sender_id === user.id;
-                    const date = new Date(msg.created_at);
-                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`message-bubble ${sentByMe ? 'sent' : 'received'}`}
-                      >
-                        <div>{msg.message}</div>
-                        <span className="message-time">{formattedTime}</span>
-                      </div>
-                    );
-                  })
-                )}
-                {/* Spacer to ensure the last message isn't hidden by padding when scrolling */}
-                <div ref={messagesEndRef} style={{ height: '10px', flexShrink: 0 }} />
-              </div>
-
-              {/* Input Area */}
-              <form onSubmit={handleSendMessage} className="chat-window-input-area">
-                <input
-                  type="text"
-                  className="chat-input"
-                  placeholder={`Write message to ${activePartner.full_name.split(' ')[0]}...`}
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  disabled={sending}
-                  required
+            {loadingRooms ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "1rem",
+                }}
+              >
+                <Loader
+                  size={20}
+                  className="spinner"
+                  style={{ color: "var(--gold-accent)" }}
                 />
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ borderRadius: 'var(--radius-sm)' }}
-                  disabled={sending || !inputText.trim()}
-                >
-                  <Send size={16} />
-                  <span>Send</span>
-                </button>
-              </form>
-            </>
-          ) : (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', color: 'rgba(var(--gold-accent-rgb), 0.3)', marginBottom: '1rem' }}>
-                <BookOpen size={48} />
               </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>Your Sanctuary Inbox</h3>
-              <p style={{ maxWidth: '320px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Select a brother or sister from the directory side panel, or connect and chat with users from the connect feed.
+            ) : filteredChatRooms.length === 0 ? (
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: "var(--text-muted)",
+                  textAlign: "center",
+                  padding: "1rem",
+                }}
+              >
+                No conversations found.
               </p>
-            </div>
-          )}
-        </section>
+            ) : (
+              filteredChatRooms.map((room) => {
+                const active = activeChatUserId === room.profile.id;
+                return (
+                  <div
+                    key={room.profile.id}
+                    className={`chat-room-item ${active ? "active" : ""}`}
+                    onClick={() => router.push(`/chat/${room.profile.id}`)}
+                  >
+                    <Avatar
+                      src={room.profile.avatar_url}
+                      fullName={room.profile.full_name}
+                      email={room.profile.email}
+                      size={40}
+                      className="chat-room-avatar"
+                    />
+                    <div className="chat-room-info">
+                      <span className="chat-room-name">
+                        {room.profile.full_name}
+                      </span>
+                      <span className="chat-room-last-msg">
+                        {room.lastMessage}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </aside>
 
+          {/* Right Side: Conversation Chat Window */}
+          <section className="chat-window">
+            {activeChatUserId && activePartner ? (
+              <>
+                {/* Header */}
+                <div className="chat-window-header">
+                  <Avatar
+                    src={activePartner.avatar_url}
+                    fullName={activePartner.full_name}
+                    email={activePartner.email}
+                    size={36}
+                    style={{ border: "1px solid var(--gold-accent)" }}
+                  />
+                  <div>
+                    <h4 style={{ fontSize: "1rem", fontWeight: "600" }}>
+                      {activePartner.full_name}
+                    </h4>
+                    {activePartner.favorite_verse && (
+                      <p
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "var(--text-secondary)",
+                          fontStyle: "italic",
+                          fontFamily: "var(--font-serif)",
+                        }}
+                      >
+                        Favorite Verse:{" "}
+                        {activePartner.favorite_verse.split("-")[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Message History List */}
+                <div className="chat-window-messages" ref={scrollContainerRef}>
+                  {loadingChat ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        padding: "2rem",
+                      }}
+                    >
+                      <Loader
+                        size={24}
+                        className="spinner"
+                        style={{ color: "var(--gold-accent)" }}
+                      />
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="empty-state" style={{ fontSize: "0.9rem" }}>
+                      This is the start of your message thread with{" "}
+                      {activePartner.full_name}. Write an encouraging greeting!
+                    </div>
+                  ) : (
+                    messages.map((msg) => {
+                      const sentByMe = msg.sender_id === user.id;
+                      const date = new Date(msg.created_at);
+                      const formattedTime = date.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`message-bubble ${sentByMe ? "sent" : "received"}`}
+                        >
+                          <div>{msg.message}</div>
+                          {!sentByMe && !String(msg.id).startsWith("temp") && (
+                            <ReportButton
+                              kind="chats"
+                              id={msg.id}
+                              privateContext
+                            />
+                          )}
+                          <span className="message-time">{formattedTime}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                  {/* Spacer to ensure the last message isn't hidden by padding when scrolling */}
+                  <div
+                    ref={messagesEndRef}
+                    style={{ height: "10px", flexShrink: 0 }}
+                  />
+                </div>
+
+                {/* Input Area */}
+                <form
+                  onSubmit={handleSendMessage}
+                  className="chat-window-input-area"
+                >
+                  <input
+                    type="text"
+                    className="chat-input"
+                    placeholder={`Write message to ${activePartner.full_name.split(" ")[0]}...`}
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    disabled={sending}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="btn-primary"
+                    style={{ borderRadius: "var(--radius-sm)" }}
+                    disabled={sending || !inputText.trim()}
+                  >
+                    <Send size={16} />
+                    <span>Send</span>
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-secondary)",
+                  padding: "2rem",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    color: "rgba(var(--gold-accent-rgb), 0.3)",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  <BookOpen size={48} />
+                </div>
+                <h3
+                  style={{
+                    fontSize: "1.25rem",
+                    fontFamily: "var(--font-serif)",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  Your Sanctuary Inbox
+                </h3>
+                <p
+                  style={{
+                    maxWidth: "320px",
+                    fontSize: "0.85rem",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  Select a brother or sister from the directory side panel, or
+                  connect and chat with users from the connect feed.
+                </p>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
-    </div>
     </>
   );
 }

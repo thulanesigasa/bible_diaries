@@ -1,0 +1,86 @@
+.launch-panel {
+  max-width: 620px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 24px;
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.launch-panel h1 {
+  font-size: 26px;
+}
+.launch-panel h2 {
+  font-size: 19px;
+}
+.launch-panel p {
+  line-height: 1.65;
+}
+.launch-panel form,
+.launch-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.launch-panel form {
+  gap: 20px;
+}
+.launch-panel input,
+.launch-panel select,
+.launch-panel textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #172033);
+  font: inherit;
+}
+.launch-panel button,
+.launch-report-button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #b7c9d8;
+  border-radius: 8px;
+  color: var(--text-primary, #172033);
+  cursor: pointer;
+}
+.launch-panel button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.launch-panel .launch-check {
+  flex-direction: row;
+  align-items: start;
+}
+.launch-panel .launch-check input {
+  width: 20px;
+  min-width: 20px;
+  margin-top: 4px;
+}
+.launch-modal {
+  position: fixed;
+  inset: 0;
+  background: #0f172a99;
+  z-index: 1000;
+  overflow: auto;
+  padding: 20px;
+}
+.launch-modal .launch-panel {
+  margin: 20px auto;
+}
+.launch-panel article {
+  border-top: 1px solid #dbe3eb;
+  padding-top: 18px;
+}
+.launch-report-button {
+  background: transparent;
+  font-size: 12px;
+  color: #64748b;
+}
+.launch-panel [role="alert"] {
+  color: #b91c1c;
+}

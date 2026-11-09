@@ -1,4 +1,5 @@
 "use client";
+import MfaSettings from "../../../components/MfaSettings";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import AppPolicies from "../../../components/AppPolicies";
@@ -215,7 +216,13 @@ export default function Section({ params }) {
         {SETTINGS_GROUPS.find((x) => x[0] === section)?.[1] || "Settings"}
       </h1>
       {(message || error) && <p role="status">{message || error}</p>}
-      {section === "reading" && <ReadingPreferences settings={settings} disabled={busy || !ready} onChange={patch => run(() => persist(patch))} />}
+      {section === "reading" && (
+        <ReadingPreferences
+          settings={settings}
+          disabled={busy || !ready}
+          onChange={(patch) => run(() => persist(patch))}
+        />
+      )}
       {section === "privacy" && (
         <>
           {toggle(
@@ -331,6 +338,7 @@ export default function Section({ params }) {
           })}
         </>
       )}
+      {section === "security" && <MfaSettings />}
       {section === "security" && (
         <>
           <h2>Password & account access</h2>
@@ -492,7 +500,6 @@ export default function Section({ params }) {
         </>
       )}
       {section === "legal" && <AppPolicies />}
-
     </main>
   );
 }

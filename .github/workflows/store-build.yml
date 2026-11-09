@@ -1,0 +1,83 @@
+name: Store candidate binaries
+on:
+  workflow_dispatch:
+    inputs:
+      format:
+        description: Build signed APK for AppGallery/device testing, AAB for Play, or both
+        type: choice
+        options: [both, apk, aab]
+        default: both
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: store-candidate-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - format: apk
+            profile: preview
+          - format: aab
+            profile: production
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+        if: inputs.format == 'both' || inputs.format == matrix.format
+      - uses: actions/setup-node@v4
+        if: inputs.format == 'both' || inputs.format == matrix.format
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci --ignore-scripts
+        if: inputs.format == 'both' || inputs.format == matrix.format
+      - run: npx tsc --noEmit
+        if: inputs.format == 'both' || inputs.format == matrix.format
+      - name: Build signed candidate using existing EAS credentials
+        if: inputs.format == 'both' || inputs.format == matrix.format
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL || 'https://fspfwidfdnqvpgmipate.supabase.co' }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          CANDIDATE_PROFILE: ${{ matrix.profile }}
+        run: |
+          test -n "$EXPO_PUBLIC_SUPABASE_ANON_KEY" || { echo 'Set the public Supabase key in repository build configuration.'; exit 1; }
+          npx eas-cli build --platform android --profile "$CANDIDATE_PROFILE" --non-interactive --wait --json > candidate.json
+      - name: Download and verify candidate archive
+        if: inputs.format == 'both' || inputs.format == matrix.format
+        env:
+          CANDIDATE_FORMAT: ${{ matrix.format }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          import {createHash} from 'node:crypto';
+          const raw=JSON.parse(fs.readFileSync('candidate.json','utf8'));
+          const build=Array.isArray(raw)?raw[0]:raw;
+          const url=build.artifacts?.applicationArchiveUrl||build.artifacts?.buildUrl;
+          if(build.status!=='FINISHED'||!url||new URL(url).protocol!=='https:')throw Error('No completed signed candidate.');
+          const r=await fetch(url,{signal:AbortSignal.timeout(120000)});if(!r.ok)throw Error('Candidate download failed.');
+          const app=JSON.parse(fs.readFileSync('app.json','utf8')).expo;
+          const name=`bible-diaries-${app.version}-${process.env.GITHUB_SHA.slice(0,8)}.${process.env.CANDIDATE_FORMAT}`;
+          const bytes=Buffer.from(await r.arrayBuffer());fs.mkdirSync('store-candidate',{recursive:true});fs.writeFileSync('store-candidate/'+name,bytes);
+          execFileSync('unzip',['-t','store-candidate/'+name],{stdio:'ignore'});
+          const entries=execFileSync('unzip',['-Z1','store-candidate/'+name],{encoding:'utf8'}).split('\n');
+          if(!entries.includes(process.env.CANDIDATE_FORMAT==='aab'?'base/manifest/AndroidManifest.xml':'AndroidManifest.xml'))throw Error('Unexpected Android archive.');
+          fs.writeFileSync('store-candidate/'+name+'.sha256',createHash('sha256').update(bytes).digest('hex')+'  '+name+'\n');
+          fs.writeFileSync('store-candidate/source.json',JSON.stringify({commit:process.env.GITHUB_SHA,version:app.version,versionCode:app.android.versionCode,format:process.env.CANDIDATE_FORMAT,buildId:build.id,profile:process.env.CANDIDATE_FORMAT==='aab'?'production':'preview'},null,2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: inputs.format == 'both' || inputs.format == matrix.format
+        with:
+          name: store-candidate-${{ matrix.format }}-${{ github.sha }}
+          path: mobile/store-candidate/
+          if-no-files-found: error
+          retention-days: 30

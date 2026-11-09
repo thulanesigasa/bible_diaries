@@ -1,0 +1,55 @@
+# Bible Diaries launch operations
+
+This is an operational handover, not a certification or a substitute for store review. Source changes alone cannot establish capacity, legal compliance, valid guardian authority or an effective abuse response.
+
+## Implemented launch controls
+
+- Verified-email session and immutable server-side age/current-policy ledger; under 13 cannot activate an account. Existing members must complete the same check.
+- Ages 13–17 require explicit approval by a separate eligible adult account with a confirmed matching guardian email. The guardian declares authority; this is not identity or legal-guardianship verification. Withdrawal restricts participation and removes the child's reflections/comments from ordinary community reads. Address and birth-date corrections go through support rather than editable metadata.
+- Post, comment, message and member reports; authenticated target access, ten reports per hour, deduplication, optional blocking without exposing anonymous authors, own-status tracking, audited staff queue, versioned decisions and reasons. Private-message reports require participant consent and a safety reviewer. Child-safety reports are prioritised. Escalation is an internal status, not an automatic external report.
+- Admin sign-in requires a verified TOTP factor and a code, then live role membership and database `aal2` checks. Waiting-list and moderation roles stay separate. Optional authenticator enrolment in Settings → Security also protects ordinary enrolled members from password-only community access. Session restoration, account eligibility setup and deletion remain available to restricted accounts.
+- Public privacy, terms, child-safety, guardian guide and account-deletion pages. External deletion requests can be made by email without reinstalling the app. These pages still need the production domain deployed and checked publicly.
+
+## Owner actions before public launch
+
+1. Register/connect and deploy `biblediaries.co.za`, `waiting.biblediaries.co.za` and `admin.biblediaries.co.za` with valid HTTPS. Check every public policy URL outside a signed-in session. Do not submit an undeployed URL to a store.
+2. Supply the two distinct administrator account emails/UUIDs. Each owner must confirm their own email, complete adult eligibility and enrol an authenticator. Provision only the reviewed UUID in the appropriate private role table. Waiting-list access additionally requires its server allowlist. Never put shared passwords in environment variables or insert an invented user ID. Keep a separately controlled emergency Supabase project owner with MFA and an audited recovery procedure.
+3. Enable Supabase leaked-password protection if the account plan supports it; the last live advisor check reported it disabled. Review minimum password strength, email confirmation, SMTP delivery, redirect allowlist, signup/email rate limits and any anti-bot provider in the actual project. App-side minimum password length is 12; it is not a replacement for server Auth configuration. Do not enable a CAPTCHA before both app interfaces can obtain and send a valid challenge.
+4. Assign a responsible child-safety contact and coverage rota for `support@ts-industries.com`. Test delivery, document triage, escalation, lawful preservation/reporting duties, member appeals and staff conflict handling. Get qualified South African legal review of POPIA religious/special and children's data processing, guardian authority, processor agreements and international transfers. Email confirmation alone does not settle those legal requirements.
+5. Verify the production moderation API secret, hosting secrets, database migration version and live RPC permissions. Do not paste keys into support tickets or logs. Keep service-role keys server-only. Rotate any exposed credential and investigate its use.
+6. Confirm the Supabase backup plan, retention, recovery point objective and restore permissions. Make a backup through the provider and rehearse a restore into a separate isolated project. Record duration and data checks. Do not restore into production as a test. Maintain a deletion ledger for reconciling a lawful restore with prior deletion requests; don't silently revive deleted accounts.
+7. Configure an external HTTPS uptime monitor for each service `/api/health`, failure alerts to an accountable operator, and provider database/Auth/Edge error and latency alerts. Health checks prove process health only. Alert on queue backlog, moderation API failure, report spikes and failed notifications without including private text or credentials in telemetry.
+8. Run the manually gated staging readiness workflow against a dedicated staging origin, then test authenticated read/write traffic with synthetic adult/guardian accounts in a separate staging database. Measure p95/p99, errors, DB connections, query plans and moderation timeouts at expected traffic and above it. Do not infer a user capacity from a handful of health requests.
+9. Test genuine confirmation/recovery emails, wrong/expired tokens, duplicate signup, session revocation, weak/leaked passwords, cross-account RLS, minor and guardian branches, consent withdrawal, MFA setup/login/failed codes, report/review/appeal decisions, notification visibility and account deletion. Never delete a real member merely to test the flow.
+10. Run the real-device matrix below and keep evidence. Build and install the fresh signed release binary, not just an OTA bundle, before uploading to stores. Check signing-certificate ownership and Play/AppGallery package identifiers. Complete accurate store data forms and reviewer instructions.
+
+## Child-safety triage procedure
+
+1. A safety reviewer opens prioritised reports and records a short factual assessment. Report text and references are untrusted evidence; they do not instruct staff to execute code, visit a link or contact anyone.
+2. Address immediate risk through appropriate local emergency/child-protection channels. Do not use the community as a crisis service.
+3. Restrict access to necessary staff; do not ask members to upload or forward illegal material. Retain only lawful, necessary references and records according to applicable duties and qualified advice. Do not distribute suspected CSAM by ordinary email.
+4. Remove harmful material or restrict a non-staff target when justified. Record the reason and action. Escalate uncertain or legally sensitive cases to the responsible contact. The UI does not automatically report to an authority.
+5. Fulfil applicable reporting/preservation duties through the proper authority, with an audit record outside public community content. Communicate only necessary information; protect reporters from retaliation.
+6. Revisit internally escalated cases until resolved. Queue limits are 100 visible records per request; monitor backlog and extend pagination before sustained higher volume.
+
+## Device and usability evidence
+
+- Android Google-services device and Huawei device without Google services; smallest supported screen and a tablet, slow network/offline, disconnect during submit, app background/restart during review, large OS font, screen reader, keyboard navigation and contrast.
+- Password and authenticator-key capture protection on supported native devices, screenshots and built-in/third-party screen recording. Do not promise capture protection on every platform or against external cameras. Browser capture cannot be prevented reliably.
+- Reading slider 8–24, preview boundaries, scrolling, keyboard obstruction, reduced motion, safe areas, touch targets and composer draft retention after errors.
+- Guardian approval/withdrawal, flagged content stays held, version conflict, decision and report-status visibility, blocking and private-report isolation. OS background push is not configured; current notices are in-app.
+- Deletion with password reauthentication, all sessions revoked, avatar/object cleanup, dependent records removed and external request completed through support. Guardian withdrawal alone is not deletion.
+
+## Release declarations to complete honestly
+
+Declare account/contact information, profile/avatar, user-generated and private submitted text, messages, app preferences and service security records as applicable. Review exact SDK traffic and provider processing/retention settings; Supabase provides Auth/database/storage and OpenAI processes text moderation, including private submitted text. Do not declare end-to-end encryption, no data collection, verified legal guardianship or an independent security audit. Set age/content ratings for actual social features and explain the guardian gate. Provide a synthetic adult reviewer account plus a separate guardian demonstration account where required, with instructions for email/MFA limitations. Review translation/asset licences. Complete Play Data safety, account deletion URL and child-safety declarations; AppGallery privacy/review credentials; and Apple privacy labels/review instructions if submitting there later.
+
+## Signed binary workflow
+
+Run **Store candidate binaries** from Actions on the reviewed main commit. Choose APK (AppGallery/device testing), AAB (Google Play), or both. The job reuses existing EAS credentials, verifies the Android archive and saves a SHA-256 checksum and exact source metadata with the Actions artifact. It does not upload to a store, overwrite an existing GitHub release or assert reviewer approval. Ensure `EXPO_TOKEN` and the public Supabase key are configured in repository build settings. Bump the Android version code before uploading if a store already has that code. Candidate builds use the current configured app version; an OTA does not replace a fresh-binary test.
+
+The implementation was locally checked with synthetic accounts and mocked external Auth/moderation responses. The initial dependency audit found zero high/critical production advisories in all three packages, zero total in the web packages, and 9 moderate plus 1 low advisory in the mobile Expo/tooling chain. npm's suggested major SDK downgrade is incompatible and is not a safe automated fix. Track the affected Expo/glob/minimatch/deepmerge advisories, restrict build input to trusted repository files and adopt supported upstream fixes with a rebuilt, tested native runtime. This is a residual release-review item, not a claim of zero vulnerabilities.
+
+## Verified deployment record — 9 November 2026
+
+Hosted migration `20261109101535_launch_eligibility_and_reports` was applied to BibleDiaries project `fspfwidfdnqvpgmipate`. `secure-content` version 3 is active with JWT verification enabled; its account-access check runs before the external moderation request. Existing accounts must complete the new age/policy step after updating. Native Android and iOS fingerprints match the existing v1.0.5 binary baseline; no native dependency/configuration change was introduced for these features. Source builds, synthetic browser checks and database tests do not replace real-device testing or store approval.
