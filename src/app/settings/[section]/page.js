@@ -1,4 +1,5 @@
 "use client";
+import HelpIndex from "../../../components/HelpIndex";
 import MfaSettings from "../../../components/MfaSettings";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
@@ -481,24 +482,7 @@ export default function Section({ params }) {
           </button>
         </>
       )}
-      {section === "support" && (
-        <>
-          <h2>Support</h2>
-          <p>
-            Include the error text, app/browser version and approximate time.
-            Never send passwords, PINs or one-time codes.
-          </p>
-          <a href="mailto:support@ts-industries.com">
-            support@ts-industries.com
-          </a>
-          <Link href="/guidelines">Community guidelines →</Link>
-          <p>
-            Support is not an emergency service. If someone is in immediate
-            danger, contact local emergency services or a trusted person who can
-            help immediately.
-          </p>
-        </>
-      )}
+      {section === "support" && <HelpIndex />}
       {section === "legal" && <AppPolicies />}
     </main>
   );

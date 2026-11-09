@@ -1,3 +1,4 @@
+import { HELP_PAGES } from "../../shared/help-content.mjs";
 export const dynamic = "force-dynamic";
 export default function sitemap() {
   const origin = process.env.APP_ORIGIN || "https://biblediaries.co.za";
@@ -17,8 +18,10 @@ export default function sitemap() {
     "terms",
     "cookies",
     "child-safety",
+    "policies/community",
     "guardian",
     "account-deletion",
+    ...Object.keys(HELP_PAGES).map((id) => `help/${id}`),
   ].map((p) => ({
     url: origin + (p ? "/" + p : "/"),
     changeFrequency: "monthly",

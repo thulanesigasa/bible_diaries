@@ -65,7 +65,10 @@ export default function AppWrapper({ children }) {
   const [toasts, setToasts] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
-  const isPublicPage = PUBLIC_PAGES.has(pathname);
+  const isPublicPage =
+    PUBLIC_PAGES.has(pathname) ||
+    pathname.startsWith("/help/") ||
+    pathname.startsWith("/policies/");
 
   const showToast = (message, type = "success") => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -146,7 +149,10 @@ export default function AppWrapper({ children }) {
       pathname === "/register" ||
       pathname === "/reset-password";
 
-    if (!user && !isAuthPage && !isPublicPage) {
+    if (
+      !user &&
+      ((!isAuthPage && !isPublicPage) || pathname === "/complete-registration")
+    ) {
       router.push("/login");
     } else if (user && isAuthPage && pathname !== "/reset-password") {
       router.push("/feed");
@@ -182,6 +188,7 @@ export default function AppWrapper({ children }) {
 
   const isAuthPage =
     isPublicPage ||
+    pathname === "/complete-registration" ||
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/reset-password";
@@ -236,7 +243,11 @@ export default function AppWrapper({ children }) {
             setProfile({ ...data, ...contacts });
         }
       }}
-      bypass={isPublicPage || pathname === "/reset-password"}
+      bypass={
+        isPublicPage ||
+        pathname === "/reset-password" ||
+        pathname === "/complete-registration"
+      }
     >
       <AppContext.Provider
         value={{ user, profile, setProfile, showToast, loading }}

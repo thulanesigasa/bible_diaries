@@ -25,7 +25,7 @@ export const APP_POLICIES = [
       ],
       [
         "Eligibility and guardian records",
-        "After email confirmation, the service records your birth date, the accepted policy version and time, and, for members under 18, the guardian email and permission decisions in restricted records. These records are not part of your public profile. A separate verified adult account matching the guardian email must explicitly declare authority to approve or withdraw permission. Contact support to correct a birth date or guardian address; editable profile metadata cannot change eligibility.",
+        "During signup, the service records your birth date, the accepted policy version and time, and, for members under 18, the guardian email and permission decisions in restricted records. These records are not part of your public profile. A separate verified adult account matching the guardian email must explicitly declare authority to approve or withdraw permission. Contact support to correct a birth date or guardian address; editable profile metadata cannot change eligibility.",
       ],
       [
         "Reports and child safety",

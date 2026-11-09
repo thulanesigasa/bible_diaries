@@ -1,3 +1,4 @@
+import HelpIndex from "../../components/HelpIndex";
 import MfaSettings from "../../components/MfaSettings";
 import AppPolicies from "../../components/AppPolicies";
 import ReadingPreferences from "../../components/ReadingPreferences";
@@ -568,31 +569,7 @@ export default function SettingsSection() {
           )}
         </>
       )}
-      {section === "support" && (
-        <>
-          <Text style={s.label}>How can we help?</Text>
-          <Text>
-            For missing reflections, account access, privacy requests or a
-            community concern, include the error text, app version and
-            approximate time. Never send passwords, PINs or one-time codes.
-          </Text>
-          {action("Email Bible Diaries support", () => {
-            void Linking.openURL("mailto:support@ts-industries.com");
-          })}
-          <Text style={s.label}>Community safety</Text>
-          <Text>
-            Share respectfully. Do not publish another person’s private
-            information. Stop engaging with suspicious accounts, avoid unknown
-            links and use blocking when needed. Moderation has limits.
-          </Text>
-          <Text style={s.label}>Personal wellbeing</Text>
-          <Text>
-            Support and community conversations are not emergency services. If
-            someone is in immediate danger, contact local emergency services or
-            a trusted person who can help immediately.
-          </Text>
-        </>
-      )}
+      {section === "support" && <HelpIndex />}
       {section === "legal" && <AppPolicies accent={accent} />}
       {guard.protectionError && (
         <Text accessibilityLiveRegion="polite" style={{ color: "#b91c1c" }}>
@@ -624,7 +601,7 @@ const s = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#94a3b8",
-    borderRadius: 9,
+    borderRadius: 0,
     padding: 14,
     fontSize: 16,
   },

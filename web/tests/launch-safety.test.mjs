@@ -24,6 +24,7 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
       "supabase/migrations/20261108142855_contextual_moderation.sql",
       "supabase/migrations/20261108191413_unified_admin_waitlist_and_notifications.sql",
       "supabase/migrations/20261109101535_launch_eligibility_and_reports.sql",
+      "supabase/migrations/20261109111244_signup_eligibility_capture.sql",
     ]) {
       if (f.includes("115300"))
         await db.exec(
@@ -332,6 +333,97 @@ test("launch eligibility, guardian authority, service bypass and report privacy 
     await db.query("delete from auth.sessions where user_id=$1", [uid(3)]);
     await role(3);
     await assert.rejects(rpc("safety_report_list", [true]));
+    await db.exec("reset role");
+    const signup = (
+      n,
+      birth = "1990-01-01",
+      guardian = null,
+      accepted = true,
+      confirmed = true,
+    ) =>
+      db.query(
+        "insert into auth.users(id,email,email_confirmed_at,raw_user_meta_data) values($1,$2,$3,$4)",
+        [
+          uid(n),
+          `person${n}@example.invalid`,
+          confirmed ? new Date().toISOString() : null,
+          JSON.stringify({
+            first_name: "Signup",
+            full_name: "Signup Reader",
+            signup_eligibility: {
+              birth_date: birth,
+              guardian_email: guardian,
+              accepted,
+              policy_version: "bd-launch-2026-11-09",
+            },
+          }),
+        ],
+      );
+    await signup(8);
+    await signup(9, "2011-01-01", "person4@example.invalid");
+    await signup(10, "1990-01-01", null, true, false);
+    for (const n of [8, 9, 10])
+      await db.query("insert into auth.sessions(id,user_id) values($1,$2)", [
+        uid(n + 10),
+        uid(n),
+      ]);
+    assert.equal(
+      (
+        await db.query(
+          "select raw_user_meta_data from auth.users where id=$1",
+          [uid(8)],
+        )
+      ).rows[0].raw_user_meta_data.signup_eligibility,
+      undefined,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int n from private.pending_signup_eligibility",
+        )
+      ).rows[0].n,
+      0,
+    );
+    await assert.rejects(signup(11, "2020-01-01"));
+    await assert.rejects(signup(11, "1990-01-01", null, false));
+    await assert.rejects(signup(11, "2011-01-01", "person11@example.invalid"));
+    await db.query("update auth.users set raw_user_meta_data=$1 where id=$2", [
+      JSON.stringify({
+        signup_eligibility: {
+          birth_date: "2011-01-01",
+          accepted: true,
+          policy_version: "bd-launch-2026-11-09",
+        },
+      }),
+      uid(8),
+    ]);
+    assert.equal(
+      (
+        await db.query(
+          "select birth_date::text v from private.account_eligibility where user_id=$1",
+          [uid(8)],
+        )
+      ).rows[0].v,
+      "1990-01-01",
+    );
+    await role(8);
+    const adultSignup = await rpc("eligibility_status");
+    assert.equal(adultSignup.ready, true);
+    assert.equal(adultSignup.setup_required, false);
+    await role(9);
+    const childSignup = await rpc("eligibility_status");
+    assert.equal(childSignup.ready, false);
+    assert.equal(childSignup.setup_required, false);
+    assert.equal(childSignup.guardian_status, "pending");
+    await role(10);
+    await assert.rejects(rpc("eligibility_status"));
+    await db.exec("reset role");
+    await db.query(
+      "update auth.users set email_confirmed_at=now() where id=$1",
+      [uid(10)],
+    );
+    await role(10);
+    assert.equal((await rpc("eligibility_status")).ready, true);
     await db.exec("reset role");
     await db.query("delete from auth.users where id=$1", [uid(4)]);
     await role(5);

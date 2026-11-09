@@ -160,13 +160,19 @@ export default function RootLayout() {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!user && !inAuthGroup) {
+    if (
+      !user &&
+      !inAuthGroup &&
+      segments[0] !== "policies" &&
+      segments[0] !== "help"
+    ) {
       // Redirect to login if user is not logged in and not in the auth directory
       router.replace("/(auth)/login");
     } else if (
       user &&
       inAuthGroup &&
-      !segments.join("/").endsWith("reset-password")
+      !segments.join("/").endsWith("reset-password") &&
+      !segments.join("/").endsWith("complete-registration")
     ) {
       // Redirect to feed tab if logged in
       router.replace("/(tabs)");
@@ -202,11 +208,34 @@ export default function RootLayout() {
       <AppLockGate userId={user?.id}>
         <EligibilityGate
           user={user}
-          bypass={segments.join("/").endsWith("reset-password")}
+          bypass={
+            segments.join("/").endsWith("reset-password") ||
+            segments.join("/").endsWith("complete-registration") ||
+            segments[0] === "policies" ||
+            segments[0] === "help"
+          }
           onReady={() => user && fetchProfile(user.id)}
         >
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="policies/[slug]"
+              options={{
+                headerShown: true,
+                title: "Policies",
+                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
+                headerLargeTitle: false,
+              }}
+            />
+            <Stack.Screen
+              name="help/[slug]"
+              options={{
+                headerShown: true,
+                title: "Support & safety",
+                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
+                headerLargeTitle: false,
+              }}
+            />
             <Stack.Screen name="(auth)" />
             <Stack.Screen
               name="post/[id]"

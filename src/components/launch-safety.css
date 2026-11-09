@@ -84,3 +84,99 @@
 .launch-panel [role="alert"] {
   color: #b91c1c;
 }
+.launch-panel,
+.launch-panel input,
+.launch-panel select,
+.launch-panel textarea,
+.launch-panel button,
+.launch-report-button,
+.launch-modal .launch-panel {
+  border-radius: 0;
+}
+.registration-flow {
+  border: 0;
+  padding-top: 20px;
+}
+.registration-brand {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #0369a1;
+}
+.registration-progress {
+  display: flex;
+  gap: 6px;
+}
+.registration-progress span {
+  height: 3px;
+  flex: 1;
+}
+.birth-picker {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1.2fr;
+  gap: 10px;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.birth-picker legend {
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.birth-picker label {
+  min-width: 0;
+}
+.birth-picker select {
+  padding: 12px 6px;
+}
+.registration-notices {
+  display: flex;
+  flex-direction: column;
+}
+.registration-notices a,
+.policy-menu-row {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-color, #dbe4ed);
+  min-height: 56px;
+}
+.policy-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.policy-menu-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: inherit;
+}
+.policy-menu-row strong {
+  display: block;
+  font-size: 14px;
+}
+.policy-menu-row small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary, #64748b);
+  margin-top: 4px;
+}
+.policy-document section {
+  margin-top: 26px;
+}
+.policy-document h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.policy-document p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.policy-document > h1 {
+  font-size: 24px;
+}
+.policy-menu h2 {
+  font-size: 14px;
+  margin-top: 16px;
+}

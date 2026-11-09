@@ -1,96 +1,72 @@
-import React, { useState } from "react";
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import {
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { APP_POLICIES } from "../../shared/app-policy-content.mjs";
-import { CHILD_SAFETY_SECTIONS } from "../../shared/child-safety.mjs";
-const links = [
-  ["Terms", "terms"],
-  ["Privacy notice", "privacy"],
-  ["Community standards", "community"],
-  ["Child safety", "child-safety"],
-];
+  ShieldCheck,
+  FileText,
+  Users,
+  ChevronRight,
+  ShieldAlert,
+} from "lucide-react-native";
+const rows = [
+  [
+    "privacy",
+    "Privacy Policy",
+    "What is collected, how it is used and your choices",
+    ShieldCheck,
+  ],
+  [
+    "terms",
+    "Terms of Use",
+    "Eligibility, accounts, ownership and responsibilities",
+    FileText,
+  ],
+  [
+    "community",
+    "Community Expectations",
+    "Respectful participation and personal boundaries",
+    Users,
+  ],
+  [
+    "child-safety",
+    "Child Safety Standards",
+    "Protection, reporting and guardian permissions",
+    ShieldAlert,
+  ],
+] as const;
 export default function PolicyLinks() {
-  const [selected, setSelected] = useState("");
-  const policy = APP_POLICIES.find((p: any) => p.id === selected);
-  const title = policy?.title || "Child safety standards";
-  const sections =
-    selected === "child-safety"
-      ? CHILD_SAFETY_SECTIONS
-      : policy?.sections || [];
+  const router = useRouter();
   return (
-    <View style={{ gap: 4 }}>
-      {links.map(([label, id]) => (
+    <View>
+      {rows.map(([id, title, hint, Icon]) => (
         <TouchableOpacity
           key={id}
           accessibilityRole="button"
-          accessibilityLabel={`Read ${label}`}
-          style={s.link}
-          onPress={() => setSelected(id)}
+          accessibilityLabel={`Read ${title}`}
+          style={s.row}
+          onPress={() => router.push(`/policies/${id}` as any)}
         >
-          <Text style={s.linkText}>{label}</Text>
+          <Icon size={20} color="#0369a1" />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={s.title}>{title}</Text>
+            <Text style={s.hint}>{hint}</Text>
+          </View>
+          <ChevronRight size={17} color="#94a3b8" />
         </TouchableOpacity>
       ))}
-      <Modal
-        visible={!!selected}
-        animationType="slide"
-        onRequestClose={() => setSelected("")}
-      >
-        <SafeAreaView style={s.screen}>
-          <View style={s.header}>
-            <Text accessibilityRole="header" style={s.title}>
-              {title}
-            </Text>
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel="Close policy"
-              style={s.link}
-              onPress={() => setSelected("")}
-            >
-              <Text style={s.linkText}>Done</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView contentContainerStyle={s.page}>
-            <Text style={s.text}>
-              Reviewed 9 November 2026. Available here without opening a
-              website.
-            </Text>
-            {sections.map(([heading, body]: string[]) => (
-              <View key={heading} style={{ gap: 8 }}>
-                <Text accessibilityRole="header" style={s.heading}>
-                  {heading}
-                </Text>
-                <Text style={s.text}>{body}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
     </View>
   );
 }
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#fff" },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+  row: {
+    minHeight: 70,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     gap: 12,
-    borderBottomWidth: 1,
-    borderColor: "#e2e8f0",
+    paddingVertical: 15,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: "#dbe4ed",
   },
-  page: { padding: 20, paddingBottom: 48, gap: 24 },
-  title: { fontSize: 18, fontWeight: "600", color: "#172033", flex: 1 },
-  heading: { fontSize: 15, fontWeight: "600", color: "#172033" },
-  text: { fontSize: 14, lineHeight: 23, color: "#475569" },
-  link: { minWidth: 44, minHeight: 44, justifyContent: "center" },
-  linkText: { fontSize: 14, color: "#0369a1" },
+  title: { fontSize: 14, fontWeight: "600", color: "#172033" },
+  hint: { fontSize: 12, lineHeight: 18, color: "#64748b" },
 });

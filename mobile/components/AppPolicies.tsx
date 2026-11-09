@@ -1,9 +1,14 @@
-import React,{useState} from 'react';
-import {View,Text,TouchableOpacity,StyleSheet,Linking} from 'react-native';
-import {ChevronDown,ShieldCheck,FileText,Users} from 'lucide-react-native';
-import {APP_POLICIES} from '../../shared/app-policy-content.mjs';
-export default function AppPolicies({accent}:{accent:string}){
- const [open,setOpen]=useState('privacy');const icons=[ShieldCheck,FileText,Users];
- return <View style={{gap:16}}><Text style={s.intro}>Your privacy, your responsibilities and the care we owe one another. Reviewed for this app on 9 November 2026.</Text>{APP_POLICIES.map((policy:any,index:number)=>{const Icon=icons[index],expanded=open===policy.id;return <View key={policy.id} style={s.group}><TouchableOpacity accessibilityRole="button" accessibilityState={{expanded}} style={s.heading} onPress={()=>setOpen(expanded?'':policy.id)}><Icon size={20} color={accent}/><View style={{flex:1,gap:4}}><Text style={s.title}>{policy.title}</Text><Text style={s.intro}>{policy.intro}</Text></View><ChevronDown size={18} color="#94a3b8" style={expanded?{transform:[{rotate:'180deg'}]}:undefined}/></TouchableOpacity>{expanded&&<View style={s.body}>{policy.sections.map(([title,text]:string[])=><View key={title} style={{gap:6}}><Text style={s.subtitle}>{title}</Text><Text style={s.text}>{text}</Text></View>)}</View>}</View>;})}<TouchableOpacity accessibilityRole="link" onPress={()=>Linking.openURL('mailto:support@ts-industries.com')} style={{minHeight:44,justifyContent:'center'}}><Text style={{fontSize:13,color:accent}}>Questions? Contact support@ts-industries.com</Text></TouchableOpacity></View>;
+import React from "react";
+import { View, Text } from "react-native";
+import PolicyLinks from "./PolicyLinks";
+export default function AppPolicies({ accent }: { accent: string }) {
+  return (
+    <View style={{ gap: 12 }}>
+      <Text style={{ fontSize: 13, lineHeight: 21, color: "#64748b" }}>
+        Understand your information, your responsibilities and the care we owe
+        one another. Open a document to read it on its own screen.
+      </Text>
+      <PolicyLinks />
+    </View>
+  );
 }
-const s=StyleSheet.create({intro:{fontSize:12,lineHeight:18,color:'#718096'},group:{borderWidth:1,borderColor:'#e5ebf2',borderRadius:12,overflow:'hidden'},heading:{flexDirection:'row',alignItems:'center',gap:11,padding:16},title:{fontSize:14,fontWeight:'600',color:'#172033'},body:{paddingHorizontal:16,paddingBottom:18,gap:20,borderTopWidth:StyleSheet.hairlineWidth,borderColor:'#e5ebf2',paddingTop:18},subtitle:{fontSize:13,fontWeight:'600',color:'#334155'},text:{fontSize:13,lineHeight:21,color:'#526175'}});

@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -14,6 +15,7 @@ export default function SafetyCenter({
 }: {
   guardian?: boolean;
 }) {
+  const router = useRouter();
   const [items, setItems] = useState<any[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -69,17 +71,19 @@ export default function SafetyCenter({
           : "Use Report on a reflection, comment, message or member profile. Child exploitation, grooming, sexual content involving children, threats and scams are prohibited. Report outcomes appear below. We cannot guarantee a response time or continuous monitoring."}
       </Text>
       {[
-        ["Child safety standards", "child-safety"],
-        ["Privacy notice", "privacy"],
-        ["Account deletion", "account-deletion"],
-      ].map(([title, path]) => (
+        ["Safety guide", "/help/safety"],
+        ["Reporting & blocking", "/help/reporting"],
+        ["Children & guardians", "/help/guardians"],
+        ["Privacy notice", "/policies/privacy"],
+        ["Account deletion", "/help/privacy"],
+      ].map(([label, path]) => (
         <TouchableOpacity
-          accessibilityRole="link"
           key={path}
-          onPress={() => Linking.openURL("https://biblediaries.co.za/" + path)}
+          accessibilityRole="button"
           style={s.link}
+          onPress={() => router.push(path as any)}
         >
-          <Text style={{ color: "#0369a1" }}>{title}</Text>
+          <Text style={{ color: "#0369a1" }}>{label} →</Text>
         </TouchableOpacity>
       ))}
       {guardian && (
@@ -178,7 +182,7 @@ const s = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    borderRadius: 12,
+    borderRadius: 0,
     gap: 10,
   },
   link: { minHeight: 44, justifyContent: "center" },
