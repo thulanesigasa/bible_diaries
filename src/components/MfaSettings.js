@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../shared/user-error.mjs';
+
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 export default function MfaSettings({ challengeOnly = false, onVerified }) {
@@ -11,7 +13,7 @@ export default function MfaSettings({ challengeOnly = false, onVerified }) {
   async function load() {
     const { data, error } = await supabase.auth.mfa.listFactors();
     if (error) {
-      setMessage(error.message);
+      setMessage(userError(error));
       return;
     }
     setFactor(data.totp?.find((x) => x.status === "verified") || null);
@@ -48,7 +50,7 @@ export default function MfaSettings({ challengeOnly = false, onVerified }) {
         "Add this key manually to an authenticator app, then enter its current six-digit code. Keep the key private.",
       );
     } catch (e) {
-      setMessage(e.message || "Could not start setup.");
+      setMessage(userError(e, "Could not start setup."));
     } finally {
       pending.current = false;
       setBusy(false);
@@ -74,7 +76,7 @@ export default function MfaSettings({ challengeOnly = false, onVerified }) {
       onVerified?.();
     } catch (e) {
       setCode("");
-      setMessage(e.message || "Verification failed. Use a fresh code.");
+      setMessage(userError(e, "Verification failed. Use a fresh code."));
     } finally {
       pending.current = false;
       setBusy(false);

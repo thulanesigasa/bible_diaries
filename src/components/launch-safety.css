@@ -102,14 +102,26 @@
   letter-spacing: 2px;
   color: #0369a1;
 }
-.registration-progress {
-  display: flex;
-  gap: 6px;
-}
-.registration-progress span {
-  height: 3px;
-  flex: 1;
-}
+.registration-flow { --signup-accent:#0ea5e9; }
+.registration-flow > h1,.registration-flow > .auth-subtitle {text-align:center;}
+.registration-brand {display:flex;align-items:center;justify-content:center;gap:8px;font-size:22px;letter-spacing:0;font-weight:700;color:var(--signup-accent);}
+.registration-progress {display:flex;padding:0;list-style:none;align-items:center;margin:24px 0;}
+.registration-progress li {display:flex;flex:1;align-items:center;}
+.registration-progress li:last-child {flex:0;}
+.registration-progress li:not(:last-child)::after {content:"";height:2px;flex:1;background:#e2e8f0;margin:0 8px;}
+.registration-progress li.reached:not([aria-current]):after {background:var(--signup-accent);}
+.registration-progress span {display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#f1f5f9;color:#94a3b8;font-size:12px;font-weight:600;}
+.registration-progress .reached span {background:var(--signup-accent);color:white;}
+.signup-gender {display:flex;gap:12px;padding:0;border:0;}
+.signup-gender legend {margin-bottom:12px;font-size:13px;font-weight:600;}
+.signup-gender label {flex:1;padding:12px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #e2e8f0;}
+.signup-gender label.selected {background:var(--signup-accent);color:white;}
+.signup-gender input {width:auto;}
+.signup-password {position:relative;display:flex;}
+.signup-password input {width:100%;padding-right:48px!important;}
+.registration-flow .signup-password button {position:absolute;right:0;top:0;height:100%;padding:12px;background:transparent!important;color:#475569;}
+.registration-flow form > button:not([type=button]) {background:var(--signup-accent);}
+.signup-checks {padding:0;list-style:none;font-size:12px;line-height:1.8;}
 .birth-picker {
   display: grid;
   grid-template-columns: 1fr 1.6fr 1.2fr;

@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../shared/user-error.mjs';
+
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { REPORT_REASONS } from "../../shared/launch-safety.mjs";
@@ -45,7 +47,7 @@ export default function ReportButton({ kind, id, privateContext = false }) {
       setShare(false);
       setBlock(false);
     } catch (e) {
-      setMessage(e.message || "Report was not confirmed. Retry.");
+      setMessage(userError(e, "Report was not confirmed. Retry."));
     } finally {
       pending.current = false;
       setBusy(false);

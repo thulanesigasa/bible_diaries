@@ -1,3 +1,4 @@
+import { userError } from '../../shared/user-error.mjs';
 import EligibilityGate from "../components/EligibilityGate";
 import AppLockGate from "../components/AppLockGate";
 import React, {
@@ -72,7 +73,7 @@ export default function RootLayout() {
     type: "success" | "error" = "success",
   ) => {
     const id = Math.random().toString();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message: userError(message), type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);

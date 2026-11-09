@@ -53,7 +53,7 @@ export const HELP_PAGES = {
     sections: [
       [
         "Complete signup in order",
-        "Enter your name and email, select your birth date with the picker, provide a separate guardian email if you are under 18, and read the terms, privacy notice and community expectations. After accepting the notices, choose Create password. Enter and confirm a unique password, then create your account. Your birth date and consent are recorded during signup; a new account does not need to enter them again after signing in.",
+        "Enter your name, surname, a unique username and email, select Male or Female, and optionally add your phone, address and profile photo. Select your birth date with the picker, provide a separate guardian email if you are under 18, and read the terms, privacy notice and community expectations. After accepting the notices, choose Create password. Enter and confirm a unique password, then create your account. Your birth date and consent are recorded during signup; a new account does not need to enter them again after signing in.",
       ],
       [
         "Confirm your email",
@@ -65,7 +65,7 @@ export const HELP_PAGES = {
       ],
       [
         "Choose and protect a password",
-        "Use at least 12 characters and a password you do not use on another service. A password manager can create and store a strong password. A memorable unique passphrase can also help. Avoid names, birthdays, Bible verse references that others can guess, and repeated patterns. Supabase manages authentication and password hashing; the app does not need a copy of your plain-text password. Never send a password to support.",
+        "At signup, use at least 12 characters, a number and a special character. Choose a password you do not use on another service. A password manager can create and store a strong password. A memorable unique passphrase can also help. Avoid names, birthdays, Bible verse references that others can guess, and repeated patterns. Supabase manages authentication and password hashing; the app does not need a copy of your plain-text password. Never send a password to support.",
       ],
       [
         "Forgotten passwords",

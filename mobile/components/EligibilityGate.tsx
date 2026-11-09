@@ -1,3 +1,5 @@
+import { KeyboardForm } from "./KeyboardForm";
+import { userError } from '../../shared/user-error.mjs';
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -43,7 +45,7 @@ export default function EligibilityGate({
       if (g === generation.current) receive(data);
     } catch (e: any) {
       if (g === generation.current)
-        setError(e.message || "Could not check access. Retry.");
+        setError(userError(e, "Could not check access. Retry."));
     }
   }
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function EligibilityGate({
       <View style={{ flex: 1, display: "none" }} pointerEvents="none">
         {children}
       </View>
-      <ScrollView style={s.screen} contentContainerStyle={s.page}>
+      <KeyboardForm style={s.screen} contentContainerStyle={s.page}>
         <Text style={s.brand}>BIBLE DIARIES</Text>
         <Text accessibilityRole="header" style={s.title}>
           {status?.mfa_required
@@ -153,7 +155,7 @@ export default function EligibilityGate({
         >
           <Text style={s.link}>Sign out</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </KeyboardForm>
     </>
   );
 }

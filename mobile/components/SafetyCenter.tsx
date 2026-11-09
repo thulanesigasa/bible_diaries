@@ -1,3 +1,4 @@
+import { userError } from '../../shared/user-error.mjs';
 import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
@@ -31,7 +32,7 @@ export default function SafetyCenter({
       setItems(data || []);
       setError("");
     } catch (e: any) {
-      setError(e.message || "Could not load. Retry.");
+      setError(userError(e, "Could not load. Retry."));
     } finally {
       setBusy(false);
     }
@@ -52,7 +53,7 @@ export default function SafetyCenter({
       if (error) throw error;
       await load();
     } catch (e: any) {
-      setError(e.message || "Could not confirm decision. Refresh.");
+      setError(userError(e, "Could not confirm decision. Refresh."));
     } finally {
       setBusy(false);
     }

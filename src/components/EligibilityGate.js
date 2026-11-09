@@ -1,4 +1,6 @@
 "use client";
+import { userError } from '../../shared/user-error.mjs';
+
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -30,7 +32,7 @@ export default function EligibilityGate({
       if (g === generation.current) receive(data);
     } catch (e) {
       if (g === generation.current)
-        setError(e.message || "Could not check account access. Retry.");
+        setError(userError(e, "Could not check account access. Retry."));
     }
   }
   useEffect(() => {

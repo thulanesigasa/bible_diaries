@@ -1,3 +1,4 @@
+import { KeyboardFrame, FormInput as TextInput } from '../../components/KeyboardForm';
 import ReportButton from "../../components/ReportButton";
 import { useReadingStyle } from "../../src/hooks/useReadingStyle";
 import React, { useState, useEffect } from "react";
@@ -5,7 +6,6 @@ import {
   View,
   Text,
   FlatList,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -284,11 +284,7 @@ export default function PostDetailsScreen() {
     : post?.profiles?.full_name || "Believer";
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "padding"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 90}
-    >
+    <KeyboardFrame style={styles.container}>
       <FlatList
         data={comments}
         renderItem={renderCommentItem}
@@ -559,7 +555,7 @@ export default function PostDetailsScreen() {
           </View>
         </View>
       </Modal>
-    </KeyboardAvoidingView>
+    </KeyboardFrame>
   );
 }
 
