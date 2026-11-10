@@ -548,9 +548,10 @@ export default function FeedScreen() {
     postId: string,
   ) => {
     try {
-      const result = await Share.share({
-        message: `Reflection by ${author || "a believer"} on bible_diaries:\n\n"${content}"`,
-      });
+      const message=`Reflection by ${author || "a believer"} on Bible Diaries:\n\n"${content}"`;
+      let result;
+      if(Platform.OS==='web'&&!(globalThis as any).navigator?.share){await (globalThis as any).navigator.clipboard.writeText(message);showToast('Reflection copied. You can paste it to share.');result={action:Share.sharedAction};}
+      else result=await Share.share({message});
       if (result.action === Share.sharedAction) {
         const { error } = await supabase
           .from("reflection_shares")

@@ -180,6 +180,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
     flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
@@ -228,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 8,
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 14,
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   },
   btnPrimary: {
     backgroundColor: '#0EA5E9',
-    borderRadius: 8,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',

@@ -4,9 +4,13 @@
 **/.expo
 **/.env*
 **/*cache*
-mobile
 supabase/.temp
 **/*.pem
 **/*.key
 **/*.jks
 **/*.keystore
+
+.browser-ui
+public/_app
+**/dist
+**/.next-*-dev

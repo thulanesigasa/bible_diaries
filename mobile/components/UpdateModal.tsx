@@ -26,6 +26,7 @@ const downloadSvg = `
 interface UpdateModalProps {
   visible: boolean;
   isDownloading: boolean;
+  error?: string;
   onUpdate: () => void;
   onDismiss: () => void;
   // accent follows the app's 60-30-10 accent color
@@ -46,10 +47,12 @@ interface UpdateModalProps {
 export default function UpdateModal({
   visible,
   isDownloading,
+  error,
   onUpdate,
   onDismiss,
   accent = '#0EA5E9',
 }: UpdateModalProps) {
+  const downloading=useRef(isDownloading);downloading.current=isDownloading;
   const translateY = useRef(new Animated.Value(0)).current;
 
   // Reset translate position when modal becomes visible
@@ -62,14 +65,15 @@ export default function UpdateModal({
   // PanResponder to allow dragging down the sheet to dismiss
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => !isDownloading,
-      onMoveShouldSetPanResponder: (_, gestureState) => !isDownloading && gestureState.dy > 5,
+      onStartShouldSetPanResponder: () => !downloading.current,
+      onMoveShouldSetPanResponder: (_, gestureState) => !downloading.current && gestureState.dy > 5,
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dy > 0) {
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
+        if(downloading.current)return;
         if (gestureState.dy > 90 || gestureState.vy > 0.5) {
           Animated.timing(translateY, {
             toValue: 500,
@@ -96,7 +100,7 @@ export default function UpdateModal({
       transparent
       animationType="fade"
       statusBarTranslucent
-      onRequestClose={onDismiss}
+      onRequestClose={()=>{if(!isDownloading)onDismiss();}}
     >
       <View style={styles.backdrop}>
         {/* Tap anywhere outside the sheet to dismiss */}
@@ -133,6 +137,7 @@ export default function UpdateModal({
             reflections and fellowship. Tap below to apply it instantly.
           </Text>
 
+          {!!error&&<Text accessibilityRole="alert" style={{color:"#b91c1c",fontSize:13,marginBottom:12}}>{error}</Text>}
           {/* Primary CTA */}
           <TouchableOpacity
             style={[styles.btn, { backgroundColor: accent }]}

@@ -1,3 +1,5 @@
+> Updated architecture and run instructions: [Run all four websites](docs/LOCAL_AND_DEPLOYMENT.md). The production browser app now uses the same Expo screen components as mobile. [Web parity and remaining launch checks](docs/WEB_PARITY_AND_LAUNCH.md).
+
 # Bible Diaries Web Application
 
 ![Platform](https://img.shields.io/badge/platform-Web-0EA5E9?style=flat-square)
@@ -17,7 +19,7 @@ Content integrity and an uplifting environment are maintained through automated 
 
 ## Key Features
 
-1. **User Authentication & All 54 African Countries Phone Verification**:
+1. **User Authentication & International Phone Collection**:
    - Secure sign-up and authentication powered by Supabase Auth.
    - Two-part phone input supporting all 54 sovereign African continent countries and international diaspora options, with automatic leading zero stripping to prevent database duplicate dial codes.
    - Comprehensive profile management: testimony, favorite scripture verse, spiritual journey, avatar photo, and privacy toggles.
@@ -34,7 +36,7 @@ Content integrity and an uplifting environment are maintained through automated 
 4. **Fellowship Directory & Live Chat**:
    - Discover members through a community fellowship directory.
    - View members' profiles, testimony journeys, and favorite bible verses.
-   - Direct real-time encrypted messaging between registered members.
+   - Direct real-time messaging with authenticated access controls and transport security; this is not end-to-end encryption.
 
 5. **Brand Identity & Calibrated Icons**:
    - High-fidelity Bible Diaries custom brand icon centered with 72% clean white breathing room on a 512x512 canvas matching Samsung One UI squircle guidelines to prevent clipping.

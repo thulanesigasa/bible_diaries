@@ -1,5 +1,25 @@
 name: bible-diaries
 services:
+  main:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?Set the Supabase URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?Set the public Supabase key}
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      APP_ORIGIN: ${MAIN_SITE_URL:-http://localhost:3000}
+      APP_SITE_ROLE: main
+      MAIN_SITE_URL: ${MAIN_SITE_URL:-http://localhost:3000}
+      APP_SITE_URL: ${APP_ORIGIN:-http://localhost:3003}
+      WAITLIST_URL: ${WAITLIST_URL:-http://localhost:3001}
+      ADMIN_SITE_URL: ${ADMIN_SITE_URL:-http://localhost:3002}
+    ports: ["127.0.0.1:3000:3000"]
+    init: true
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
   app:
     build:
       context: .
@@ -9,9 +29,13 @@ services:
     environment:
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3003}
+      APP_SITE_ROLE: app
+      MAIN_SITE_URL: ${MAIN_SITE_URL:-http://localhost:3000}
+      APP_SITE_URL: ${APP_ORIGIN:-http://localhost:3003}
+      WAITLIST_URL: ${WAITLIST_URL:-http://localhost:3001}
       ADMIN_SITE_URL: ${ADMIN_SITE_URL:-http://localhost:3002}
-    ports: ["127.0.0.1:3000:3000"]
+    ports: ["127.0.0.1:3003:3000"]
     init: true
     restart: unless-stopped
     cap_drop: [ALL]
@@ -27,7 +51,7 @@ services:
     environment:
       SITE_ROLE: waitlist
       SITE_URL: ${WAITLIST_URL:-http://localhost:3001}
-      MAIN_SITE_URL: ${APP_ORIGIN:-http://localhost:3000}
+      MAIN_SITE_URL: ${MAIN_SITE_URL:-http://localhost:3000}
       WAITLIST_URL: ${WAITLIST_URL:-http://localhost:3001}
       ADMIN_SITE_URL: ${ADMIN_SITE_URL:-http://localhost:3002}
     ports: ["127.0.0.1:3001:3000"]
@@ -46,7 +70,7 @@ services:
     environment:
       SITE_ROLE: admin
       SITE_URL: ${ADMIN_SITE_URL:-http://localhost:3002}
-      MAIN_SITE_URL: ${APP_ORIGIN:-http://localhost:3000}
+      MAIN_SITE_URL: ${MAIN_SITE_URL:-http://localhost:3000}
       WAITLIST_URL: ${WAITLIST_URL:-http://localhost:3001}
       ADMIN_SITE_URL: ${ADMIN_SITE_URL:-http://localhost:3002}
     ports: ["127.0.0.1:3002:3000"]

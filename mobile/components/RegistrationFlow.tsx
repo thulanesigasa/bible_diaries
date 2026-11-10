@@ -13,11 +13,13 @@ import DateOfBirthPicker from './DateOfBirthPicker';
 import PolicyLinks from './PolicyLinks';
 import {ageAt,POLICY_VERSION} from '../../shared/launch-safety.mjs';
 import {validUsername,signupPasswordChecks} from '../../shared/signup-fields.mjs';
+import {emailReturnUrl} from '../../shared/auth-return.mjs';
+import {Platform} from 'react-native';
 import {userError} from '../../shared/user-error.mjs';
 const STEPS=['Personal details','Profile details','Birth date','Terms & privacy','Create password'];
 export default function RegistrationFlow({existing=false}:{existing?:boolean}){
  const router=useRouter(),guard=useSecurePasswordCapture(),pending=useRef(false);
- const [step,setStep]=useState(existing?2:0),[first,setFirst]=useState(''),[surname,setSurname]=useState(''),[username,setUsername]=useState(''),[email,setEmail]=useState(''),[gender,setGender]=useState(''),[countryCode,setCountryCode]=useState('+27'),[phone,setPhone]=useState(''),[address,setAddress]=useState(''),[avatar,setAvatar]=useState<string|null>(null),[birth,setBirth]=useState(''),[guardian,setGuardian]=useState(''),[accepted,setAccepted]=useState(false),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[showPassword,setShowPassword]=useState(false),[showConfirm,setShowConfirm]=useState(false),[busy,setBusy]=useState(false),[photoBusy,setPhotoBusy]=useState(false),[message,setMessage]=useState(''),[done,setDone]=useState(false),[account,setAccount]=useState<any>(null);
+ const [step,setStep]=useState(existing?2:0),[first,setFirst]=useState(''),[surname,setSurname]=useState(''),[username,setUsername]=useState(''),[email,setEmail]=useState(''),[gender,setGender]=useState(''),[countryCode,setCountryCode]=useState('+27'),[phone,setPhone]=useState(''),[address,setAddress]=useState(''),[avatar,setAvatar]=useState<string|null>(null),[birth,setBirth]=useState(''),[guardian,setGuardian]=useState(''),[accepted,setAccepted]=useState(false),[password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[showPassword,setShowPassword]=useState(false),[showConfirm,setShowConfirm]=useState(false),[busy,setBusy]=useState(false),[photoBusy,setPhotoBusy]=useState(false),[message,setMessage]=useState(''),[done,setDone]=useState(false),[resendSeconds,setResendSeconds]=useState(0),[account,setAccount]=useState<any>(null);
  const accent=gender==='Female'?'#EC4899':'#0EA5E9',age=ageAt(birth),checks=signupPasswordChecks(password);
  useEffect(()=>{if(!existing)return;let active=true;supabase.auth.getUser().then(({data:{user}}:any)=>{if(active){setAccount(user);setEmail(user?.email||'');}});return()=>{active=false;};},[existing]);
  useEffect(()=>{if(step===4&&!done)void guard.enableProtection();else guard.disableProtection();return()=>guard.disableProtection();},[step,done]);
@@ -41,9 +43,11 @@ export default function RegistrationFlow({existing=false}:{existing?:boolean}){
   try{
    const eligibility={birth_date:birth,guardian_email:(age ?? 0)<18?guardian.trim().toLowerCase():null,accepted:true,policy_version:POLICY_VERSION};
    if(existing){if(!account)throw Error('Sign in again to complete registration.');const {data,error}=await supabase.rpc('complete_account_setup',eligibility);if(error)throw error;DeviceEventEmitter.emit('diary-eligibility-changed',{userId:account.id,status:data});router.replace('/(tabs)');}
-   else{const {error}=await supabase.auth.signUp({email:email.trim(),password,options:{data:{first_name:first.trim(),surname:surname.trim(),full_name:`${first.trim()} ${surname.trim()}`,username:username.trim().toLowerCase(),gender,phone_number:phone?countryCode+phone:null,address:address.trim()||null,avatar_url:avatar,signup_eligibility:eligibility}}});if(error)throw error;setPassword('');setConfirm('');guard.onPasswordBlur();setDone(true);setMessage('Check your email to confirm your address, then sign in. Your birth date and consent were included in signup; you will not enter them again. Members under 18 still need guardian approval.');}
+   else{const {data,error}=await supabase.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:emailReturnUrl({platform:Platform.OS,origin:Platform.OS==='web'?(globalThis as any).location?.origin:undefined,configured:process.env.EXPO_PUBLIC_AUTH_REDIRECT_URL}),data:{first_name:first.trim(),surname:surname.trim(),full_name:`${first.trim()} ${surname.trim()}`,username:username.trim().toLowerCase(),gender,phone_number:phone?countryCode+phone:null,address:address.trim()||null,avatar_url:avatar,signup_eligibility:eligibility}}});if(error)throw error;setPassword('');setConfirm('');guard.onPasswordBlur();if(data.session&&data.user?.email_confirmed_at){router.replace('/(tabs)');}else{setDone(true);setMessage('Check your email for a verification link. Verify your address to open Bible Diaries.');}}
   }catch(e){setMessage(userError(e,'Registration could not be confirmed. Retry later. If your details are valid, try a different username.'));}finally{pending.current=false;setBusy(false);}
  }
+ useEffect(()=>{if(!resendSeconds)return;const t=setTimeout(()=>setResendSeconds(resendSeconds-1),1000);return()=>clearTimeout(t);},[resendSeconds]);
+ async function resend(){if(busy||resendSeconds)return;setBusy(true);try{const {error}=await supabase.auth.resend({type:'signup',email:email.trim(),options:{emailRedirectTo:emailReturnUrl({platform:Platform.OS,origin:Platform.OS==='web'?(globalThis as any).location?.origin:undefined,configured:process.env.EXPO_PUBLIC_AUTH_REDIRECT_URL})}});if(error)throw error;setMessage('If this address needs confirmation, check your email for a new verification link.');}catch{setMessage('A new link could not be requested. Wait a moment and try again.');}finally{setResendSeconds(60);setBusy(false);}}
  const input=(label:string,value:string,set:(v:string)=>void,extra:any={})=><View key={label} style={s.inputGroup}><Text style={s.label}>{label}</Text><TextInput accessibilityLabel={label} style={s.input} value={value} onChangeText={set} editable={!busy} maxLength={80} returnKeyType="next" {...extra}/></View>;
  return <KeyboardForm key={step} style={s.container} contentContainerStyle={s.scrollContainer}>
   <View style={s.card}>
@@ -61,7 +65,7 @@ export default function RegistrationFlow({existing=false}:{existing?:boolean}){
      <View style={s.btnRow}>{step>(existing?2:0)&&<TouchableOpacity accessibilityRole="button" disabled={busy||photoBusy} style={s.btnSecondary} onPress={()=>{Keyboard.dismiss();guard.onPasswordBlur();setShowPassword(false);setShowConfirm(false);setStep(step-1);setMessage('');}}><Text style={s.btnSecondaryText}>Back</Text></TouchableOpacity>}<TouchableOpacity accessibilityRole="button" disabled={busy||photoBusy||(step===3&&!accepted)} style={[s.btnPrimary,{flex:1,backgroundColor:accent},(busy||photoBusy||(step===3&&!accepted))&&s.btnDisabled]} onPress={step===4?submit:next}>{busy?<ActivityIndicator color="white"/>:<Text style={s.btnText}>{step===4?'Create account':step===3?existing?'Finish registration':'Create password':'Continue'}</Text>}</TouchableOpacity></View>
     </View>
    </>}
-   {done&&<Text accessibilityRole="alert" style={s.note}>{message}</Text>}
+   {done&&<><Text accessibilityRole="alert" style={s.note}>{message}</Text><TouchableOpacity accessibilityRole="button" disabled={busy||resendSeconds>0} style={[s.btnPrimary,{backgroundColor:accent,marginTop:20},(busy||resendSeconds>0)&&s.btnDisabled]} onPress={resend}><Text style={s.btnText}>{resendSeconds?`Request another link in ${resendSeconds}s`:'Resend verification email'}</Text></TouchableOpacity></>}
    <TouchableOpacity accessibilityRole="button" disabled={busy} style={s.footerLinkRow} onPress={()=>existing?supabase.auth.signOut({scope:'local'}):router.replace('/(auth)/login')}><Text style={[s.linkText,{color:accent}]}>{existing?'Sign out':'Already registered? Sign in'}</Text></TouchableOpacity>
   </View>
  </KeyboardForm>;
@@ -75,6 +79,9 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
     flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
@@ -162,7 +169,7 @@ const s = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 0,
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 14,
@@ -180,7 +187,7 @@ const s = StyleSheet.create({
     marginBottom: 16,
     padding: 12,
     backgroundColor: '#F8FAFC',
-    borderRadius: 0,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.04)',
   },
@@ -208,7 +215,7 @@ const s = StyleSheet.create({
     lineHeight: 15,
   },
   btnPrimary: {
-    borderRadius: 0,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -230,7 +237,7 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(15, 23, 42, 0.08)',
-    borderRadius: 0,
+    borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -262,7 +269,7 @@ const s = StyleSheet.create({
   genderBtn: {
     flex: 1,
     height: 44,
-    borderRadius: 0,
+    borderRadius: 12,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',

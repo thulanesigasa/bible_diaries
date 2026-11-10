@@ -1,3 +1,4 @@
+import {siteDomains} from '../lib/site-domains.mjs';
 import Link from "next/link";
 import "./main-site.css";
 export const MAIN_FAQS = [
@@ -7,7 +8,7 @@ export const MAIN_FAQS = [
   ],
   [
     "Can I use it on my computer?",
-    "The browser companion lets you read and write with a keyboard. Sign in through this website to open the web app. Your available features depend on the deployed version.",
+    "The browser companion lets you read and write with a keyboard. Open app.biblediaries.co.za to sign in. The web and mobile apps share the same screens and community features; device locking and capture protection depend on the platform.",
   ],
   [
     "Where can I get the mobile app?",
@@ -47,7 +48,7 @@ export function MainHeader() {
         <Link href="/features">The app</Link>
         <Link href="/faq">FAQ</Link>
         <Link href="/support">Support</Link>
-        <Link className="main-small-button" href="/login">
+        <Link className="main-small-button" href={siteDomains().app+"/login"}>
           Sign in
         </Link>
       </nav>
@@ -98,12 +99,12 @@ export default function MainSite() {
               encouragement someone needs. Bible Diaries gives both a home.
             </p>
             <div className="main-actions">
-              <Link className="main-button" href="/feed">
+              <Link className="main-button" href={siteDomains().app+"/"}>
                 Open the web app ↗
               </Link>
               <a
                 className="main-secondary"
-                href="https://waiting.biblediaries.co.za"
+                href={siteDomains().waiting}
               >
                 Join the waiting list
               </a>
@@ -215,10 +216,10 @@ export default function MainSite() {
         <section className="main-invitation">
           <h2>Your next reflection can begin right here.</h2>
           <div className="main-actions">
-            <Link className="main-button" href="/login">
+            <Link className="main-button" href={siteDomains().app+"/login"}>
               Sign in to Bible Diaries
             </Link>
-            <a href="https://waiting.biblediaries.co.za">
+            <a href={siteDomains().waiting}>
               Get launch updates →
             </a>
           </div>
