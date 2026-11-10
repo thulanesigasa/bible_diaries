@@ -296,6 +296,7 @@ const s = StyleSheet.create({
     color: "#172033",
   },
   primary: {
+    borderRadius: 12,
     minHeight: 50,
     backgroundColor: "#0369a1",
     alignItems: "center",
