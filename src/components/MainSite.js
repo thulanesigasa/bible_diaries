@@ -1,6 +1,10 @@
 import {siteDomains} from '../lib/site-domains.mjs';
-import Link from "next/link";
-import "./main-site.css";
+import Link from 'next/link';
+import {BookOpen,PenLine,Users,Bookmark,ShieldCheck,EyeOff,Globe,Monitor,Smartphone,ArrowUpRight,Check,Heart,MessageCircle} from 'lucide-react';
+import ProductShowcase,{DevicePreview} from './ProductShowcase';
+import MainNavigation from './MainNavigation';
+import {PRODUCT_INTRO,PRODUCT_FEATURES,PRODUCT_STEPS,PRODUCT_VISIBILITY,PRODUCT_REVIEW,PRODUCT_FAQS} from '../../shared/product-guide.mjs';
+import './main-site.css';
 export const MAIN_FAQS = [
   [
     "What is Bible Diaries?",
@@ -34,198 +38,21 @@ export const MAIN_FAQS = [
     "How can I contact you?",
     "Email support@ts-industries.com. Describe the issue and include the app/browser version where relevant. Never send passwords or verification codes. Support is not an emergency service.",
   ],
+  ...PRODUCT_FAQS.filter(([q]) => /diary entry|reading comfortable|younger users/.test(q)),
 ];
-export function MainHeader() {
-  return (
-    <header className="main-top">
-      <Link href="/" className="main-brand">
-        <img src="/logo.png" width="38" height="38" alt="" />
-        <span>
-          Bible <b>Diaries</b>
-        </span>
-      </Link>
-      <nav aria-label="Website navigation">
-        <Link href="/features">The app</Link>
-        <Link href="/faq">FAQ</Link>
-        <Link href="/support">Support</Link>
-        <Link className="main-small-button" href={siteDomains().app+"/login"}>
-          Sign in
-        </Link>
-      </nav>
-    </header>
-  );
-}
-export function MainFooter() {
-  return (
-    <footer className="main-footer">
-      <div>
-        <Link className="main-brand" href="/">
-          Bible <b>Diaries</b>
-        </Link>
-        <p>Your faith. Your words. Your journey.</p>
-      </div>
-      <nav aria-label="Information and policies">
-        <Link href="/about">About</Link>
-        <Link href="/pc">On PC</Link>
-        <Link href="/safety">Safety</Link>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/child-safety">Child safety</Link>
-        <Link href="/guardian">Guardians</Link>
-        <Link href="/account-deletion">Delete account</Link>
-        <Link href="/terms">Terms</Link>
-        <Link href="/support">Contact</Link>
-      </nav>
-      <small>© {new Date().getFullYear()} Bible Diaries · T.S Industries</small>
-    </footer>
-  );
-}
-export default function MainSite() {
-  return (
-    <div className="main-site">
-      <MainHeader />
-      <main>
-        <section className="main-hero">
-          <div>
-            <p className="main-overline">FAITH, WITH ROOM TO GROW</p>
-            <h1>
-              Make space for
-              <br />
-              what God is
-              <br />
-              <span>doing in you.</span>
-            </h1>
-            <p className="main-intro">
-              Some moments belong in your diary. Others might be the
-              encouragement someone needs. Bible Diaries gives both a home.
-            </p>
-            <div className="main-actions">
-              <Link className="main-button" href={siteDomains().app+"/"}>
-                Open the web app ↗
-              </Link>
-              <a
-                className="main-secondary"
-                href={siteDomains().waiting}
-              >
-                Join the waiting list
-              </a>
-            </div>
-            <p className="main-caption">
-              Personal reflection. Thoughtful sharing. Everyday faith.
-            </p>
-          </div>
-          <div
-            className="main-notebook"
-            aria-label="Illustrative Bible Diaries reflection preview"
-          >
-            <div className="main-notebook-top">
-              <span>MY DIARY</span>
-              <span>01 / GRATITUDE</span>
-            </div>
-            <p className="main-script">
-              A little quiet.
-              <br />A little clarity.
-            </p>
-            <div className="main-note-page">
-              <span>PERSONAL REFLECTION</span>
-              <h2>Learning to be present.</h2>
-              <p>
-                Today, I’m learning to slow down. To notice the small answers,
-                the unexpected kindness, and the moments I would otherwise rush
-                past.
-              </p>
-              <div className="main-note-line" />
-              <small>Private until you choose to share.</small>
-            </div>
-            <p className="main-caption">
-              An illustrative preview, not a member’s private entry.
-            </p>
-          </div>
-        </section>
-        <section className="main-features" id="features">
-          <p className="main-overline">ONE JOURNEY. DIFFERENT MOMENTS.</p>
-          <h2>
-            Write for yourself.
-            <br />
-            Connect with purpose.
-          </h2>
-          <div className="main-feature-grid">
-            {[
-              [
-                "01",
-                "Your personal diary",
-                "Keep prayers, lessons and reflections in one place. Set your sharing preferences before you post.",
-              ],
-              [
-                "02",
-                "A community that listens",
-                "Explore faith, hope, love, wisdom, strength and gratitude. Encourage others through comments and conversations.",
-              ],
-              [
-                "03",
-                "Your journey, remembered",
-                "Bookmark words that matter, revisit your reflections and see personal achievement milestones.",
-              ],
-              [
-                "04",
-                "More room on PC",
-                "Read and write in your browser. Use a keyboard for longer reflections and continue on a larger screen.",
-              ],
-            ].map(([n, t, d]) => (
-              <article key={n}>
-                <span>{n}</span>
-                <h3>{t}</h3>
-                <p>{d}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-        <section className="main-trust">
-          <div>
-            <p className="main-overline">CARE IS PART OF THE EXPERIENCE</p>
-            <h2>A meaningful space needs thoughtful boundaries.</h2>
-          </div>
-          <div>
-            <p>
-              You choose what to share. Automated checks and authorised review
-              help address harmful content. A flagged submission can be approved
-              or rejected with a reason, while private content has additional
-              access safeguards.
-            </p>
-            <p>
-              These protections have limits. Honest disagreement and
-              constructive criticism belong in the conversation.
-            </p>
-            <Link href="/safety">Read about safety and review →</Link>
-          </div>
-        </section>
-        <section className="main-faq" id="faq">
-          <div>
-            <p className="main-overline">BEFORE YOU BEGIN</p>
-            <h2>A few good questions.</h2>
-            <Link href="/faq">All frequently asked questions →</Link>
-          </div>
-          <div>
-            {MAIN_FAQS.slice(0, 5).map(([q, a]) => (
-              <details key={q}>
-                <summary>{q}</summary>
-                <p>{a}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-        <section className="main-invitation">
-          <h2>Your next reflection can begin right here.</h2>
-          <div className="main-actions">
-            <Link className="main-button" href={siteDomains().app+"/login"}>
-              Sign in to Bible Diaries
-            </Link>
-            <a href={siteDomains().waiting}>
-              Get launch updates →
-            </a>
-          </div>
-        </section>
-      </main>
-      <MainFooter />
-    </div>
-  );
-}
+export function MainHeader(){const links=siteDomains();return <header className="main-top"><Link href="/" className="main-brand"><span className="main-logo"><img src="/logo.png" width="38" height="38" alt=""/></span><span>Bible <b>Diaries</b></span></Link><MainNavigation appUrl={links.app}/></header>;}
+export function MainFooter(){const links=siteDomains();return <footer className="main-footer"><div><Link className="main-brand" href="/">Bible <b>Diaries</b></Link><p>Your faith. Your words. Your journey.</p><p className="main-footer-note">A space to reflect on Scripture, encourage one another and keep growing. Built by T.S Industries.</p><a href="mailto:support@ts-industries.com">support@ts-industries.com</a></div><nav aria-label="Information and policies"><Link href="/about">Our story</Link><Link href="/features">Features</Link><Link href="/how-it-works">How it works</Link><Link href="/pc">On PC</Link><Link href="/faq">FAQ</Link><Link href="/support">Support</Link><Link href="/safety">Safety</Link><Link href="/privacy">Privacy</Link><Link href="/child-safety">Child safety</Link><Link href="/guardian">Guardians</Link><Link href="/account-deletion">Delete account</Link><Link href="/terms">Terms</Link><a href={links.waiting}>Waiting list</a></nav><small>© {new Date().getFullYear()} Bible Diaries · T.S Industries</small><a className="main-back-top" href="#top">Back to the beginning ↑</a></footer>;}
+function Flourish({dark=false}){return <div className={`main-flourish ${dark?'is-dark':''}`} aria-hidden="true"><span className="flourish-ring"/><span className="flourish-grid"/><svg className="flourish-cross" width="32" height="44" viewBox="0 0 32 44" fill="none"><path d="M16 2v40M3 15h26" stroke="currentColor" strokeWidth="1.5"/></svg><span className="flourish-star">✧</span></div>;}
+export default function MainSite(){const links=siteDomains();return <div className="main-site" id="top"><MainHeader/><main>
+ <section className="main-hero"><Flourish/><div className="main-hero-copy"><p className="main-overline">YOUR FAITH. YOUR WORDS. YOUR JOURNEY.</p><h1>Every walk<br/>has a <em>story.</em><br/><span>Make room<br className="hero-mobile-break"/> for yours.</span></h1><p className="main-intro">Some moments belong in your diary. Others might be the encouragement someone needs. Bible Diaries gives both a home.</p><div className="main-actions"><a className="main-button" href={links.app}>Explore the web app <ArrowUpRight size={17}/></a><a className="main-secondary" href={links.waiting}>Get launch updates <ArrowUpRight size={14}/></a></div><div className="main-hero-notes"><span><PenLine size={14}/>Reflect with purpose</span><span><Heart size={14}/>Share with heart</span><span><Users size={14}/>Grow together</span></div></div><div className="main-hero-devices"><DevicePreview hero/></div></section>
+ <section className="main-introduction"><p className="main-overline">01 / MEET BIBLE DIARIES</p><div className="main-intro-grid"><h2>An everyday walk.<br/>An <em>unfolding</em> story.</h2><div><p>{PRODUCT_INTRO}</p><p>For the prayer you are still carrying. The verse that stays with you. The small moment that reminds you God is near. There is room for all of it.</p><Link className="main-text-link" href="/about">The heart behind Bible Diaries ↗</Link></div></div></section>
+ <section className="main-experience" id="experience"><div className="main-section-heading"><div><p className="main-overline">02 / A LITTLE LOOK INSIDE</p><h2>Small moments.<br/><span>Meaningful connections.</span></h2></div><p>Explore three ways to make the space your own.<br/>Choose a theme to see the preview change.</p></div><ProductShowcase/></section>
+ <section className="main-pause"><Flourish dark/><div className="main-pause-copy"><p className="main-overline">MORE THAN SOMETHING TO SCROLL THROUGH</p><h2>A place to pause.<br/>A people to<br/><em>walk with.</em></h2><p>You do not have to have every answer to share what you are learning. Make room for honest reflection, thoughtful encouragement and the everyday work of growing in faith.</p><Link href="/community-guidelines">Our community expectations ↗</Link></div><div className="main-prompt-note"><span>A QUESTION FOR YOUR QUIET MOMENT</span><span className="prompt-quote" aria-hidden="true">“</span><p>What is God<br/>teaching you<br/><em>in this season?</em></p><small>Begin with a sentence.<br/>Let the rest find its way onto the page.</small><PenLine size={26}/></div></section>
+ <section className="main-rhythm"><div className="main-section-heading"><div><p className="main-overline">03 / YOUR EVERYDAY RHYTHM</p><h2>Pause. Put it into words.<br/>Pass on encouragement.</h2></div><Link className="main-text-link" href="/how-it-works">How it works ↗</Link></div><ol className="main-journey-steps">{PRODUCT_STEPS.map(([title,body],i)=><li key={title}><span>0{i+1}</span><h3>{title}</h3><p>{body}</p></li>)}</ol></section>
+ <section className="main-devices-section" id="on-every-screen"><Flourish/><div className="main-section-heading"><div><p className="main-overline">04 / ON YOUR PHONE. ON YOUR COMPUTER.</p><h2>Your journey.<br/><em>A little more room.</em></h2></div><p>A quiet moment on your phone.<br/>A longer reflection at your desk.</p></div><div className="main-device-grid"><article><Smartphone size={27}/><h3>In the palm of your hand.</h3><p>Keep your reflections, community and saved words close. The mobile app is designed for reading, writing and checking in with your journey wherever you have a connection.</p><small>Google Play and Huawei AppGallery planned first. Apple App Store follows later.</small></article><article><Monitor size={27}/><h3>Space to sit with your words.</h3><p>Use the browser companion with a keyboard and larger screen. Sign in with the same account to open the information you have saved. No Android emulator or Windows installer is needed.</p><a className="main-text-link" href={links.app}>Open the browser companion ↗</a></article></div><div className="main-device-footnote"><Check size={16}/><p>The browser and mobile versions share the app’s screens and product guides. Device locking and screen-capture controls depend on platform support. Unsent text is not automatically a synced entry.</p><Link href="/pc">More about PC access ↗</Link></div></section>
+ <section className="main-choice"><div className="main-section-heading"><div><p className="main-overline">05 / YOUR STORY. YOUR CHOICE.</p><h2>Some words are for you.<br/>Some are for someone else.</h2></div><Link className="main-text-link" href="/privacy">Understand your privacy ↗</Link></div><div className="main-visibility-grid">{PRODUCT_VISIBILITY.map(([title,subtitle,body],i)=>{const Icon=[ShieldCheck,EyeOff,Globe][i];return <article key={title}><Icon size={24}/><small>0{i+1} / {title.toUpperCase()}</small><h3>{subtitle}</h3><p>{body}</p></article>;})}</div></section>
+ <section className="main-review"><div><p className="main-overline">CARE IS PART OF THE EXPERIENCE</p><h2>Thoughtful sharing.<br/><span>Clearer boundaries.</span></h2><p>Automated checks and authorised review help address harmful content. They can make mistakes, and they do not guarantee accuracy, personal safety or professional advice.</p><Link className="main-text-link" href="/safety">Safety, review and practical precautions ↗</Link></div><ol>{PRODUCT_REVIEW.map(([title,body],i)=><li key={title}><span>0{i+1}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}</ol></section>
+ <section className="main-little-things"><p className="main-overline">IT IS THE LITTLE THINGS, TOO.</p><h2>Small details.<br/>A more personal experience.</h2><div className="main-details-grid">{[[Bookmark,'Words worth keeping','Save reflections privately and return to the encouragement you want to remember.'],[BookOpen,'Reading that feels like you','Choose text size, reading font and line spacing in Reading & typography.'],[MessageCircle,'A place for the conversation','Find community interactions in Activity and content decisions in system notifications.'],[ShieldCheck,'Help that is easy to find','Open the guides, safety information, policies and account controls from Settings.']].map(([Icon,title,body])=><article key={title}><Icon size={22}/><h3>{title}</h3><p>{body}</p></article>)}</div></section>
+ <section className="main-faq" id="faq"><div><p className="main-overline">BEFORE YOU BEGIN</p><h2>Good questions.<br/><em>Clear answers.</em></h2><p>A little clarity makes the first step easier.</p><Link href="/faq">Explore every question ↗</Link><Link href="/support">Find help and support ↗</Link></div><div>{[...MAIN_FAQS.slice(0,3),...PRODUCT_FAQS.slice(0,3)].map(([q,a])=><details key={q}><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}</div></section>
+ <section className="main-invitation"><Flourish/><div><p className="main-overline">THERE IS ROOM FOR YOUR STORY.</p><h2>Your next reflection<br/>can <em>begin here.</em></h2><p>Explore the browser experience, or join the waiting list for official mobile-store announcements.</p><div className="main-actions"><a className="main-button" href={links.app+'/login'}>Open Bible Diaries <ArrowUpRight size={17}/></a><a className="main-secondary" href={links.waiting}>Join the waiting list ↗</a></div><small>Google Play + Huawei AppGallery first · Apple App Store later.<br/>No guaranteed store release date. Waiting-list signup does not create an app account.</small></div></section>
+ </main><MainFooter/></div>;}
