@@ -1,5 +1,6 @@
 import { userError } from '../../shared/user-error.mjs';
 import EligibilityGate from "../components/EligibilityGate";
+import AppNavigator from "../components/AppNavigator";
 import AppLockGate from "../components/AppLockGate";
 import React, {
   createContext,
@@ -9,7 +10,7 @@ import React, {
   useRef,
 } from "react";
 import { useFonts } from "expo-font";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import {
   View,
@@ -67,7 +68,6 @@ export default function RootLayout() {
   const { isUpdateAvailable, isDownloading, applyUpdate, dismissUpdate, error: updateError } =
     useOTAUpdate();
 
-  const router = useRouter();
   const segments = useSegments();
 
   const showToast = (
@@ -157,32 +157,6 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  // Auth Redirection Guard
-  useEffect(() => {
-    if (loading || !fontsLoaded) return;
-
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (
-      !user &&
-      !inAuthGroup &&
-      segments[0] !== "policies" &&
-      segments[0] !== "help" &&
-      segments[0] !== "auth"
-    ) {
-      // Redirect to login if user is not logged in and not in the auth directory
-      router.replace("/(auth)/login");
-    } else if (
-      user &&
-      inAuthGroup &&
-      !segments.join("/").endsWith("reset-password") &&
-      !segments.join("/").endsWith("complete-registration")
-    ) {
-      // Redirect to feed tab if logged in
-      router.replace("/(tabs)");
-    }
-  }, [user, loading, segments, fontsLoaded]);
-
   // Derive accent from gender stored in profile
   const accent = profile?.gender === "Female" ? "#EC4899" : "#0EA5E9";
 
@@ -220,107 +194,7 @@ export default function RootLayout() {
           }
           onReady={() => user && fetchProfile(user.id)}
         >
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="policies/[slug]"
-              options={{
-                headerShown: true,
-                title: "Policies",
-                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-                headerLargeTitle: false,
-              }}
-            />
-            <Stack.Screen
-              name="help/[slug]"
-              options={{
-                headerShown: true,
-                title: "Support & safety",
-                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-                headerLargeTitle: false,
-              }}
-            />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="auth/confirm" />
-            <Stack.Screen
-              name="post/[id]"
-              options={{
-                headerShown: true,
-                title: "Reflection",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen
-              name="profile/[id]"
-              options={{
-                headerShown: true,
-                title: "Member Profile",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="safety"
-              options={{
-                headerShown: true,
-                title: "Safety & reports",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen
-              name="guardian"
-              options={{
-                headerShown: true,
-                title: "Guardian permissions",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen
-              name="achievements"
-              options={{
-                headerShown: true,
-                title: "Achievements",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen
-              name="activity"
-              options={{
-                headerShown: true,
-                title: "Activity",
-                headerTintColor: accent,
-                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-                headerLargeTitle: false,
-              }}
-            />
-            <Stack.Screen
-              name="reviews"
-              options={{
-                headerShown: true,
-                title: "My reviews & appeals",
-                headerTintColor: accent,
-                headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-                headerLargeTitle: false,
-                headerShadowVisible: false,
-              }}
-            />
-            <Stack.Screen
-              name="settings/[section]"
-              options={{
-                headerShown: true,
-                title: "Settings",
-                headerTintColor: accent,
-              }}
-            />
-            <Stack.Screen
-              name="settings/account"
-              options={{
-                headerShown: true,
-                title: "Personal details",
-                headerTintColor: accent,
-              }}
-            />
-          </Stack>
+          <AppNavigator accent={accent} />
         </EligibilityGate>
 
         {/* Floating Toast notification HUD overlay */}

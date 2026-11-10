@@ -9,6 +9,7 @@ export default function FeedAchievementBell() {
   const [count, setCount] = useState(0);
   useFocusEffect(
     useCallback(() => {
+      if (!user?.id) return;
       let active = true;
       supabase
         .from("diary_achievements")

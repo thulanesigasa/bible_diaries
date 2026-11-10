@@ -1,7 +1,7 @@
 import ReportButton from "../../components/ReportButton";
 import { useDiarySettings } from "../../src/hooks/useDiarySettings";
 import { useReadingStyle } from "../../src/hooks/useReadingStyle";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -285,6 +285,11 @@ export default function FeedScreen() {
   const { user, profile, showToast, setHideTabBar, accent, supabase } =
     useApp();
   const router = useRouter();
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const openModal = () => {
     if (!settingsReady) {
@@ -310,6 +315,7 @@ export default function FeedScreen() {
   };
 
   const fetchPosts = async () => {
+    if (!user?.id) return;
     try {
       const { data, error } = await supabase
         .from("diaries")
@@ -318,6 +324,7 @@ export default function FeedScreen() {
         )
         .order("created_at", { ascending: false });
 
+      if (!mounted.current) return;
       if (error) {
         showToast(error.message, "error");
       } else {
@@ -326,8 +333,10 @@ export default function FeedScreen() {
     } catch (e) {
       console.error("Operation failed.");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (mounted.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   };
 
@@ -336,10 +345,6 @@ export default function FeedScreen() {
       void fetchPosts();
     }, [user?.id]),
   );
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
