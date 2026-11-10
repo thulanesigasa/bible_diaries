@@ -1,12 +1,17 @@
 import React from "react";
+import { useApp } from "../app/_layout";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { ChevronRight, LifeBuoy, ShieldCheck } from "lucide-react-native";
+import { ChevronRight, LifeBuoy, ShieldCheck, BookOpen } from "lucide-react-native";
 import { HELP_GROUPS } from "../../shared/help-content.mjs";
 export default function HelpIndex() {
   const router = useRouter();
+  const { accent } = useApp();
   return (
     <View style={{ gap: 20 }}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/help/discover' as any)} style={{padding:22,backgroundColor:`${accent}09`,borderLeftWidth:2,borderLeftColor:accent,gap:12}}>
+        <BookOpen size={26} color={accent}/><Text style={{fontSize:21,fontWeight:'700',color:'#172033'}}>Discover Bible Diaries</Text><Text style={s.hint}>Your words, your choices and your everyday journey. Explore the feature tour, privacy choices and practical guides.</Text><Text style={{fontSize:13,fontWeight:'600',color:accent}}>Take a look inside →</Text>
+      </TouchableOpacity>
       <Text style={s.intro}>
         Choose a guide for practical steps, privacy choices and safety
         information. Each guide opens on a separate screen.
@@ -22,9 +27,9 @@ export default function HelpIndex() {
               onPress={() => router.push(`/help/${slug}` as any)}
             >
               {index === 0 ? (
-                <LifeBuoy size={20} color="#0369a1" />
+                <LifeBuoy size={20} color={accent} />
               ) : (
-                <ShieldCheck size={20} color="#0369a1" />
+                <ShieldCheck size={20} color={accent} />
               )}
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={s.title}>{label}</Text>

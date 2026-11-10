@@ -1,4 +1,6 @@
 import React from "react";
+import DiscoverGuide from "../../components/DiscoverGuide";
+import { useApp } from "../_layout";
 import {
   ScrollView,
   View,
@@ -10,11 +12,13 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { HELP_PAGES } from "../../../shared/help-content.mjs";
 export default function Help() {
+  const { accent } = useApp();
   const { slug } = useLocalSearchParams<{ slug: string }>(),
     router = useRouter(),
     page = Object.prototype.hasOwnProperty.call(HELP_PAGES, slug)
       ? (HELP_PAGES as any)[slug]
       : null;
+  if (slug === "discover") return <DiscoverGuide />;
   if (!page) return <Text>Guide unavailable. Return to Support & safety.</Text>;
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.page}>
@@ -23,7 +27,7 @@ export default function Help() {
           title: page.title,
           headerShown: true,
           headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-          headerTintColor: "#0369a1",
+          headerTintColor: accent,
           headerLargeTitle: false,
           headerShadowVisible: false,
         }}
@@ -46,14 +50,14 @@ export default function Help() {
           )
         }
       >
-        <Text style={s.blue}>Contact support@ts-industries.com</Text>
+        <Text style={[s.blue, {color: accent}]}>Contact support@ts-industries.com</Text>
       </TouchableOpacity>
       <TouchableOpacity
         accessibilityRole="button"
         style={s.link}
         onPress={() => router.push("/policies/privacy" as any)}
       >
-        <Text style={s.blue}>Read the privacy policy</Text>
+        <Text style={[s.blue, {color: accent}]}>Read the privacy policy</Text>
       </TouchableOpacity>
       <Text style={s.intro}>
         Support is not an emergency service. Never send passwords, PINs,
