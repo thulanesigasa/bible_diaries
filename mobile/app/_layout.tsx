@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../src/lib/supabase";
+import StoreUpdateNotice from "../components/StoreUpdateNotice";
 import UpdateModal from "../components/UpdateModal";
 import { useOTAUpdate } from "../src/hooks/useOTAUpdate";
 
@@ -52,6 +53,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  const [storeUpdateVisible,setStoreUpdateVisible]=useState(false);
   const [user, setUser] = useState<any>(null);
   const userIdRef = useRef<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -62,7 +64,7 @@ export default function RootLayout() {
   >([]);
 
   // OTA update state — drives the <UpdateModal> overlay
-  const { isUpdateAvailable, isDownloading, applyUpdate, dismissUpdate } =
+  const { isUpdateAvailable, isDownloading, applyUpdate, dismissUpdate, error: updateError } =
     useOTAUpdate();
 
   const router = useRouter();
@@ -165,7 +167,8 @@ export default function RootLayout() {
       !user &&
       !inAuthGroup &&
       segments[0] !== "policies" &&
-      segments[0] !== "help"
+      segments[0] !== "help" &&
+      segments[0] !== "auth"
     ) {
       // Redirect to login if user is not logged in and not in the auth directory
       router.replace("/(auth)/login");
@@ -213,7 +216,7 @@ export default function RootLayout() {
             segments.join("/").endsWith("reset-password") ||
             segments.join("/").endsWith("complete-registration") ||
             segments[0] === "policies" ||
-            segments[0] === "help"
+            segments[0] === "help" || segments[0] === "auth"
           }
           onReady={() => user && fetchProfile(user.id)}
         >
@@ -238,6 +241,7 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen name="(auth)" />
+            <Stack.Screen name="auth/confirm" />
             <Stack.Screen
               name="post/[id]"
               options={{
@@ -336,9 +340,11 @@ export default function RootLayout() {
         </View>
 
         {/* OTA Update Modal — only visible in production when a new bundle is available */}
+        <StoreUpdateNotice onVisible={setStoreUpdateVisible}/>
         <UpdateModal
-          visible={isUpdateAvailable}
+          visible={isUpdateAvailable && !storeUpdateVisible}
           isDownloading={isDownloading}
+          error={updateError}
           onUpdate={applyUpdate}
           onDismiss={dismissUpdate}
           accent={accent}

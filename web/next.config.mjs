@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 /** @type {import('next').NextConfig} */
 const config = {
+  distDir: process.env.SITE_BUILD_DIR || '.next',
   outputFileTracingRoot: fileURLToPath(new URL('.', import.meta.url)),
   output:'standalone',
   poweredByHeader: false,

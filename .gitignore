@@ -58,3 +58,9 @@ mobile/dist/
 
 # Local dependency download cache
 **/.npm-cache/
+
+# Generated shared mobile/browser UI and isolated local Next dev outputs
+/public/_app/
+/.next-*-dev/
+
+/.browser-ui/

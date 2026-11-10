@@ -3,7 +3,7 @@ import {once} from 'node:events';
 import {createServer} from 'node:net';
 import assert from 'node:assert/strict';
 const socket=createServer();socket.listen(0,'127.0.0.1');await once(socket,'listening');const port=socket.address().port;await new Promise(r=>socket.close(r));const origin=`http://127.0.0.1:${port}`;
-const app=spawn(process.execPath,['.next/standalone/server.js'],{env:{...process.env,NODE_ENV:'production',PORT:String(port),HOSTNAME:'127.0.0.1',APP_ORIGIN:origin},stdio:['ignore','pipe','pipe']});let log='';app.stdout.on('data',v=>log+=v);app.stderr.on('data',v=>log+=v);
+const app=spawn(process.execPath,['.next/standalone/server.js'],{env:{...process.env,NODE_ENV:'production',PORT:String(port),HOSTNAME:'127.0.0.1',APP_ORIGIN:origin,APP_SITE_ROLE:'app'},stdio:['ignore','pipe','pipe']});let log='';app.stdout.on('data',v=>log+=v);app.stderr.on('data',v=>log+=v);
 try{
  let ready=false;for(let n=0;n<120;n++){try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,log);
  const login=await fetch(origin+'/login');assert.equal(login.status,200);assert.ok(login.headers.get('content-security-policy')?.includes('nonce-'));

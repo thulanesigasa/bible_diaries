@@ -221,12 +221,14 @@ export default function SettingsSection() {
     });
   const doExport = (encrypted: boolean) =>
     run(async () => {
-      if (Platform.OS === "web")
-        throw new Error("Use the browser app to export on PC.");
-      if (!(await Sharing.isAvailableAsync()))
+      if (Platform.OS !== "web" && !(await Sharing.isAvailableAsync()))
         throw new Error("File sharing is unavailable on this device.");
       const json = await exportDiaryData(supabase, user?.id);
       const data = encrypted ? await encryptExport(json, exportPassword) : json;
+      if (Platform.OS === "web") {
+        const browser=globalThis as any,blob=new browser.Blob([data],{type:'application/json'}),url=browser.URL.createObjectURL(blob),a=browser.document.createElement('a');
+        a.href=url;a.download=`bible-diaries-${Date.now()}.${encrypted?'encrypted.json':'json'}`;browser.document.body.appendChild(a);a.click();a.remove();setTimeout(()=>browser.URL.revokeObjectURL(url),1000);setExportPassword('');return;
+      }
       const file = new File(
         Paths.cache,
         `bible-diaries-${Date.now()}.${encrypted ? "encrypted.json" : "json"}`,

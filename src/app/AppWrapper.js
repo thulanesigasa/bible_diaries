@@ -40,6 +40,7 @@ const PUBLIC_PAGES = new Set([
   "/child-safety",
   "/account-deletion",
   "/guardian",
+  "/auth/confirm",
 ]);
 const AppContext = createContext({
   user: null,

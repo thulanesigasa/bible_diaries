@@ -3,11 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev-entry.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:smoke": "node scripts/smoke-app.mjs"
+    "test:smoke": "node scripts/smoke-app.mjs",
+    "build:browser": "node scripts/build-browser.mjs",
+    "dev:all": "node scripts/dev-sites.mjs all",
+    "dev:main": "node scripts/dev-sites.mjs main",
+    "dev:app": "node scripts/dev-sites.mjs app",
+    "dev:waiting": "node scripts/dev-sites.mjs waiting",
+    "dev:admin": "node scripts/dev-sites.mjs admin",
+    "prebuild": "node scripts/build-browser.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.110.4",
