@@ -8,7 +8,7 @@ export default function AppPolicies({ accent }: { accent: string }) {
         Understand your information, your responsibilities and the care we owe
         one another. Open a document to read it on its own screen.
       </Text>
-      <PolicyLinks />
+      <PolicyLinks accent={accent} />
     </View>
   );
 }
