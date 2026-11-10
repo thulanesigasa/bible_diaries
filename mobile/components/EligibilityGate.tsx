@@ -1,6 +1,6 @@
 import { KeyboardForm } from "./KeyboardForm";
 import { userError } from '../../shared/user-error.mjs';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, createContext, useContext } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import {
 import { useRouter } from "expo-router";
 import { supabase } from "../src/lib/supabase";
 import MfaSettings from "./MfaSettings";
+const MemberAccessContext = createContext(false);
+export const useMemberAccess = () => useContext(MemberAccessContext);
+
 export default function EligibilityGate({
   user,
   children,
@@ -74,9 +77,9 @@ export default function EligibilityGate({
     if (user && !bypass && status?.account === user.id && status.setup_required)
       router.replace("/(auth)/complete-registration");
   }, [status, bypass, user?.id]);
-  if (!user || bypass || (status?.account === user.id && status.ready))
-    return <>{children}</>;
-  return (
+  // A public-route bypass affects the panel only; it never grants member access.
+  const canAccess = !!(user && status?.account === user.id && status.ready);
+  const content = !user || bypass || canAccess ? children : (
     <>
       <View style={{ flex: 1, display: "none" }} pointerEvents="none">
         {children}
@@ -158,6 +161,7 @@ export default function EligibilityGate({
       </KeyboardForm>
     </>
   );
+  return <MemberAccessContext.Provider value={canAccess}>{content}</MemberAccessContext.Provider>;
 }
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#fff" },

@@ -69,7 +69,7 @@ export default function LoginScreen() {
 
   return (
 
-      <KeyboardForm contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+      <KeyboardForm style={styles.container} contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
 
         {/* Card Panel Container */}
         <View style={styles.card}>
