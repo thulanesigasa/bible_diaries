@@ -26,11 +26,13 @@ const ROW = 44,
   ];
 function Wheel({
   label,
+  accent,
   items,
   value,
   onChange,
 }: {
   label: string;
+  accent: string;
   items: { value: number; label: string }[];
   value: number;
   onChange: (v: number) => void;
@@ -49,7 +51,7 @@ function Wheel({
     <View style={{ flex: label === "Month" ? 1.6 : 1 }}>
       <Text style={s.columnTitle}>{label}</Text>
       <View style={{ height: ROW * 5 }}>
-        <View pointerEvents="none" style={s.selection} />
+        <View pointerEvents="none" style={[s.selection, {backgroundColor: `${accent}15`, borderColor: `${accent}66`}]} />
         <FlatList
           ref={ref}
           data={items}
@@ -94,7 +96,7 @@ function Wheel({
               style={s.wheelRow}
             >
               <Text
-                style={[s.wheelText, item.value === value && s.selectedText]}
+                style={[s.wheelText, item.value === value && [s.selectedText, {color: accent}]]}
               >
                 {item.label}
               </Text>
@@ -108,7 +110,9 @@ function Wheel({
 export default function DateOfBirthPicker({
   value,
   onChange,
+  accent = "#0EA5E9",
 }: {
+  accent?: string;
   value: string;
   onChange: (value: string) => void;
 }) {
@@ -149,7 +153,7 @@ export default function DateOfBirthPicker({
               })
             : "Select your birth date"}
         </Text>
-        <Text style={s.chevron}>⌄</Text>
+        <Text style={[s.chevron, {color: accent}]}>⌄</Text>
       </TouchableOpacity>
       <Modal
         visible={open}
@@ -163,7 +167,7 @@ export default function DateOfBirthPicker({
               onPress={() => setOpen(false)}
               style={s.touch}
             >
-              <Text style={s.link}>Cancel</Text>
+              <Text style={[s.link, {color: accent}]}>Cancel</Text>
             </TouchableOpacity>
             <Text accessibilityRole="header" style={s.heading}>
               Your birth date
@@ -178,6 +182,7 @@ export default function DateOfBirthPicker({
             {open && (
               <View style={s.wheels}>
                 <Wheel
+                  accent={accent}
                   label="Day"
                   value={safeDay}
                   items={Array.from({ length: days }, (_, i) => ({
@@ -187,12 +192,14 @@ export default function DateOfBirthPicker({
                   onChange={setDay}
                 />
                 <Wheel
+                  accent={accent}
                   label="Month"
                   value={month}
                   items={MONTHS.map((label, i) => ({ label, value: i + 1 }))}
                   onChange={setMonth}
                 />
                 <Wheel
+                  accent={accent}
                   label="Year"
                   value={year}
                   items={Array.from({ length: 121 }, (_, i) => ({
@@ -218,7 +225,7 @@ export default function DateOfBirthPicker({
             )}
             <TouchableOpacity
               accessibilityRole="button"
-              style={s.primary}
+              style={[s.primary, {backgroundColor: accent}]}
               onPress={() => {
                 if ((ageAt(iso) ?? 0) < 13) {
                   setError("Bible Diaries accounts are available from age 13.");
@@ -269,14 +276,12 @@ const s = StyleSheet.create({
     right: 0,
     top: ROW * 2,
     height: ROW,
-    backgroundColor: "#eaf6fd",
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#9ed5ef",
   },
   wheelRow: { height: ROW, alignItems: "center", justifyContent: "center" },
   wheelText: { fontSize: 16, color: "#94a3b8" },
-  selectedText: { color: "#0369a1", fontWeight: "700" },
+  selectedText: { fontWeight: "700" },
   field: {
     minHeight: 50,
     borderBottomWidth: 1,
@@ -288,7 +293,7 @@ const s = StyleSheet.create({
   },
   value: { fontSize: 15, color: "#172033" },
   placeholder: { fontSize: 15, color: "#64748b" },
-  chevron: { fontSize: 22, color: "#0369a1" },
+  chevron: { fontSize: 22 },
   preview: {
     textAlign: "center",
     fontSize: 17,
@@ -298,12 +303,11 @@ const s = StyleSheet.create({
   primary: {
     borderRadius: 12,
     minHeight: 50,
-    backgroundColor: "#0369a1",
     alignItems: "center",
     justifyContent: "center",
   },
   primaryText: { color: "#fff", fontSize: 15, fontWeight: "600" },
   touch: { minHeight: 44, justifyContent: "center" },
-  link: { color: "#0369a1", fontSize: 14 },
+  link: { fontSize: 14 },
   error: { color: "#b91c1c", fontSize: 14, lineHeight: 21 },
 });

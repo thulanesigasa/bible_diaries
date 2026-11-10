@@ -34,7 +34,7 @@ const rows = [
     ShieldAlert,
   ],
 ] as const;
-export default function PolicyLinks() {
+export default function PolicyLinks({ accent = "#0EA5E9" }: { accent?: string }) {
   const router = useRouter();
   return (
     <View>
@@ -44,11 +44,11 @@ export default function PolicyLinks() {
           accessibilityRole="button"
           accessibilityLabel={`Read ${title}`}
           style={s.row}
-          onPress={() => router.push(`/policies/${id}` as any)}
+          onPress={() => router.push({ pathname: "/policies/[slug]", params: { slug: id, theme: accent === "#EC4899" ? "pink" : "blue" } })}
         >
-          <Icon size={20} color="#0369a1" />
+          <Icon size={20} color={accent} />
           <View style={{ flex: 1, gap: 4 }}>
-            <Text style={s.title}>{title}</Text>
+            <Text style={[s.title, {color: accent}]}>{title}</Text>
             <Text style={s.hint}>{hint}</Text>
           </View>
           <ChevronRight size={17} color="#94a3b8" />

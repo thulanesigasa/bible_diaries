@@ -1,10 +1,13 @@
 import React from "react";
+import { useApp } from "../_layout";
 import { ScrollView, View, Text, StyleSheet } from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { APP_POLICIES } from "../../../shared/app-policy-content.mjs";
 import { CHILD_SAFETY_SECTIONS } from "../../../shared/child-safety.mjs";
 export default function Policy() {
-  const { slug } = useLocalSearchParams<{ slug: string }>(),
+  const { accent: appAccent } = useApp();
+  const { slug, theme } = useLocalSearchParams<{ slug: string; theme?: string }>(),
+    accent = theme === "pink" ? "#EC4899" : theme === "blue" ? "#0EA5E9" : appAccent,
     policy = APP_POLICIES.find((p: any) => p.id === slug),
     child = slug === "child-safety",
     title = child
@@ -18,7 +21,7 @@ export default function Policy() {
           title,
           headerShown: true,
           headerTitleStyle: { fontSize: 17, fontWeight: "600" },
-          headerTintColor: "#0369a1",
+          headerTintColor: accent,
           headerLargeTitle: false,
           headerShadowVisible: false,
         }}
