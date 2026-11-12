@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { TouchableOpacity, View, Text } from "react-native";
-import { Bell } from "lucide-react-native";
+import { Trophy } from "lucide-react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useApp } from "../app/_layout";
 export default function FeedAchievementBell() {
@@ -31,7 +31,7 @@ export default function FeedAchievementBell() {
       onPress={() => router.push("/achievements")}
       style={{ padding: 12, marginRight: 8 }}
     >
-      <Bell color={accent} size={23} />
+      <Trophy color={accent} size={23} />
       {count > 0 && (
         <View
           style={{

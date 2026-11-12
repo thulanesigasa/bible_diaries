@@ -1,5 +1,6 @@
 import { userError } from '../../shared/user-error.mjs';
 import EligibilityGate from "../components/EligibilityGate";
+import ActivityNotifications from "../components/ActivityNotifications";
 import AppNavigator from "../components/AppNavigator";
 import AppLockGate from "../components/AppLockGate";
 import React, {
@@ -194,7 +195,7 @@ export default function RootLayout() {
           }
           onReady={() => user && fetchProfile(user.id)}
         >
-          <AppNavigator accent={accent} />
+          <ActivityNotifications><AppNavigator accent={accent} /></ActivityNotifications>
         </EligibilityGate>
 
         {/* Floating Toast notification HUD overlay */}
