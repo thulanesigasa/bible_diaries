@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Text, FlatList, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet, DeviceEventEmitter } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Heart, MessageCircle, Bookmark, Share2, BookOpen, ShieldCheck, CheckCheck, Bell, ChevronRight } from 'lucide-react-native';
 import { useApp } from '../app/_layout';
@@ -38,14 +38,14 @@ export default function ActivityInbox() {
     }catch{if(version===generation.current)setError('Activity could not load. Pull down to retry.');}
     finally{if(version===generation.current){setLoading(false);pending.current=false;}}
   },[filter,user?.id,supabase]);
-  useFocusEffect(useCallback(()=>{items.current=[];setRows([]);void load();const timer=setInterval(()=>{if(!pending.current)void load();},30000);return()=>{generation.current++;pending.current=false;clearInterval(timer);};},[load]));
+  useFocusEffect(useCallback(()=>{items.current=[];setRows([]);void load();const listener=DeviceEventEmitter.addListener('diary-activity-changed',(e:any)=>{if(e.userId===user?.id&&!pending.current)void load();});return()=>{generation.current++;pending.current=false;listener.remove();};},[load]));
   async function mark(item?:any){
     if(marking||!user)return false;setMarking(true);
     try{
       const at=new Date().toISOString(),sources=item?[item.source]:['community','system'];
       const results=await Promise.all(sources.map(source=>{let q=supabase.from(source==='system'?'moderation_notifications':'diary_activity').update({read_at:at}).eq(source==='system'?'user_id':'recipient_id',user.id);if(item)q=q.eq('id',item.id);else q=q.is('read_at',null);return q;}));
       if(results.some(r=>r.error))throw Error();
-      const updated=items.current.map(x=>!item||x.key===item.key?{...x,read_at:at}:x);items.current=updated;setRows(updated);return true;
+      const updated=items.current.map(x=>!item||x.key===item.key?{...x,read_at:at}:x);items.current=updated;setRows(updated);DeviceEventEmitter.emit('diary-activity-read',{userId:user.id});return true;
     }catch{await load();setError('Could not mark every notification as read. Refresh and retry.');return false;}finally{setMarking(false);}
   }
   const header=<View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}>{ACTIVITY_FILTERS.map(([key,label]:string[])=><TouchableOpacity key={key} accessibilityRole="button" accessibilityState={{selected:filter===key}} onPress={()=>setFilter(key)} style={[s.filter,filter===key&&{backgroundColor:accent}]}><Text style={{fontSize:12,fontWeight:'600',color:filter===key?'white':'#475569'}}>{label}</Text></TouchableOpacity>)}</ScrollView><View style={s.topline}><Text style={s.section}>Your activity</Text><TouchableOpacity accessibilityRole="button" accessibilityLabel="Mark all notifications as read" disabled={marking} onPress={()=>mark()} style={s.readButton}><CheckCheck size={17} color={accent}/><Text style={{fontSize:12,color:accent}}>Mark all read</Text></TouchableOpacity></View>{!!error&&<Text accessibilityLiveRegion="polite" style={s.error}>{error}</Text>}</View>;

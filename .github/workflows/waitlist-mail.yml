@@ -1,0 +1,24 @@
+name: Waiting-list email retries
+on:
+  schedule:
+    - cron: '7,27,47 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: waiting-list-email
+  cancel-in-progress: false
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Process one due receipt
+        run: node scripts/drain-waitlist-mail.mjs
+        env:
+          WAITLIST_MAIL_CRON_URL: ${{ vars.WAITLIST_MAIL_CRON_URL }}
+          WAITLIST_MAIL_CRON_SECRET: ${{ secrets.WAITLIST_MAIL_CRON_SECRET }}

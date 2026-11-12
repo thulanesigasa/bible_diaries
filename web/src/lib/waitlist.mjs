@@ -32,7 +32,7 @@ async function readBody(request) {
   } finally { reader.releaseLock(); }
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
-export async function handleWaitlist(request, { env = process.env, fetcher = fetch } = {}) {
+export async function handleWaitlist(request, { env = process.env, fetcher = fetch, onAccepted = () => {} } = {}) {
   if(!waitlistEnabled(env))return reply(404,{error:'Use the dedicated waiting-list website.'});
   if (request.method !== 'POST') return reply(405, { error: 'Method not allowed.' });
   const { SUPABASE_URL: project, SUPABASE_SERVICE_ROLE_KEY: secret, WAITLIST_RATE_LIMIT_SALT: salt, SITE_URL: site, WAITLIST_TRUSTED_IP_HEADER: header } = env;
@@ -67,6 +67,7 @@ export async function handleWaitlist(request, { env = process.env, fetcher = fet
     const outcome = await result.json();
     if (outcome === 'rate_limited') return reply(429, { error: 'Too many requests. Please wait 15 minutes and try again.' });
     if (outcome !== 'accepted') return reply(503, { error: 'We could not confirm your request. Please try again later.' });
+    try { onAccepted(); } catch { /* A recorded request stays successful; durable mail is retried separately. */ }
     return reply(200, { success: true, message: accepted });
   } catch { return reply(503, { error: 'We could not confirm your request. Please try again later.' }); }
 }

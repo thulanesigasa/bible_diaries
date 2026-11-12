@@ -1,3 +1,5 @@
+import ActivityBell from '../../components/ActivityBell';
+import {useActivityNotifications} from '../../components/ActivityNotifications';
 import FeedAchievementBell from '../../components/FeedAchievementBell';
 import React from 'react';
 import { Tabs } from 'expo-router';
@@ -10,6 +12,7 @@ export default function TabLayout() {
   const { width } = useWindowDimensions();
   const horizontalPadding = (width - 280) / 2;
 
+  const {count}=useActivityNotifications();
   return (
     <Tabs
       screenOptions={{
@@ -74,7 +77,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Feed',
-          headerRight: () => <FeedAchievementBell/>,
+          headerRight: () => <View style={{flexDirection:"row",alignItems:"center"}}><ActivityBell/><FeedAchievementBell/></View>,
           tabBarIcon: ({ color }) => (
             <BookOpen size={16} color={color} />
           ),
@@ -116,6 +119,7 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Chat',
+          tabBarBadge: count>0 ? (count>99?'99+':count) : undefined,
           tabBarIcon: ({ color }) => (
             <MessageSquare size={16} color={color} />
           ),
